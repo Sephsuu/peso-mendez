@@ -1,6 +1,9 @@
+import 'package:app/core/components/select.dart';
+import 'package:app/core/components/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:app/style/typography.dart';
+import 'package:app/core/theme/typography.dart';
+import 'package:app/core/theme/colors.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,7 +27,16 @@ class Homepage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavigationBar(title: 'Mendez Peso Job Portal'),
-      body: HomepageJumbotron(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: HomepageJumbotron(),
+            ),
+          ],
+        ),
+      )
     );
   }
 }
@@ -70,15 +82,67 @@ class NavigationBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class HomepageJumbotron extends StatelessWidget {
+  final List<String> jobTypes = ['Full-time', 'Part-time'];
+
   @override
   Widget build(BuildContext context) {
-    return Center(
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    return Container(
+      color: const Color.fromARGB(255, 228, 233, 255),
+      padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
+      alignment: Alignment.center,
       child: Column(
         children: [
           Text(
             "Find Jobs Near Mendez, Cavite",
-            style: AppText.textLg.merge(AppText.fontBold).merge(AppText.textPrimary),
+            style: AppText.textLg.merge(AppText.fontSemibold).merge(AppText.textDark),
             
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: screenWidth * 0.5,
+            child: TextField(
+              style: AppText.textXs,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColor.light,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+                labelText: 'Job title, keywords, or company',
+                labelStyle: AppText.textSm,
+                border: const OutlineInputBorder()
+              ),
+              onChanged: (value) => {
+                print('User typed: $value')
+              },
+            ),
+          ),
+          const SizedBox(height: 10,),
+          SizedBox(
+            width: screenWidth * 0.5,
+            child: TextField(
+              style: AppText.textXs,
+              enabled: false,
+              decoration: InputDecoration(
+                labelText: 'Mendez, Cavite',
+                labelStyle: AppText.textSm,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+                filled: true,
+                fillColor: AppColor.light,
+                border: const OutlineInputBorder()
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HomepageDropdownSelect(items: jobTypes, initialValue: null),
+              const SizedBox(width: 10),
+              HomepageFindButton(),
+            ],
           )
         ],
       ),
