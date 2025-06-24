@@ -2,6 +2,8 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/dashboard.dart/job_seeker.dart';
+import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 
@@ -54,6 +56,12 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Processing Data'))
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => JobSeekerDashboard(onNavigate: (page) => globalNavigateTo?.call(page)),
+        ),
       );
     }
   }

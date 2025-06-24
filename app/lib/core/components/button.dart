@@ -1,3 +1,5 @@
+import 'package:app/core/theme/typography.dart';
+import 'package:app/features/dashboard.dart/job_seeker.dart';
 import 'package:app/features/register.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,7 @@ class HomepageRegisterButton extends StatelessWidget {
         )
       ),
       onPressed: () {
-        print("Pressed");
+        Navigator.push(context, MaterialPageRoute(builder: (context) => JobSeekerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
       }, 
       child: const Text('Register Now'),
     );
@@ -141,3 +143,68 @@ class SignInButton extends StatelessWidget {
   }
 }
 
+class EditProfileButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+
+      }, 
+      child: Text('Edit Profile', style: AppText.textXs)
+    );
+  }
+}
+
+class GoToMessagesButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+
+      }, 
+      child: Text('Go to Messages', style: AppText.textXs)
+    );
+  }
+}
+
+class BrowseJobsButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+
+      }, 
+      child: Text('Browse Jobs', style: AppText.textXs)
+    );
+  }
+}

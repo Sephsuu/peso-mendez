@@ -181,7 +181,7 @@ class _FeaturedJobsState extends State<FeaturedJobs> {
                 const SizedBox(height: 8.0),
                 Text("💰 ${job.salary} • ${job.company}", style: AppText.textPrimary.merge(const TextStyle(fontSize: 13)).merge(AppText.fontSemibold)),
                 const SizedBox(height: 15.0),
-                FeaturedJobsButton(),
+                const FeaturedJobsButton(),
               ],
             ),
           )
