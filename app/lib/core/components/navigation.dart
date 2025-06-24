@@ -7,7 +7,7 @@ class AppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final void Function(BuildContext) onMenuPressed;
 
-  AppNavigationBar({
+  const AppNavigationBar({super.key, 
     required this.title,
     required this.onMenuPressed,
   });
@@ -23,16 +23,6 @@ class AppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
             child: Text(
               title,
               style: AppText.fontBold.merge(AppText.textPrimary).merge(AppText.textSm),
-            ),
-          ),
-          Builder(
-            builder: (context) => IconButton(
-              onPressed: () => onMenuPressed(context),  // Use inner context here
-              icon: SvgPicture.asset(
-                'assets/icons/sidebar_icon.svg',
-                height: 20,
-                width: 20,
-              ),
             ),
           ),
         ],

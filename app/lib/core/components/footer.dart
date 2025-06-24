@@ -1,10 +1,14 @@
-import 'package:app/features/homepage.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+
+import 'package:app/features/homepage.dart';
+import 'package:app/features/register.dart';
 
 import 'package:app/core/theme/typography.dart';
 
 class Footer extends StatelessWidget {
+  const Footer({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -45,7 +49,7 @@ class Footer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page)),
+                      builder: (context) => Register(onNavigate: (page) => globalNavigateTo?.call(page))
                     ),
                   );
                 },

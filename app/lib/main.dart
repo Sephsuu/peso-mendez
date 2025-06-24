@@ -1,12 +1,15 @@
-
 import 'package:flutter/material.dart';
+
 import 'package:app/features/homepage.dart';
+import 'package:app/features/register.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,11 +24,17 @@ class MyApp extends StatelessWidget {
 }
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
-enum PageType { home }
+enum PageType { 
+  home,
+  register,
+  login,
+}
 
 typedef NavigateToCallback = void Function(PageType page);
 
@@ -56,6 +65,11 @@ class _MainScreenState extends State<MainScreen> {
     switch (_currentPage) {
       case PageType.home:
         return Homepage(onNavigate: _navigateTo);
+      case PageType.register:
+        return Register(onNavigate: _navigateTo);
+      case PageType.login:
+        return Register(onNavigate: _navigateTo);
+
     }
   }
 

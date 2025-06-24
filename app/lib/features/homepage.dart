@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
-import 'package:app/models/job.dart';
+import 'package:app/models/models.dart';
 
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
@@ -19,17 +19,17 @@ import 'package:flutter/services.dart';
 class Homepage extends StatelessWidget {
   final Function(PageType) onNavigate;
 
-  Homepage({ required this.onNavigate });
+  const Homepage({super.key,  required this.onNavigate });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez Peso Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
-      drawer: OffcanvasNavigation(),
+      endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Align(
+            const Align(
               alignment: Alignment.topCenter,
               child: HomepageJumbotron(),
             ),
@@ -41,11 +41,11 @@ class Homepage extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                  child: FeaturedJobs(),
+                  child: const FeaturedJobs(),
                 ),
               ),
             ),
-            Footer()
+            const Footer()
           ],
         ),
       ),
@@ -54,7 +54,9 @@ class Homepage extends StatelessWidget {
 }
 
 class HomepageJumbotron extends StatelessWidget {
-  final List<String> jobTypes = ['Full-time', 'Part-time'];
+  final List<String> jobTypes = const ['Full-time', 'Part-time'];
+
+  const HomepageJumbotron({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +82,7 @@ class HomepageJumbotron extends StatelessWidget {
                 filled: true,
                 fillColor: AppColor.light,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
                 labelText: 'Job title, keywords, or company',
                 labelStyle: AppText.textSm,
                 border: const OutlineInputBorder()
@@ -100,7 +102,7 @@ class HomepageJumbotron extends StatelessWidget {
                 labelText: 'Mendez, Cavite',
                 labelStyle: AppText.textSm,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
                 filled: true,
                 fillColor: AppColor.light,
                 border: const OutlineInputBorder()
@@ -125,6 +127,8 @@ class HomepageJumbotron extends StatelessWidget {
 }
 
 class FeaturedJobs extends StatefulWidget {
+  const FeaturedJobs({super.key});
+
   @override
   _FeaturedJobsState createState() => _FeaturedJobsState();
 }
