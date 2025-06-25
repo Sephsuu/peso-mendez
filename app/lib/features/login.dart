@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/register.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+// import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Login extends StatelessWidget  {
   final Function(PageType) onNavigate;
@@ -49,11 +55,64 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _submitForm() {
+  final _secureStorage = const FlutterSecureStorage();
+
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final emailOrUsernameValue = _emailOrUsername.text.trim();
+      final passwordValue = _password.text;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing Data'))
+        const SnackBar(content: Text('Verifying credentials...'))
       );
+
+      try {
+        final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/auth/login'); // Replace with your backend URL
+
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'emailOrUsername': emailOrUsernameValue,
+            'password': passwordValue,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+
+          final token = responseData['token'];
+          if (token != null) {
+            // Store JWT token securely
+            await _secureStorage.write(key: 'jwt_token', value: token);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Login successful! Welcome! ${responseData['message']}')),
+            );
+
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) => JobSeekerDashboard(
+                onNavigate: (page) => globalNavigateTo?.call(page),
+              ),
+            ));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Login failed: Token missing in response')),
+            );
+          }
+        } else {
+          final errorData = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: ${errorData['message']}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -100,7 +159,8 @@ class _LoginFormState extends State<LoginForm> {
                 Text('Password', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
                 TextFormField(
-                  controller: _emailOrUsername,
+                  controller: _password,
+                  obscureText: true,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     enabledBorder: OutlineInputBorder(
@@ -118,7 +178,7 @@ class _LoginFormState extends State<LoginForm> {
                   },
                 ),
                 const SizedBox(height: 20.0),
-                const SignInButton(),
+                SignInButton(onPressed: _submitForm),
                 const SizedBox(height: 8.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -35,6 +35,7 @@ enum PageType {
   register,
   login,
   jobSeekerDashboard,
+  jobSeekerEditProfile,
 }
 
 typedef NavigateToCallback = void Function(PageType page);
@@ -71,6 +72,8 @@ class _MainScreenState extends State<MainScreen> {
       case PageType.login:
         return Register(onNavigate: _navigateTo);
       case PageType.jobSeekerDashboard:
+        return Register(onNavigate: _navigateTo);
+      case PageType.jobSeekerEditProfile:
         return Register(onNavigate: _navigateTo);
     }
   }

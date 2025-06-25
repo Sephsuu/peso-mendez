@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:app/core/theme/typography.dart';
 
 class AppNavigationBar extends StatelessWidget implements PreferredSizeWidget {

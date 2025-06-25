@@ -1,14 +1,63 @@
+class User {
+  final int id;
+  final String fullName;
+  final String email;
+  final String contact;
+  final String skills;
+  final String documentPath;
+  final String username;
+  final String password;
+  final String role;       // 'job_seeker', 'employer', or 'admin'
+  final DateTime createdAt;
+  final bool? isActive;    // nullable tinyint(1)
+  final String status;     // 'active' or 'inactive'
+
+  User({
+    required this.id,
+    required this.fullName,
+    required this.email,
+    required this.contact,
+    required this.skills,
+    required this.documentPath,
+    required this.username,
+    required this.password,
+    required this.role,
+    required this.createdAt,
+    this.isActive,
+    required this.status,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
+      fullName: json['full_name'] ?? '',
+      email: json['email'] ?? '',
+      contact: json['contact'] ?? '',
+      skills: json['skills'] ?? '',
+      documentPath: json['document_path'] ?? '',
+      username: json['username'] ?? '',
+      password: json['password'] ?? '',
+      role: json['role'] ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      isActive: json['is_active'] == null ? null : (json['is_active'] == 1),
+      status: json['status'] ?? '',
+    );
+  }
+}
+
+
 class Job {
   final int id;
   final String title;
   final String company;
   final String location;
   final String salary;
-  final String employmentType;
+  final String type;
   final String description;
-  final String postedDate;
-  final int categoryId;
-  final String categoryName;
+  final String posted_on;
+  final int employer_id;
+  final int category_id;
+  final String visibility;
   final String status;
 
   Job({
@@ -17,27 +66,30 @@ class Job {
     required this.company,
     required this.location,
     required this.salary,
-    required this.employmentType,
+    required this.type,
     required this.description,
-    required this.postedDate,
-    required this.categoryId,
-    required this.categoryName,
+    required this.posted_on,
+    required this.employer_id,
+    required this.category_id,
+    required this.visibility,
     required this.status,
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
     return Job(
-      id: json['id'],
-      title: json['title'],
-      company: json['company'],
-      location: json['location'],
-      salary: json['salary'],
-      employmentType: json['employmentType'],
-      description: json['description'],
-      postedDate: json['postedDate'],
-      categoryId: json['categoryId'],
-      categoryName: json['categoryName'],
-      status: json['status'],
+      id: json['id'] ?? 0,
+      title: json['title'] ?? 'No title',
+      company: json['company'] ?? 'No company',
+      location: json['location'] ?? 'No location',
+      salary: json['salary'] ?? 'Not specified',
+      type: json['type'] ?? 'Unknown',
+      employer_id: json['employer_id'] ?? 0,
+      description: json['description'] ?? '',
+      posted_on: json['postedDate'] ?? '',
+      category_id: json['categoryId'] ?? 0,
+      visibility: json['visibility'] ?? '',
+      status: json['status'] ?? '',
     );
   }
 }
+

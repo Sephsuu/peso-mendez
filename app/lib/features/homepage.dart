@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:app/core/services/job_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -132,6 +135,8 @@ class FeaturedJobs extends StatefulWidget {
 
 class _FeaturedJobsState extends State<FeaturedJobs> {
   List<Job> jobs = [];
+  bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -140,17 +145,31 @@ class _FeaturedJobsState extends State<FeaturedJobs> {
   }
 
   Future<void> loadJobs() async {
-    final String response = await rootBundle.loadString('assets/mocks/jobs.json');
-    final List<dynamic> data = json.decode(response);
-    setState(() {
-      jobs = data.map((json) => Job.fromJson(json)).toList();
-    });
+    try {
+      final fetchedJobs = await JobService.fetchJobs();
+      setState(() {
+        jobs = fetchedJobs;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = e.toString();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 30.0, bottom: 300.0),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     if (jobs.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: Text('No jobs found'));
     }
 
     return ListView.builder(
@@ -179,7 +198,7 @@ class _FeaturedJobsState extends State<FeaturedJobs> {
                 const SizedBox(height: 8.0),
                 Text("💰 ${job.salary} • ${job.company}", style: AppText.textPrimary.merge(const TextStyle(fontSize: 13)).merge(AppText.fontSemibold)),
                 const SizedBox(height: 15.0),
-                const FeaturedJobsButton(),
+                FeaturedJobsButton(jobId: job.id),
               ],
             ),
           )
@@ -187,5 +206,4 @@ class _FeaturedJobsState extends State<FeaturedJobs> {
       },
     );
   }
-
 }
