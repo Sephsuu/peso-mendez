@@ -32,7 +32,9 @@ class JobSeekerDashboard extends StatelessWidget {
               const GoToMessagesCard(),
               const SizedBox(height: 10.0),
               const YourApplicationsCard(),
-              const SizedBox(height: 10.0),
+              const SizedBox(height: 15.0),
+              const SuggestedTrainings(),
+              const SizedBox(height: 15.0),
               const SavedJobsCard(),
             ],
           ),
@@ -271,6 +273,29 @@ class _YourApplicationsCardState extends State<YourApplicationsCard> {
           )
         ],
       )
+    );
+  }
+}
+
+class SuggestedTrainings extends StatefulWidget {
+  const SuggestedTrainings({super.key});
+
+  @override
+  _SuggestedTrainingsState createState() => _SuggestedTrainingsState();
+}
+
+class _SuggestedTrainingsState extends State<SuggestedTrainings> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Suggested Trainings and Events', style: AppText.textLg.merge(AppText.fontSemibold)),
+          Text('No upcoming trainings or events', style: AppText.textMuted)
+        ],
+      ),
     );
   }
 }

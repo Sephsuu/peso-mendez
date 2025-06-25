@@ -37,12 +37,9 @@ class Homepage extends StatelessWidget {
             Text('Featured Local Jobs', style: AppText.textXl.merge(AppText.fontBold)),
             const SizedBox(height: 10.0),
             SizedBox(
-              height: 500,
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                  child: const FeaturedJobs(),
-                ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+                child: const FeaturedJobs(),
               ),
             ),
             const Footer()
@@ -158,6 +155,7 @@ class _FeaturedJobsState extends State<FeaturedJobs> {
 
     return ListView.builder(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: jobs.length,
       itemBuilder: (context, index) {
         final job = jobs[index];
