@@ -1,4 +1,5 @@
 import 'package:app/core/components/button.dart';
+import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
@@ -20,26 +21,31 @@ class JobSeekerDashboard extends StatelessWidget {
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Column(
-            children: [
-              const SizedBox(height: 10.0),
-              DashboardHeader(),
-              const SizedBox(height: 10.0),
-              ProfileStrengthCard(),
-              const SizedBox(height: 10.0),
-              const NotificationsCard(),
-              const SizedBox(height: 10.0),
-              const GoToMessagesCard(),
-              const SizedBox(height: 10.0),
-              const YourApplicationsCard(),
-              const SizedBox(height: 15.0),
-              const SuggestedTrainings(),
-              const SizedBox(height: 15.0),
-              const SavedJobsCard(),
-            ],
-          ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                children: [
+                  const SizedBox(height: 10.0),
+                  const DashboardHeader(),
+                  const SizedBox(height: 10.0),
+                  ProfileStrengthCard(),
+                  const SizedBox(height: 10.0),
+                  const NotificationsCard(),
+                  const SizedBox(height: 10.0),
+                  const GoToMessagesCard(),
+                  const SizedBox(height: 10.0),
+                  const YourApplicationsCard(),
+                  const SizedBox(height: 15.0),
+                  const SuggestedTrainings(),
+                  const SizedBox(height: 15.0),
+                  const SavedJobsCard(),
+                ],
+              ),
+            ),
+            const Footer(),
+          ],
         )
       ),
     );

@@ -5,6 +5,7 @@ import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/register.dart';
 import 'package:app/main.dart';
@@ -84,19 +85,28 @@ class _LoginFormState extends State<LoginForm> {
           final responseData = jsonDecode(response.body);
 
           final token = responseData['token'];
+          final user = responseData['user'];
+          final role = user != null ? user['role'] : null;
           if (token != null) {
-            // Store JWT token securely
             await _secureStorage.write(key: 'jwt_token', value: token);
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Login successful! Welcome! ${responseData['message']}')),
             );
 
-            Navigator.push(context, MaterialPageRoute(
-              builder: (context) => JobSeekerDashboard(
-                onNavigate: (page) => globalNavigateTo?.call(page),
-              ),
-            ));
+            if (role == 'job_seeker') {
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => JobSeekerDashboard(
+                  onNavigate: (page) => globalNavigateTo?.call(page),
+                ),
+              ));
+            } else if (role == 'employer') {
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => EmployerDashboard(
+                  onNavigate: (page) => globalNavigateTo?.call(page),
+                ),
+              ));
+            }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Login failed: Token missing in response')),
@@ -120,7 +130,7 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return Container(
       color: const Color.fromARGB(255, 244, 244, 244),
-      padding: const EdgeInsets.only(top: 50.0, left: 10.0, right: 10.0, bottom: 120.0),
+      padding: const EdgeInsets.only(top: 50.0, left: 10.0, right: 10.0, bottom: 250.0),
       child: Card(
         color: Colors.white,
         child: Padding(
@@ -150,7 +160,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
+                      return 'Please enter your email or username';
                     }
                     return null;
                   },
@@ -172,7 +182,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
+                      return 'Please enter your password';
                     }
                     return null;
                   },
@@ -197,7 +207,7 @@ class _LoginFormState extends State<LoginForm> {
                       },
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

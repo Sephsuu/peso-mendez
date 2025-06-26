@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -29,24 +30,27 @@ class Homepage extends StatelessWidget {
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez Peso Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const Align(
-              alignment: Alignment.topCenter,
-              child: HomepageJumbotron(),
-            ),
-            const SizedBox(height: 10.0),
-            Text('Featured Local Jobs', style: AppText.textXl.merge(AppText.fontBold)),
-            const SizedBox(height: 10.0),
-            SizedBox(
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                child: const FeaturedJobs(),
+      body: RefreshIndicator(
+        onRefresh: AppLoader.handleRefresh,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const Align(
+                alignment: Alignment.topCenter,
+                child: HomepageJumbotron(),
               ),
-            ),
-            const Footer()
-          ],
+              const SizedBox(height: 10.0),
+              Text('Featured Local Jobs', style: AppText.textXl.merge(AppText.fontBold)),
+              const SizedBox(height: 10.0),
+              SizedBox(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+                  child: const FeaturedJobs(),
+                ),
+              ),
+              const Footer()
+            ],
+          ),
         ),
       ),
     );

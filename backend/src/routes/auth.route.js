@@ -31,6 +31,7 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         full_name: user.full_name,
+        role: user.role
       }
     });
 });

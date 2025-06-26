@@ -6,6 +6,9 @@ class FontSizes {
   static const double md = 16.0;
   static const double lg = 18.0;
   static const double xl = 20.0;
+  static const double dxl = 22.0;
+  static const double txl = 24.0;
+  static const double fxl = 26.0;
 }
 
 class TextColors {
@@ -26,6 +29,9 @@ class AppText {
   static TextStyle get textMd => const TextStyle(fontSize: FontSizes.md);
   static TextStyle get textLg => const TextStyle(fontSize: FontSizes.lg);
   static TextStyle get textXl => const TextStyle(fontSize: FontSizes.xl);
+  static TextStyle get textDxl => const TextStyle(fontSize: FontSizes.dxl);
+  static TextStyle get textTxl => const TextStyle(fontSize: FontSizes.txl);
+  static TextStyle get textFxl => const TextStyle(fontSize: FontSizes.fxl);
 
   static TextStyle get textPrimary => const TextStyle(color: TextColors.primary);
   static TextStyle get textSecondary => const TextStyle(color: TextColors.secondary);

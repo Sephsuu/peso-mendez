@@ -1,3 +1,5 @@
+import 'package:app/core/components/button.dart';
+import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/job_service.dart';
@@ -29,7 +31,9 @@ class _ViewJobDetailState extends State<ViewJobDetail> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ViewJobDetailCard(jobId: widget.jobId)
+            ViewJobDetailCard(jobId: widget.jobId),
+            const SizedBox(height: 200),
+            const Footer(),
           ],
         ),
       ),
@@ -76,13 +80,20 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 30.0, bottom: 300.0),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
         child: Card(
           child: Padding(
-            padding: EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, 
               children: [
@@ -202,20 +213,52 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: Text(job?.description ?? ''),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Text(
+                              job?.description ?? '',
+                              softWrap: true, // optional, true by default
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 10.0),
+                const SizedBox(height: 15.0),
+                ViewJobDetailButtons(jobId: 2, employerId: 2),
+                const SizedBox(height: 15),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class ViewJobDetailButtons extends StatelessWidget {
+  final int jobId;
+  final int employerId;
+
+  const ViewJobDetailButtons({
+    super.key,
+    required this.jobId,
+    required this.employerId
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ViewJobApplyJobButton(),
+        const SizedBox(width: 10),
+        ViewJobSendMessageButton(),
+        const SizedBox(width: 10),
+        ViewJobBackButton(),
+      ],
     );
   }
 }

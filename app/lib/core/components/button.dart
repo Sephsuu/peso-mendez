@@ -11,6 +11,8 @@ import 'package:app/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/colors.dart';
 
+// HOMEPAGE
+
 class HomepageFindButton extends StatelessWidget {
   const HomepageFindButton({super.key});
 
@@ -31,7 +33,6 @@ class HomepageFindButton extends StatelessWidget {
     );
   }
 }
-
 
 class HomepageRegisterButton extends StatefulWidget {
   const HomepageRegisterButton({super.key});
@@ -84,12 +85,30 @@ class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
   }
 }
 
-class FeaturedJobsButton extends StatelessWidget {
+class FeaturedJobsButton extends StatefulWidget {
   final int jobId;
   const FeaturedJobsButton({
     super.key,
     required this.jobId
   });
+  @override
+  _FeaturedJobsButtonState createState() => _FeaturedJobsButtonState();
+}
+class _FeaturedJobsButtonState extends State<FeaturedJobsButton> {
+  bool _loggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  void checkLoginStatus() async {
+    final loggedIn = await UserService.isLoggedIn();
+    setState(() {
+      _loggedIn = loggedIn;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +122,9 @@ class FeaturedJobsButton extends StatelessWidget {
         )
       ),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ViewJobDetail(onNavigate: (page) => globalNavigateTo?.call(page), jobId: jobId,)));
+        if (_loggedIn) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ViewJobDetail(onNavigate: (page) => globalNavigateTo?.call(page), jobId: widget.jobId,)));
+        } else { Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page)))); }
       }, 
       child: const Text('View Details'),
     );
@@ -175,6 +196,8 @@ class _SignInOrRegisterButtonState extends State<SignInOrRegisterButton> {
   }
 }
 
+// REGISTER
+
 class RegisterNextButton extends StatelessWidget {
   final VoidCallback registerUser;
 
@@ -202,6 +225,8 @@ class RegisterNextButton extends StatelessWidget {
   }
 }
 
+// LOGIN
+
 class SignInButton extends StatelessWidget {
   final VoidCallback onPressed;
 
@@ -225,6 +250,8 @@ class SignInButton extends StatelessWidget {
     );
   }
 }
+
+// JOB SEEKER DASHBOARD
 
 class EditProfileButton extends StatelessWidget {
   @override
@@ -288,6 +315,134 @@ class BrowseJobsButton extends StatelessWidget {
         Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page))));
       }, 
       child: Text('Browse Jobs', style: AppText.textXs)
+    );
+  }
+}
+
+// VIEW JOB DETAIL
+
+class ViewJobApplyJobButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+
+      }, 
+      child: const Text('Apply')
+    );
+  }
+}
+
+class ViewJobSendMessageButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.success,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+
+      }, 
+      child: const Text('✉️ Message')
+    );
+  }
+}
+
+class ViewJobBackButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.secondary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      }, 
+      child: const Text('Back')
+    );
+  }
+}
+
+// EMPLOYES DASHBOARD
+
+class PostANewJobButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page))));
+      }, 
+      child: Text('Post a New Job', style: AppText.textXs)
+    );
+  }
+}
+
+class EmployerContentCardButton extends StatelessWidget {
+  final String text;
+  final Widget page;
+
+  const EmployerContentCardButton({
+    super.key,
+    required this.text,
+    required this.page
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.light,
+        foregroundColor: AppColor.primary,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+          side: const BorderSide(
+            color: AppColor.primary, // Border color
+            width: 1,              // Border width
+            style: BorderStyle.solid // Border style (solid, none)
+          ),
+        )
+      ),
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+      }, 
+      child: Text(text, style: AppText.textXs)
     );
   }
 }
