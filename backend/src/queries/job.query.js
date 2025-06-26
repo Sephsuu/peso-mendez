@@ -12,3 +12,34 @@ export async function getJobById(id) {
     )
     return rows[0];
 }
+
+export async function createJob(title, company, location, salary, type, description, employerId, visibility) {
+    const now = new Date();
+    const insertQuery = `
+        INSERT INTO jobs
+        (title, company, location, salary, type, description, employer_id, visibility)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const [result] =  await pool.query(insertQuery, [
+        title, company, location, salary, type, description, employerId, visibility
+    ]);
+
+    return result;
+}
+
+export async function getJobsByEmployerId(employerId) {
+    const [rows] = await pool.query(
+        "SELECT * FROM jobs WHERE employer_id = ?",
+        [employerId]
+    );
+    return [rows];
+}
+
+export async function getJobsByEmployerIdCount(employerId) {
+    const rows = await pool.query(
+        "SELECT COUNT(*) FROM jobs WHERE employer_id = ?",
+        [employerId]
+    );
+    return rows;
+}

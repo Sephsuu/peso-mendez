@@ -1,7 +1,10 @@
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/edit_profile.dart';
+import 'package:app/features/forms/post_job_form.dart';
 import 'package:app/features/homepage.dart';
 import 'package:app/features/login.dart';
 import 'package:app/features/register.dart';
@@ -41,17 +44,26 @@ class HomepageRegisterButton extends StatefulWidget {
 class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
   List<Job>? jobs;
   bool _loggedIn = false;
+  String? userRole;
 
   @override
   void initState() {
     super.initState();
     checkLoginStatus();
+    loadUser();
   }
 
   void checkLoginStatus() async {
     final loggedIn = await UserService.isLoggedIn();
     setState(() {
       _loggedIn = loggedIn;
+    });
+  }
+
+  void loadUser() async {
+    final data = await UserService.fetchLoggedUserData();
+    setState(() {
+      userRole = data?['role'] ?? "no role";
     });
   }
 
@@ -78,7 +90,15 @@ class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
         )
       ),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => JobSeekerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
+        if (userRole == 'employer') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => EmployerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
+        } else if (userRole == 'job_seeker') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => JobSeekerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(userRole ?? 'no token')),
+          );
+        }
       }, 
       child: const Text('View Profile'),
     );
@@ -322,6 +342,11 @@ class BrowseJobsButton extends StatelessWidget {
 // VIEW JOB DETAIL
 
 class ViewJobApplyJobButton extends StatelessWidget {
+  final int jobId;
+  const ViewJobApplyJobButton({
+    super.key, 
+    required this .jobId
+  });
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -336,7 +361,7 @@ class ViewJobApplyJobButton extends StatelessWidget {
         )
       ),
       onPressed: () {
-
+          showJobDetailModal(context, jobId);
       }, 
       child: const Text('Apply')
     );
@@ -404,7 +429,7 @@ class PostANewJobButton extends StatelessWidget {
         )
       ),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page))));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PostNewJob(onNavigate: (page) => globalNavigateTo?.call(page))));
       }, 
       child: Text('Post a New Job', style: AppText.textXs)
     );
@@ -443,6 +468,90 @@ class EmployerContentCardButton extends StatelessWidget {
         Navigator.push(context, MaterialPageRoute(builder: (context) => page));
       }, 
       child: Text(text, style: AppText.textXs)
+    );
+  }
+}
+
+// POST NEW JOB
+
+class PostJobButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  PostJobButton({
+    super.key, 
+    required this.onPressed
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.success,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: onPressed, 
+      child: const Text('🚀 Post Job')
+    );
+  }
+}
+
+class PostJobBackButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.secondary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      }, 
+      child: const Text('Back')
+    );
+  }
+} 
+
+class SubmitApplicationButton extends StatefulWidget {
+  final int jobId;
+
+  const SubmitApplicationButton({
+    Key? key,
+    required this.jobId,
+  }) : super(key: key);
+
+  @override
+  _SubmitApplicationButtonState createState() => _SubmitApplicationButtonState();
+}
+class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+      onPressed: () {
+        showJobDetailModal(context, widget.jobId);
+      },
+      child: const Text('Submit Application'),
     );
   }
 }

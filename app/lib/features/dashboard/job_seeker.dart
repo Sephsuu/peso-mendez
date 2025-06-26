@@ -80,7 +80,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
     return SizedBox(
       width: double.infinity,
       child: Text(
-        "Welcome Back!\n$userName",
+        userName == null ? '...' : "Welcome Back!\n$userName",
         style: AppText.textXl.merge(AppText.fontBold),
         textAlign: TextAlign.center,
       ),

@@ -3,6 +3,7 @@ import 'package:app/core/components/input.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
+import 'package:app/features/login.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
@@ -80,6 +81,21 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Align(
+                  alignment: Alignment.centerRight,  
+                  child: GestureDetector(
+                    child: Text('Skip for now', style: AppText.textPrimary),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('You can edit your information on your profile when you logged in.')),
+                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page),
+                ),
+              ));
+                    },
+                  ),
+                ),
+                const SizedBox(height: 5),
                 SizedBox(
                   width: double.infinity,
                   child: Text('Personal Information', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),

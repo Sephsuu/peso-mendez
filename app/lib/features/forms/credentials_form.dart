@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/login.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:app/core/components/button.dart';
 
 
@@ -24,7 +26,10 @@ class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
   String? _role;
-  final List<String> roles = ['Employer', 'Job Seeker'];
+  final List<Map<String, String>> roles = [
+    {'label': 'Employer', 'value': 'employer'},
+    {'label': 'Job Seeker', 'value': 'job_seeker'},
+  ];
 
   @override
   void dispose() {
@@ -36,12 +41,54 @@ class _RegisterFormState extends State<RegisterForm> {
     super.dispose();
   }
 
-  void _nextForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final fullNameValue = _fullName.text.trim();
+      final emailValue = _email.text.trim();
+      final contactValue = _contact.text.trim();
+      final usernameValue = _username.text.trim();
+      final passwordValue = _password.text.trim();
+      final roleValue = _role;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing Data'))
+        const SnackBar(content: Text('Please wait. We are registering your credentials.'))
       );
-      widget.onNext();
+
+      try {
+        final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/auth/register');
+
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'fullName': fullNameValue,
+            'email': emailValue,
+            'contactNumber': contactValue,
+            'username': usernameValue,
+            'password': passwordValue,
+            'role': roleValue
+          })
+        );
+
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('You are successfully registered. Please fill up the following forms.'))
+          );
+
+          widget.onNext();
+        } else {
+          final errorData = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${errorData['error']}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -156,6 +203,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 Text('Password', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
                 TextFormField(
+                  obscureText: true,
                   controller: _password,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -176,18 +224,18 @@ class _RegisterFormState extends State<RegisterForm> {
                 const SizedBox(height: 8.0),
                 Text('I am a:', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                DropdownButtonFormField(
+                DropdownButtonFormField<String>(
                   value: _role,
                   items: roles.map((role) {
                     return DropdownMenuItem<String>(
-                      value: role,
-                      child: Text(role),
+                      value: role['value'],       
+                      child: Text(role['label']!),
                     );
-                  }).toList(), 
+                  }).toList(),
                   onChanged: (value) {
                     setState(() {
                       _role = value;
-                      print(_role);
+                      print(_role); // prints 'employer' or 'job_seeker'
                     });
                   },
                   decoration: const InputDecoration(
@@ -197,16 +245,17 @@ class _RegisterFormState extends State<RegisterForm> {
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
                     ),
-                    isDense: true
+                    isDense: true,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please select a role';
                     }
+                    return null; // Add this to explicitly indicate validation passed
                   },
                 ),
                 const SizedBox(height: 20.0),
-                RegisterNextButton(registerUser: _nextForm),
+                RegisterNextButton(registerUser: _submitForm),
                 const SizedBox(height: 8.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

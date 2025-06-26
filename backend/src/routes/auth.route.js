@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getUserByEmailOrUsername, getUserById } from '../queries/user.query.js';
 import { authenticateToken } from '../middlewares/authToken.js';
+import { registerUser } from '../queries/user.query.js';
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ message: 'Password do not matched.' });
     }
 
-    const payload = { id: user.id, full_name: user.full_name };
+    const payload = { id: user.id, full_name: user.full_name, role: user.role };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2400s' })
   
@@ -34,6 +35,26 @@ router.post('/login', async (req, res) => {
         role: user.role
       }
     });
+});
+
+router.post('/register', async (req, res) => {
+  try {
+    const { fullName, email, contactNumber, username, password, role } = req.body;
+
+    if (!fullName || !email || !username || !password || !role) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const user = await registerUser(fullName, email, contactNumber, username, password, role);
+
+    res.status(201).json({ message: 'User registered successfully', user });
+  } catch (err) {
+    if (err.message.includes('exists')) {
+      return res.status(400).json({ error: err.message });
+    }
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 router.get('/dashboard', authenticateToken, (req, res) => {

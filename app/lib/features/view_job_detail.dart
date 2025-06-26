@@ -227,7 +227,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                   ),
                 ),
                 const SizedBox(height: 15.0),
-                ViewJobDetailButtons(jobId: 2, employerId: 2),
+                ViewJobDetailButtons(jobId: job?.id ?? 0, employerId: 2),
                 const SizedBox(height: 15),
               ],
             ),
@@ -253,7 +253,7 @@ class ViewJobDetailButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ViewJobApplyJobButton(),
+        ViewJobApplyJobButton(jobId: jobId,),
         const SizedBox(width: 10),
         ViewJobSendMessageButton(),
         const SizedBox(width: 10),

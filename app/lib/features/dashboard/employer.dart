@@ -4,16 +4,19 @@ import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/services/job_service.dart';
+import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/homepage.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
+
 class EmployerDashboard extends StatelessWidget {
   final Function(PageType) onNavigate;
 
-  const EmployerDashboard({super.key, required this.onNavigate});
+  const EmployerDashboard({super.key, required this.onNavigate });
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +50,7 @@ class EmployerDashboard extends StatelessWidget {
 }
 
 class DashboardHeader extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -84,17 +88,49 @@ class DashboardSummary extends StatefulWidget {
   const DashboardSummary({
     super.key,
     required this.activeJobsCount,
-    required this.applicationCount
+    required this.applicationCount,
   });
   @override
   _DashboardSummaryState createState() => _DashboardSummaryState();
 }
 class _DashboardSummaryState extends State<DashboardSummary> {
+  int? userId;
+  int? activeJobCount;
+  int applicationCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  void loadUser() async {
+    final data = await UserService.fetchLoggedUserData();
+
+    // Assign userId safely, no string assigned to int?
+    final fetchedUserId = data?['id'] as int?;
+
+    setState(() {
+      userId = fetchedUserId;
+    });
+
+    if (userId != null) {
+      await loadCounts(userId!);
+    }
+  }
+
+  Future<void> loadCounts(int userId) async {
+    final activeJobsCount = await JobService.fetchJobCountByEmployer(userId);
+    setState(() {
+      activeJobCount = activeJobsCount;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        DashboardSummaryCard(header: '💼 Active Jobs', count: 5.toString(), color: AppColor.success),
+        DashboardSummaryCard(header: '💼 Active Jobs', count: activeJobCount == null ? 'Loading...' : activeJobCount.toString(), color: AppColor.success),
         DashboardSummaryCard(header: '👥 Applications', count: 5.toString(), color: AppColor.primary),
         DashboardSummaryCard(header: '📊 Trends', count: 'Coming soon...', color: AppColor.info),
       ],

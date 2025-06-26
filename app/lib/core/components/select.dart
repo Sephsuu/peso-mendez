@@ -18,7 +18,6 @@ class HomepageDropdownSelect extends StatefulWidget {
   @override
   _HomepageDropdownSelectState createState() => _HomepageDropdownSelectState();
 }
-
 class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
   String? selectedValue;
 
@@ -76,7 +75,6 @@ class RegisterDrowdownSelectRequired extends StatefulWidget {
   @override
   _RegisterDrowdownSelectRequiredState createState() => _RegisterDrowdownSelectRequiredState();
 }
-
 class _RegisterDrowdownSelectRequiredState extends State<RegisterDrowdownSelectRequired> {
   String? selectedValue;
 
@@ -138,7 +136,6 @@ class RegisterDrowdownSelect extends StatefulWidget {
   @override
   _RegisterDrowdownSelectState createState() => _RegisterDrowdownSelectState();
 }
-
 class _RegisterDrowdownSelectState extends State<RegisterDrowdownSelect> {
   String? selectedValue;
 
@@ -176,3 +173,74 @@ class _RegisterDrowdownSelectState extends State<RegisterDrowdownSelect> {
     );
   }
 }
+
+class PostNewJobDrowdownSelectRequired extends StatefulWidget {
+  String? initialValue;
+  final ValueChanged<String?> onChanged;
+  final List<String> items;
+  final String placeholder;
+  final String label;
+
+  PostNewJobDrowdownSelectRequired({
+    super.key,
+    required this.items,
+    this.initialValue,
+    required this.placeholder,
+    required this.onChanged,
+    required this.label,
+  });
+
+  @override
+  _PostNewJobDrowdownSelectRequiredState createState() => _PostNewJobDrowdownSelectRequiredState();
+}
+class _PostNewJobDrowdownSelectRequiredState extends State<PostNewJobDrowdownSelectRequired> {
+  String? selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedValue = widget.initialValue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(widget.label, textAlign: TextAlign.start, style: AppText.textSm),
+        const SizedBox(height: 7.0),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+            labelText: widget.placeholder,
+            border: const OutlineInputBorder(),
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
+            ),
+          ),
+          value: selectedValue,
+          items: widget.items.map((item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedValue = newValue;
+            });
+            widget.onChanged(newValue);
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'This field is required';
+            }
+            return null;
+          },
+        )
+      ],
+    );
+  }
+}
+// RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),
