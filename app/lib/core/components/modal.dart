@@ -1,11 +1,10 @@
 import 'package:app/core/components/button.dart';
-import 'package:app/core/services/job_service.dart';
-import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/models/models.dart';
 import 'package:flutter/material.dart';
 
-Future<void> showJobDetailModal(BuildContext context, int jobId) async {
+Future<void> showJobDetailModal(BuildContext context, Job job, int userId) async {
   showDialog(
     context: context,
     barrierDismissible: false, // prevent dismiss while loading
@@ -13,9 +12,6 @@ Future<void> showJobDetailModal(BuildContext context, int jobId) async {
   );
 
   try {
-    final job = await JobService.fetchJobById(jobId);
-    final user = await UserService.fetchLoggedUserData();
-
     Navigator.of(context).pop();
 
     await showDialog(
@@ -47,7 +43,7 @@ Future<void> showJobDetailModal(BuildContext context, int jobId) async {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SubmitApplicationButton(job: job, user: user),
+                SubmitApplicationButton(job: job, userId: userId),
                 const SizedBox(width: 5),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),

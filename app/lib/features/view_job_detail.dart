@@ -49,10 +49,11 @@ class ViewJobDetailCard extends StatefulWidget {
 }
 
 class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
-  Job? job;
+  late Job job;
   bool isLoading = true;
   String? error;
   User? employer;
+  late int userId;
 
   @override
   void initState() {
@@ -64,9 +65,11 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
     try {
       final fetchedJob = await JobService.fetchJobById(widget.jobId);
       final fetchedEmployer = await UserService.fetchUserById(fetchedJob.employer_id);
+      final fetchedUser = await UserService.fetchLoggedUserData();
       setState(() {
         job = fetchedJob;
         employer = fetchedEmployer;
+        userId = fetchedUser?['id'];
         isLoading = false;
       });
     } catch (e) {
@@ -98,7 +101,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
               crossAxisAlignment: CrossAxisAlignment.start, 
               children: [
                 const SizedBox(height: 10.0),
-                Text(job?.title ?? '', style: AppText.textXl.merge(AppText.fontSemibold)),
+                Text(job.title, style: AppText.textXl.merge(AppText.fontSemibold)),
                 const SizedBox(height: 5.0),
                 LinearProgressIndicator(
                   value: 1,
@@ -113,7 +116,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job?.company ?? '',
+                        job.company,
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -127,7 +130,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job?.location ?? '',
+                        job.location,
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -141,7 +144,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job?.salary ?? '',
+                        job.salary,
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -155,7 +158,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job?.type ?? '',
+                        job.type,
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -217,7 +220,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                           child: Padding(
                             padding: const EdgeInsets.all(5),
                             child: Text(
-                              job?.description ?? '',
+                              job.description,
                               softWrap: true, // optional, true by default
                             ),
                           ),
@@ -227,7 +230,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                   ),
                 ),
                 const SizedBox(height: 15.0),
-                ViewJobDetailButtons(jobId: job?.id ?? 0, employerId: 2),
+                ViewJobDetailButtons(job: job, userId: userId),
                 const SizedBox(height: 15),
               ],
             ),
@@ -239,13 +242,13 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
 }
 
 class ViewJobDetailButtons extends StatelessWidget {
-  final int jobId;
-  final int employerId;
+  final Job job;
+  final int userId;
 
   const ViewJobDetailButtons({
     super.key,
-    required this.jobId,
-    required this.employerId
+    required this.job,
+    required this.userId
   });
 
   @override
@@ -253,7 +256,7 @@ class ViewJobDetailButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ViewJobApplyJobButton(jobId: jobId,),
+        ViewJobApplyJobButton(job: job, userId: userId),
         const SizedBox(width: 10),
         ViewJobSendMessageButton(),
         const SizedBox(width: 10),

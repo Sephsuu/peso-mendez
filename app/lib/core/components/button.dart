@@ -344,10 +344,12 @@ class BrowseJobsButton extends StatelessWidget {
 // VIEW JOB DETAIL
 
 class ViewJobApplyJobButton extends StatelessWidget {
-  final int jobId;
+  final Job job;
+  final int userId;
   const ViewJobApplyJobButton({
     super.key, 
-    required this .jobId
+    required this.job,
+    required this.userId,
   });
   @override
   Widget build(BuildContext context) {
@@ -363,7 +365,7 @@ class ViewJobApplyJobButton extends StatelessWidget {
         )
       ),
       onPressed: () {
-          showJobDetailModal(context, jobId);
+          showJobDetailModal(context, job, userId);
       }, 
       child: const Text('Apply')
     );
@@ -410,6 +412,52 @@ class ViewJobBackButton extends StatelessWidget {
         Navigator.of(context).pop();
       }, 
       child: const Text('Back')
+    );
+  }
+}
+
+class SubmitApplicationButton extends StatefulWidget {
+  final Job job;
+  final int userId;
+
+  const SubmitApplicationButton({
+    super.key,
+    required this.job,
+    required this.userId,
+  });
+
+  @override
+  _SubmitApplicationButtonState createState() => _SubmitApplicationButtonState();
+}
+class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
+
+  Future<void> _applyForJob(Job job, int userId) async {
+    try {
+      await ApplicationService.getApplicationByJobAndUser(job.id, userId);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AlreadyApplied(onNavigate: (page) => globalNavigateTo?.call(page), job: job, userId: userId)));
+    } catch (e) {
+      await ApplicationService.submitApplication(job.id, userId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You can apply: $job, $userId')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.primary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+      onPressed: () => _applyForJob(widget.job, widget.userId),
+      child: const Text('Submit Application'),
     );
   }
 }
@@ -525,33 +573,9 @@ class PostJobBackButton extends StatelessWidget {
   }
 } 
 
-class SubmitApplicationButton extends StatefulWidget {
-  final Job job;
-  final Map<String, dynamic>? user;
+// APPLIED ALREADY
 
-  const SubmitApplicationButton({
-    super.key,
-    required this.job,
-    required this.user,
-  });
-
-  @override
-  _SubmitApplicationButtonState createState() => _SubmitApplicationButtonState();
-}
-class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
-
-  Future<void> _applyForJob(Job job, int userId) async {
-    try {
-      await ApplicationService.getApplicationByJobAndUser(job.id, userId);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => AlreadyApplied(onNavigate: (page) => globalNavigateTo?.call(page), jobId: job.id, userId: userId)));
-    } catch (e) {
-      await ApplicationService.submitApplication(job.id, userId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You can apply: $job, $userId')),
-      );
-    }
-  }
-
+class BackToJobListingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -562,11 +586,35 @@ class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         visualDensity: const VisualDensity(vertical: -2),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
+          borderRadius: BorderRadius.circular(4)
+        )
       ),
-      onPressed: () => _applyForJob(widget.job, widget.user?['id'] ?? 0),
-      child: const Text('Submit Application'),
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page))));
+      }, 
+      child: Text('Back to Job Listing', style: AppText.textXs)
+    );
+  }
+}
+
+class AppliedAlreadyBackButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColor.secondary,
+        foregroundColor: AppColor.light,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: const VisualDensity(vertical: -2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4)
+        )
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      }, 
+      child: const Text('Back')
     );
   }
 }
