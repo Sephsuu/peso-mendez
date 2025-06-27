@@ -43,3 +43,21 @@ export async function getJobsByEmployerIdCount(employerId) {
     );
     return rows;
 }
+
+export async function getJobTitleByEmployer(employerId) {
+    const [rows] = await pool.query(
+        "SELECT DISTINCT title FROM jobs WHERE employer_id = ?",
+        [employerId]
+    );
+
+    return rows;
+}
+
+export async function getJobLocationByEmployer(employerId) {
+    const [rows] = await pool.query(
+        "SELECT DISTINCT location FROM jobs WHERE employer_id = ?",
+        [employerId]
+    );
+
+    return rows;
+}

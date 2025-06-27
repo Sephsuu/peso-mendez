@@ -30,3 +30,10 @@ export async function getApplicationByJobAndUser(jobId, userId) {
     return rows[0];
 }
 
+export async function getApplicationsByEmployer(employerId) {
+    const [rows] = await pool.query(
+        "SELECT * FROM applications a JOIN jobs j ON a.job_id = j.id WHERE j.employer_id = ?",
+        [employerId]
+    )
+    return rows;
+}

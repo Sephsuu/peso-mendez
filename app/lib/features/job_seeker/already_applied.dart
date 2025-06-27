@@ -1,5 +1,4 @@
 import 'package:app/core/components/button.dart';
-import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';

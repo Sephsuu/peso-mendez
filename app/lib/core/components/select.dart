@@ -243,4 +243,61 @@ class _PostNewJobDrowdownSelectRequiredState extends State<PostNewJobDrowdownSel
     );
   }
 }
+
+class ViewApplicationDropdownSelect extends StatefulWidget {
+  String? initialValue;
+  final ValueChanged<String?> onChanged;
+  final List<String> items;
+  final String placeholder;
+
+  ViewApplicationDropdownSelect({
+    super.key,
+    required this.items,
+    this.initialValue,
+    required this.placeholder,
+    required this.onChanged,
+  });
+
+  @override
+  _ViewApplicationDropdownSelectState createState() => _ViewApplicationDropdownSelectState();
+}
+class _ViewApplicationDropdownSelectState extends State<ViewApplicationDropdownSelect> {
+  String? selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedValue = widget.initialValue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+        labelText: widget.placeholder,
+        border: const OutlineInputBorder(),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
+        ),
+      ),
+      value: selectedValue,
+      items: widget.items.map((gender) {
+        return DropdownMenuItem<String>(
+          value: gender,
+          child: Text(gender),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          selectedValue = newValue;
+        });
+        widget.onChanged(newValue);
+      },
+    );
+  }
+}
+
+
 // RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),

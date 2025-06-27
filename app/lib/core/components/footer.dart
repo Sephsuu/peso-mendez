@@ -2,7 +2,7 @@ import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/features/homepage.dart';
-import 'package:app/features/register.dart';
+import 'package:app/features/forms/register.dart';
 
 import 'package:app/core/theme/typography.dart';
 

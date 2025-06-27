@@ -5,7 +5,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/features/register.dart';
+import 'package:app/features/forms/register.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 

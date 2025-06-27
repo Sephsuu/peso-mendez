@@ -7,7 +7,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
-import 'package:app/features/register.dart';
+import 'package:app/features/forms/register.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;

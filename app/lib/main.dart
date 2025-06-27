@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:app/features/homepage.dart';
-import 'package:app/features/register.dart';
+import 'package:app/features/forms/register.dart';
 
 void main() {
   runApp(MyApp());

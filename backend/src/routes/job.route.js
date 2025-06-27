@@ -56,6 +56,26 @@ router.get('/employer/count/:employerId', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+router.get('/employer/title/:employerId', async (req, res) => {
+    try {
+        const jobs = await jobQuery.getJobTitleByEmployer(req.params.employerId);
+        const titles = jobs.map(job => job.title);
+        res.json(titles);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/employer/location/:employerId', async (req, res) => {
+    try {
+        const jobs = await jobQuery.getJobLocationByEmployer(req.params.employerId);
+        const locations = jobs.map(job => job.location);
+        res.json(locations);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 })
 
 export default router;

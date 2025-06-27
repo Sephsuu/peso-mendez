@@ -31,4 +31,12 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/:employerId', async (req, res) => {
+  try {
+    const applications = await applicationQuery.getApplicationsByEmployer(req.params.employerId);
+    res.json(applications);
+  } catch (err) {
+        console.log(err);
+    }
+})
 export default router;

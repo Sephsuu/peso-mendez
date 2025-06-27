@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:app/models/models.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class JobService {
@@ -57,6 +56,32 @@ class JobService {
       return data['count'] as int;
     } else {
       throw Exception('Failed to load job count for employer $employerId');
+    }
+  }
+
+  static Future<List<String>> getJobTitlesByEmployer(int employerId) async {
+    final url = Uri.parse('$_baseUrl/jobs/employer/title/$employerId');
+
+    final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return List<String>.from(data);
+    } else {
+      throw Exception('Failed to load job titles for employer $employerId');
+    }
+  }
+
+  static Future<List<String>> getJobLocationsByEmployer(int employerId) async {
+    final url = Uri.parse('$_baseUrl/jobs/employer/location/$employerId');
+
+    final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return List<String>.from(data);
+    } else {
+      throw Exception('Failed to load job titles for employer $employerId');
     }
   }
 }
