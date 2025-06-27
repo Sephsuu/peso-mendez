@@ -1,6 +1,8 @@
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/already_applied.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/edit_profile.dart';
@@ -524,17 +526,32 @@ class PostJobBackButton extends StatelessWidget {
 } 
 
 class SubmitApplicationButton extends StatefulWidget {
-  final int jobId;
+  final Job job;
+  final Map<String, dynamic>? user;
 
   const SubmitApplicationButton({
-    Key? key,
-    required this.jobId,
-  }) : super(key: key);
+    super.key,
+    required this.job,
+    required this.user,
+  });
 
   @override
   _SubmitApplicationButtonState createState() => _SubmitApplicationButtonState();
 }
 class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
+
+  Future<void> _applyForJob(Job job, int userId) async {
+    try {
+      await ApplicationService.getApplicationByJobAndUser(job.id, userId);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => AlreadyApplied(onNavigate: (page) => globalNavigateTo?.call(page), jobId: job.id, userId: userId)));
+    } catch (e) {
+      await ApplicationService.submitApplication(job.id, userId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You can apply: $job, $userId')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -548,9 +565,7 @@ class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
           borderRadius: BorderRadius.circular(4),
         ),
       ),
-      onPressed: () {
-        showJobDetailModal(context, widget.jobId);
-      },
+      onPressed: () => _applyForJob(widget.job, widget.user?['id'] ?? 0),
       child: const Text('Submit Application'),
     );
   }

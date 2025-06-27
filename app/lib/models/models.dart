@@ -7,10 +7,10 @@ class User {
   final String documentPath;
   final String username;
   final String password;
-  final String role;       // 'job_seeker', 'employer', or 'admin'
+  final String role;       
   final DateTime createdAt;
-  final bool? isActive;    // nullable tinyint(1)
-  final String status;     // 'active' or 'inactive'
+  final bool? isActive;    
+  final String status;    
 
   User({
     required this.id,
@@ -44,7 +44,6 @@ class User {
     );
   }
 }
-
 
 class Job {
   final int id;
@@ -89,6 +88,34 @@ class Job {
       category_id: json['categoryId'] ?? 0,
       visibility: json['visibility'] ?? '',
       status: json['status'] ?? '',
+    );
+  }
+}
+
+class Application {
+  final int id;
+  final int jobId;
+  final int jobSeekerId;
+  final String status;     
+  final DateTime? appliedOn; 
+
+  Application({
+    required this.id,
+    required this.jobId,
+    required this.jobSeekerId,
+    required this.status,
+    this.appliedOn,
+  });
+
+  factory Application.fromJson(Map<String, dynamic> json) {
+    return Application(
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
+      jobId: json['job_id'] is int ? json['job_id'] : int.tryParse(json['job_id'].toString()) ?? 0,
+      jobSeekerId: json['job_seeker_id'] is int ? json['job_seeker_id'] : int.tryParse(json['job_seeker_id'].toString()) ?? 0,
+      status: json['status'] ?? 'Sent',
+      appliedOn: json['applied_on'] == null
+          ? null
+          : DateTime.tryParse(json['applied_on']) ?? DateTime.now(),
     );
   }
 }

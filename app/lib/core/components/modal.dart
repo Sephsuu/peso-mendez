@@ -14,7 +14,7 @@ Future<void> showJobDetailModal(BuildContext context, int jobId) async {
 
   try {
     final job = await JobService.fetchJobById(jobId);
-    final fetchedEmployer = await UserService.fetchUserById(job.employer_id);
+    final user = await UserService.fetchLoggedUserData();
 
     Navigator.of(context).pop();
 
@@ -32,26 +32,26 @@ Future<void> showJobDetailModal(BuildContext context, int jobId) async {
                 text: TextSpan(
                   style: AppText.textDark.copyWith(height: 1.5),
                   children: [
-                    TextSpan(text: "You're about to apply for: "),
+                    const TextSpan(text: "You're about to apply for: "),
                     TextSpan(text: job.title, style: AppText.fontSemibold),
-                    TextSpan(text: " at  "),
+                    const TextSpan(text: " at  "),
                     TextSpan(text: "${job.location}.", style: AppText.fontSemibold),
                   ]
                 ),
               ),
               const SizedBox(height: 15),
-              Text('Your profile information will be shared with the employer.')
+              const Text('Your profile information will be shared with the employer.')
             ],
           ),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SubmitApplicationButton(jobId: job.id),
+                SubmitApplicationButton(job: job, user: user),
                 const SizedBox(width: 5),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
               ],
             )
@@ -60,10 +60,7 @@ Future<void> showJobDetailModal(BuildContext context, int jobId) async {
       },
     );
   } catch (e) {
-    // Close loading dialog if still open
     Navigator.of(context).pop();
-
-    // Show error message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Failed to load job details: $e')),
     );
