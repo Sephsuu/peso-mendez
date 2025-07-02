@@ -1,3 +1,4 @@
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 
@@ -64,6 +65,39 @@ class DashboardOtherContentCard extends StatelessWidget {
               button
             ],
           ),    
+        ),
+      ),
+    );
+  }
+}
+
+class AdminSummaryCard extends StatelessWidget {
+  final Color color;
+  final String text;
+  final String count;
+
+  const AdminSummaryCard({
+    super.key,
+    required this.color,
+    required this.text,
+    required this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        color: color,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(text, style: AppText.textMd.merge(AppText.fontSemibold).merge(AppText.textLight)),
+              Text(count, style: AppText.textFxl.merge(AppText.fontSemibold).merge(AppText.textLight))
+            ],
+          ),
         ),
       ),
     );

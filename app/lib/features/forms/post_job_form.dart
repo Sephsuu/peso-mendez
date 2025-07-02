@@ -16,7 +16,7 @@ import 'package:http/http.dart' as http;
 class PostNewJob extends StatelessWidget {
   final Function(PageType) onNavigate;
 
-  PostNewJob({
+  const PostNewJob({
     super.key,
     required this.onNavigate
   });
@@ -44,6 +44,7 @@ class PostNewJob extends StatelessWidget {
 class PostNewJobForm extends StatefulWidget {
   const PostNewJobForm({super.key});
 
+  @override
   _PostNewJobFormState createState() => _PostNewJobFormState();
 }
 
@@ -115,7 +116,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
 
         if (response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Job successfully added.')),
+            const SnackBar(content: Text('Job successfully added.')),
           );
 
           Navigator.push(context, MaterialPageRoute(builder: (context) => EmployerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));

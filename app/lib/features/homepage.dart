@@ -119,11 +119,11 @@ class HomepageJumbotron extends StatelessWidget {
             children: [
               HomepageDropdownSelect(items: jobTypes, initialValue: null),
               const SizedBox(width: 10),
-              HomepageFindButton(),
+              const HomepageFindButton(),
             ],
           ),
           const SizedBox(height: 12),
-          HomepageRegisterButton()
+          const HomepageRegisterButton()
         ],
       ),
     );

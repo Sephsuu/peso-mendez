@@ -32,8 +32,40 @@ export async function getApplicationByJobAndUser(jobId, userId) {
 
 export async function getApplicationsByEmployer(employerId) {
     const [rows] = await pool.query(
-        "SELECT * FROM applications a JOIN jobs j ON a.job_id = j.id WHERE j.employer_id = ?",
+        `SELECT a.*, j.title, j.location, u.full_name
+        FROM applications a
+        JOIN jobs j ON a.job_id = j.id
+        JOIN users u ON a.job_seeker_id = u.id
+        WHERE j.employer_id = ?`,
         [employerId]
     )
+    return rows;
+}
+
+export async function getApplicationsByEmployerFilter(employerId, title, location, applicationStatus) {
+    console.log({ employerId, title, location, applicationStatus });
+    let sql = `
+        SELECT a.*, j.title, j.location, u.full_name
+        FROM applications a
+        JOIN jobs j ON a.job_id = j.id
+        JOIN users u ON a.job_seeker_id = u.id
+        WHERE j.employer_id = ?
+    `;
+    const params = [employerId];
+
+    if (title !== "A") {
+        sql += " AND j.title = ?";
+        params.push(title);
+    }
+    if (location !== "A") {
+        sql += " AND j.location = ?";
+        params.push(location);
+    }
+    if (applicationStatus !== "A") {
+        sql += " AND a.status = ?";
+        params.push(applicationStatus);
+    }
+
+    const [rows] = await pool.query(sql, params);
     return rows;
 }

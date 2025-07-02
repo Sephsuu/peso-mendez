@@ -4,7 +4,7 @@ import 'package:app/features/homepage.dart';
 import 'package:app/features/forms/register.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MainScreen()
+      home: const MainScreen()
     
     );
   }

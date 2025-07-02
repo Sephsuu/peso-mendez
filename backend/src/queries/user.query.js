@@ -14,6 +14,30 @@ export async function getUserById(id) {
     return rows[0];
 }
 
+export async function getUserByRole(role) {
+    const [rows] = await pool.query(
+        'SELECT * FROM users WHERE role = ?',
+        [role]
+    );
+    return rows;
+}
+
+export async function getUsersCount(table) {
+    let query = 'SELECT COUNT(*) AS count FROM users';
+    let params = [];
+
+    if (table === "employer") {
+        query += ' WHERE role = ?';
+        params.push('employer');
+    } else if (table === "job_seeker") {
+        query += ' WHERE role = ?';
+        params.push('job_seeker');
+    }
+
+    const [rows] = await pool.query(query, params);
+    return { count: rows[0]?.count || 0 };
+}
+
 export async function getUserByEmailOrUsername(emailOrUsername) {
     const [rows] = await pool.query(
         'SELECT * FROM users WHERE email = ? OR username = ? LIMIT 1',

@@ -24,4 +24,22 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/role/:role', async (req, res) => {
+    try {
+        const users = await userQuery.getUserByRole(req.params.role);
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/count/:table', async (req, res) => {
+    try {
+        const count = await userQuery.getUsersCount(req.params.table);
+        res.json(count);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 export default router;

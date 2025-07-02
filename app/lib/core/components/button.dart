@@ -2,6 +2,7 @@ import 'package:app/core/components/modal.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/job_seeker/already_applied.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
@@ -41,6 +42,7 @@ class HomepageFindButton extends StatelessWidget {
 
 class HomepageRegisterButton extends StatefulWidget {
   const HomepageRegisterButton({super.key});
+  @override
   _HomepageRegisterButtonState createState() => _HomepageRegisterButtonState();
 }
 class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
@@ -96,6 +98,8 @@ class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
           Navigator.push(context, MaterialPageRoute(builder: (context) => EmployerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
         } else if (userRole == 'job_seeker') {
           Navigator.push(context, MaterialPageRoute(builder: (context) => JobSeekerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
+        } else if (userRole == 'admin') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AdminDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(userRole ?? 'no token')),
@@ -177,7 +181,7 @@ class _SignInOrRegisterButtonState extends State<SignInOrRegisterButton> {
   void logout(BuildContext context) async {
     await UserService.deleteToken();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Successfully logged out.')),
+      const SnackBar(content: Text('Successfully logged out.')),
     );
     Navigator.pushAndRemoveUntil(
       context,
@@ -276,6 +280,8 @@ class SignInButton extends StatelessWidget {
 // JOB SEEKER DASHBOARD
 
 class EditProfileButton extends StatelessWidget {
+  const EditProfileButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -298,6 +304,8 @@ class EditProfileButton extends StatelessWidget {
 }
 
 class GoToMessagesButton extends StatelessWidget {
+  const GoToMessagesButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -320,6 +328,8 @@ class GoToMessagesButton extends StatelessWidget {
 }
 
 class BrowseJobsButton extends StatelessWidget {
+  const BrowseJobsButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -373,6 +383,8 @@ class ViewJobApplyJobButton extends StatelessWidget {
 }
 
 class ViewJobSendMessageButton extends StatelessWidget {
+  const ViewJobSendMessageButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -395,6 +407,8 @@ class ViewJobSendMessageButton extends StatelessWidget {
 }
 
 class ViewJobBackButton extends StatelessWidget {
+  const ViewJobBackButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -462,9 +476,11 @@ class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
   }
 }
 
-// EMPLOYES DASHBOARD
+// EMPLOYERS DASHBOARD
 
 class PostANewJobButton extends StatelessWidget {
+  const PostANewJobButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -527,7 +543,7 @@ class EmployerContentCardButton extends StatelessWidget {
 class PostJobButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  PostJobButton({
+  const PostJobButton({
     super.key, 
     required this.onPressed
   });
@@ -552,6 +568,8 @@ class PostJobButton extends StatelessWidget {
 }
 
 class PostJobBackButton extends StatelessWidget {
+  const PostJobBackButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -576,6 +594,8 @@ class PostJobBackButton extends StatelessWidget {
 // APPLIED ALREADY
 
 class BackToJobListingButton extends StatelessWidget {
+  const BackToJobListingButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -598,6 +618,8 @@ class BackToJobListingButton extends StatelessWidget {
 }
 
 class AppliedAlreadyBackButton extends StatelessWidget {
+  const AppliedAlreadyBackButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -615,6 +637,43 @@ class AppliedAlreadyBackButton extends StatelessWidget {
         Navigator.of(context).pop();
       }, 
       child: const Text('Back')
+    );
+  }
+}
+
+// ADMIN DASHBOARD
+class AdminActionButton extends StatelessWidget {
+  final String text;
+  final Color color;
+  final Widget page;
+
+  const AdminActionButton({
+    super.key,
+    required this.color,
+    required this.page,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColor.light,
+          foregroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+            side: BorderSide(
+              color: color,
+            ),
+          )
+        ),
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+        }, 
+        child: Text(text)
+      ),
     );
   }
 }

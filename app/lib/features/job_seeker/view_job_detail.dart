@@ -18,6 +18,7 @@ class ViewJobDetail extends StatefulWidget {
     required this.jobId,
     required this.onNavigate
   });
+  @override
   _ViewJobDetailState createState() => _ViewJobDetailState();
 }
 

@@ -17,10 +17,11 @@ class JobSeekerDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const isLoading = true;
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Column(
           children: [
             Padding(
@@ -89,7 +90,7 @@ class _DashboardHeaderState extends State<DashboardHeader> {
 }
 
 class ProfileStrengthCard extends StatefulWidget {
-  ProfileStrengthCard({super.key});
+  const ProfileStrengthCard({super.key});
 
   @override
   _ProfileStrengthCardState createState() => _ProfileStrengthCardState();

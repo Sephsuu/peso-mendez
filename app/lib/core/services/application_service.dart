@@ -46,4 +46,33 @@ class ApplicationService {
       throw Exception('Failed to load application for job $jobId and user $userId: ${response.statusCode}');
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getApplicationsByEmployer(int employerId) {
+    final url = Uri.parse('$_baseUrl/$employerId');
+
+    return http.get(url).then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
+        return data;
+      } else {
+        throw Exception('Failed to load applications for employer $employerId: ${response.statusCode}');
+      }
+    });
+  }
+
+  static Future<List<Map<String, dynamic>>> getApplicationsByEmployerFilter(int employerId, String jobTitle, String location, String status) {
+    final url = Uri.parse('$_baseUrl/filter/$employerId/$jobTitle/$location/$status');
+
+    return http.get(url).then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
+        return data;
+      } else {
+        throw Exception('Failed to load applications for employer $employerId: ${response.statusCode}');
+      }
+    });
+  }
+
 }

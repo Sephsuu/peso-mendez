@@ -75,6 +75,8 @@ class _EmployerDashboardState extends State<EmployerDashboard> {
 }
 
 class DashboardHeader extends StatelessWidget {
+  const DashboardHeader({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +92,9 @@ class DashboardHeader extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               child: Column(
                 children: [
-                  Text('🔒 Account pending verification.', style: TextStyle(color: const Color.fromARGB(255, 203, 152, 0))),
+                  const Text('🔒 Account pending verification.', style: TextStyle(color: Color.fromARGB(255, 203, 152, 0))),
                   GestureDetector(
-                    child: Text('Submit Documents', style: TextStyle(color: const Color.fromARGB(255, 130, 98, 0), decoration: TextDecoration.underline).merge(AppText.fontSemibold)),
+                    child: Text('Submit Documents', style: const TextStyle(color: Color.fromARGB(255, 130, 98, 0), decoration: TextDecoration.underline).merge(AppText.fontSemibold)),
                     onTap: () {
                       
                     },
@@ -119,6 +121,7 @@ class DashboardSummary extends StatefulWidget {
 class _DashboardSummaryState extends State<DashboardSummary> {
   int? activeJobCount;
   int applicationCount = 0;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -131,15 +134,20 @@ class _DashboardSummaryState extends State<DashboardSummary> {
     setState(() {
       activeJobCount = activeJobsCount;
     });
+    isLoading = false;
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
+    }
+    
     return Column(
       children: [
         DashboardSummaryCard(header: '💼 Active Jobs', count: activeJobCount == null ? '...' : activeJobCount.toString(), color: AppColor.success),
         DashboardSummaryCard(header: '👥 Applications', count: 5.toString(), color: AppColor.primary),
-        DashboardSummaryCard(header: '📊 Trends', count: 'Coming soon...', color: AppColor.info),
+        const DashboardSummaryCard(header: '📊 Trends', count: 'Coming soon...', color: AppColor.info),
       ],
     );
   }

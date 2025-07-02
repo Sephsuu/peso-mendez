@@ -7,6 +7,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
+import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/forms/register.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -95,30 +96,42 @@ class _LoginFormState extends State<LoginForm> {
             );
 
             if (role == 'job_seeker') {
+              if (!mounted) return;
               Navigator.push(context, MaterialPageRoute(
                 builder: (context) => JobSeekerDashboard(
                   onNavigate: (page) => globalNavigateTo?.call(page),
                 ),
               ));
             } else if (role == 'employer') {
+              if (!mounted) return;
               Navigator.push(context, MaterialPageRoute(
                 builder: (context) => EmployerDashboard(
                   onNavigate: (page) => globalNavigateTo?.call(page),
                 ),
               ));
+            } else if (role == 'admin') {
+              if (!mounted) return;
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => AdminDashboard(
+                  onNavigate: (page) => globalNavigateTo?.call(page),
+                ),
+              ));
             }
           } else {
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Login failed: Token missing in response')),
             );
           }
         } else {
           final errorData = jsonDecode(response.body);
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Login failed: ${errorData['message']}')),
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );

@@ -7,6 +7,7 @@ import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 class UserService {
   static const _secureStorage = FlutterSecureStorage();
+  static const String _baseUrl = "https://x848qg05-3005.asse.devtunnels.ms";
 
   static Future<bool> isLoggedIn() async {
     final token = await _secureStorage.read(key: 'jwt_token');
@@ -36,7 +37,7 @@ class UserService {
   }
 
   static Future<Map<String, dynamic>?> fetchLoggedUserData() async {
-    final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/auth/dashboard');
+    final url = Uri.parse('$_baseUrl/auth/dashboard');
 
     try {
       final token = await _secureStorage.read(key: 'jwt_token');
@@ -62,9 +63,23 @@ class UserService {
       return null;
     }
   }
+  
+  static Future<List<Map<String, dynamic>>> fetchUsers() async {
+    final url = Uri.parse('$_baseUrl/users');
+
+    return http.get(url).then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
+        return data;
+      } else {
+        throw Exception('Failed to load users: ${response.statusCode}');
+      }
+    });
+  }
 
   static Future<User?> fetchUserById(int userId) async {
-    final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/users/$userId');
+    final url = Uri.parse('$_baseUrl/users/$userId');
 
     try {
       final token = await _secureStorage.read(key: 'jwt_token');
@@ -90,6 +105,32 @@ class UserService {
     } catch (e) {
       // Optionally log the error
       return null;
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchUserByRole(String role) async {
+    final url = Uri.parse('$_baseUrl/users/role/$role');
+
+    return http.get(url).then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
+        return data;
+      } else {
+        throw Exception('Failed to load users: ${response.statusCode}');
+      }
+    });
+  }
+
+  static Future<Map<String, dynamic>> fetchUsersCount(String table) async {
+    final url = Uri.parse('$_baseUrl/users/count/$table');
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      return data;
+    } else {
+      throw Exception('Failed to load users: ${response.statusCode}');
     }
   }
 }
