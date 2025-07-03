@@ -1,3 +1,4 @@
+import 'package:app/core/components/modal.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/colors.dart';
@@ -299,5 +300,63 @@ class _ViewApplicationDropdownSelectState extends State<ViewApplicationDropdownS
   }
 }
 
+class ViewApplicationUpdateStatus extends StatefulWidget {
+  final String initialValue;
+
+  const ViewApplicationUpdateStatus({
+    super.key,
+    required this.initialValue,
+  });
+
+  @override
+  _ViewApplicationUpdateStatusState createState() => _ViewApplicationUpdateStatusState();
+}
+class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatus> {
+  List<String> items = ["Sent", "Reviewed", "Interviewed", "Rejected", "Hired"];
+  
+  String? selectedValue;
+  Key dropdownKey = UniqueKey(); // Add this key
+  
+  @override
+  void initState() {
+    super.initState();
+    selectedValue = widget.initialValue;
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String>(
+      key: dropdownKey, // Use the key here
+      decoration: const InputDecoration(
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+        border: OutlineInputBorder(),
+      ),
+      value: selectedValue,
+      items: items.map((status) {
+        return DropdownMenuItem<String>(
+          value: status,
+          child: Text(status),
+        );
+      }).toList(),
+      onChanged: (String? newValue) async {
+        // Immediately revert the dropdown to original value
+        setState(() {
+          dropdownKey = UniqueKey(); // Force rebuild with original value
+        });
+        
+        final result = await updateApplicationStatusModal(context, newValue);
+        
+        if (result != null && result.isNotEmpty) {
+          setState(() {
+            selectedValue = result;
+            dropdownKey = UniqueKey(); // Rebuild with new value
+          });
+        }
+        // If canceled, dropdown stays with original value
+      },
+    );
+  }
+}
 
 // RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),

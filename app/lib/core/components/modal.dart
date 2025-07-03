@@ -63,3 +63,29 @@ Future<void> showJobDetailModal(BuildContext context, Job job, int userId) async
   }
 }
 
+Future<String?> updateApplicationStatusModal(BuildContext context, String? newValue) async {
+  final result = await showDialog<String>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      title: Text("Update application status to '$newValue'?"),
+      content: const Text("Are you sure you want to change the application status?"),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(newValue); // Return the new value
+          },
+          child: const Text("Confirm"),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(null); // Return null on cancel
+          },
+          child: const Text("Cancel"),
+        ),
+      ],
+    ),
+  );
+  
+  return result;
+}

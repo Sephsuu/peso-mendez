@@ -261,7 +261,7 @@ class _ViewApplicationTableState extends State<ViewApplicationTable> {
               DataCell(Text(application['full_name'] ?? 'N/A')),
               DataCell(Text(application['title']?.toString() ?? 'N/A')),
               DataCell(Text(application['location'] ?? 'N/A')),
-              DataCell(Text(application['status'] ?? 'N/A')),
+              DataCell(ViewApplicationUpdateStatus(initialValue: application["status"])),
               DataCell(Text(application['applied_on'] ?? 'N/A')),
               DataCell(Text(application['resume'] ?? 'No Resume')),
               DataCell(Text(application['action'] ?? 'N/A')),
