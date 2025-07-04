@@ -69,3 +69,11 @@ export async function getApplicationsByEmployerFilter(employerId, title, locatio
     const [rows] = await pool.query(sql, params);
     return rows;
 }
+
+export async function updateApplicationStatus(applicationId, status) {
+    const [rows] = pool.query(
+        "UPDATE FROM applications SET status = ? WHERE id = ?",
+        [status, applicationId]
+    );
+    return rows[0];
+}

@@ -326,7 +326,7 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      key: dropdownKey, // Use the key here
+      key: dropdownKey,
       decoration: const InputDecoration(
         isDense: true,
         contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
@@ -340,9 +340,8 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
         );
       }).toList(),
       onChanged: (String? newValue) async {
-        // Immediately revert the dropdown to original value
         setState(() {
-          dropdownKey = UniqueKey(); // Force rebuild with original value
+          dropdownKey = UniqueKey(); 
         });
         
         final result = await updateApplicationStatusModal(context, newValue);
@@ -350,10 +349,9 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
         if (result != null && result.isNotEmpty) {
           setState(() {
             selectedValue = result;
-            dropdownKey = UniqueKey(); // Rebuild with new value
+            dropdownKey = UniqueKey();
           });
         }
-        // If canceled, dropdown stays with original value
       },
     );
   }
