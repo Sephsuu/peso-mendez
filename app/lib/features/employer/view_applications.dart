@@ -217,8 +217,7 @@ class _ViewApplicationTableState extends State<ViewApplicationTable> {
       });
       isLoading = false;
     } catch (e) {
-      // Use ScaffoldMessenger for errors, not Scaffold
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading data')));
+      return;
     }
   }
 
@@ -261,7 +260,7 @@ class _ViewApplicationTableState extends State<ViewApplicationTable> {
               DataCell(Text(application['full_name'] ?? 'N/A')),
               DataCell(Text(application['title']?.toString() ?? 'N/A')),
               DataCell(Text(application['location'] ?? 'N/A')),
-              DataCell(ViewApplicationUpdateStatus(initialValue: application["status"])),
+              DataCell(ViewApplicationUpdateStatus(initialValue: application["status"], applicationId: application["id"],)),
               DataCell(Text(application['applied_on'] ?? 'N/A')),
               DataCell(Text(application['resume'] ?? 'No Resume')),
               DataCell(Text(application['action'] ?? 'N/A')),

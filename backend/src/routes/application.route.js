@@ -37,19 +37,25 @@ router.get('/:employerId', async (req, res) => {
     res.json(applications);
   } catch (err) {
         console.log(err);
-    }
+  }
 })
 
 router.get('/filter/:employerId/:title/:location/:applicationStatus', async (req, res) => {
   try {
-    console.log('tite');
-    console.log(req.params.title, req.params.location, req.params.applicationStatus);
-    
     const applications = await applicationQuery.getApplicationsByEmployerFilter(req.params.employerId, req.params.title, req.params.location, req.params.applicationStatus);
     res.json(applications);
   } catch (err) {
         console.log(err);
-    }
+  }
+});
+
+router.put('/update-status/:applicationId/:status', async (req, res) => {
+  try {
+    const application = await applicationQuery.updateApplicationStatus(req.params.applicationId, req.params.status);
+    res.json(application)
+  } catch (err) {
+      console.log(err);
+  }
 })
 
 export default router;

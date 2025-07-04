@@ -71,9 +71,9 @@ export async function getApplicationsByEmployerFilter(employerId, title, locatio
 }
 
 export async function updateApplicationStatus(applicationId, status) {
-    const [rows] = pool.query(
-        "UPDATE FROM applications SET status = ? WHERE id = ?",
+    const rows = pool.query(
+        "UPDATE applications SET status = ? WHERE id = ?",
         [status, applicationId]
     );
-    return rows[0];
+    return rows;
 }

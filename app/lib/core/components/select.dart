@@ -1,4 +1,5 @@
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/services/application_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/colors.dart';
@@ -302,17 +303,19 @@ class _ViewApplicationDropdownSelectState extends State<ViewApplicationDropdownS
 
 class ViewApplicationUpdateStatus extends StatefulWidget {
   final String initialValue;
+  final int applicationId;
 
-  const ViewApplicationUpdateStatus({
+  ViewApplicationUpdateStatus({
     super.key,
     required this.initialValue,
+    required this.applicationId
   });
 
   @override
   _ViewApplicationUpdateStatusState createState() => _ViewApplicationUpdateStatusState();
 }
 class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatus> {
-  List<String> items = ["Sent", "Reviewed", "Interviewed", "Rejected", "Hired"];
+  List<String> items = ["Sent", "Reviewed", "Interview", "Rejected", "Hired"];
   
   String? selectedValue;
   Key dropdownKey = UniqueKey(); // Add this key
@@ -323,6 +326,15 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
     selectedValue = widget.initialValue;
   }
   
+  void _updateApplicationStatus(status) async {
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Status successfully updated")));
+      await ApplicationService.updateApplicationStatus(widget.applicationId, status);
+    } catch (e) {
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
@@ -349,6 +361,7 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
         if (result != null && result.isNotEmpty) {
           setState(() {
             selectedValue = result;
+            _updateApplicationStatus(selectedValue);
             dropdownKey = UniqueKey();
           });
         }

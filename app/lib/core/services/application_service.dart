@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:app/models/models.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ApplicationService {
@@ -71,6 +72,20 @@ class ApplicationService {
         return data;
       } else {
         throw Exception('Failed to load applications for employer $employerId: ${response.statusCode}');
+      }
+    });
+  }
+
+  static Future<List<Map<String, dynamic>>> updateApplicationStatus(int applicationId, String status) {
+    final url = Uri.parse('$_baseUrl/update-status/$applicationId/$status');
+    print(url);
+    return http.put(url).then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
+        return data;
+      } else {
+        throw Exception('Failed to load $applicationId: ${response.statusCode}');
       }
     });
   }
