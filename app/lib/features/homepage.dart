@@ -1,32 +1,89 @@
-import 'dart:convert';
-import 'package:app/core/components/loader.dart';
-import 'package:app/core/services/job_service.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
-
+import 'package:app/core/components/alert.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-import 'package:app/models/models.dart';
+
+import 'package:app/core/services/job_service.dart';
 
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/select.dart';
+import 'package:app/core/components/loader.dart';
 
 import 'package:app/core/theme/typography.dart';
 import 'package:app/core/theme/colors.dart';
-import 'package:flutter/services.dart';
 
 
-class Homepage extends StatelessWidget {
+class Homepage extends HookWidget {
   final Function(PageType) onNavigate;
 
   const Homepage({super.key,  required this.onNavigate });
 
   @override
   Widget build(BuildContext context) {
+    final find = useState("");
+    final type = useState("");
+    final jobs = useState<List<Map<String, dynamic>>>([]);
+    final filteredJobs = useState<List<Map<String, dynamic>>>([]);
+
+    void setFind(String newVal) {
+      find.value = newVal;
+    }
+
+    void setType(String newVal) {
+      type.value = newVal;
+    }
+
+    // Fetch all jobs
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final data = await JobService.fetchJobs();
+          jobs.value = data;
+        } catch (e) {
+          if (!context.mounted) return;
+          showAlertError(context, "Failed to load jobs.");
+        }
+      }
+      fetchData();
+      return null;
+    }, []);
+
+    filteredJobs.value = jobs.value;
+
+    // Filter all jobs depending on find search
+    useEffect(() {
+      if (find.value.isEmpty) {
+        filteredJobs.value = jobs.value;
+      } else {
+        filteredJobs.value = jobs.value.where((job) {
+          final title = job["title"]?.toLowerCase() ?? '';
+          return title.contains(find.value.toLowerCase());
+        }).toList();
+      }
+      return null;
+    }, [find.value]);
+
+    // Filter jobs depending on type
+    useEffect(() {
+      if (type.value == "Full-time") {
+        filteredJobs.value = jobs.value.where((job) {
+          return job["type"] == "Full-time";
+        }).toList();
+      } else if (type.value == "Part-time") {
+        filteredJobs.value = jobs.value.where((job) {
+          return job["type"] == "Part-time";
+        }).toList();
+      } else {
+        filteredJobs.value = jobs.value;
+      }
+      return null;
+    }, [type.value]);
+
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez Peso Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -35,9 +92,9 @@ class Homepage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const Align(
+              Align(
                 alignment: Alignment.topCenter,
-                child: HomepageJumbotron(),
+                child: HomepageJumbotron(setFind: setFind, setType: setType),
               ),
               const SizedBox(height: 10.0),
               Text('Featured Local Jobs', style: AppText.textXl.merge(AppText.fontBold)),
@@ -45,7 +102,7 @@ class Homepage extends StatelessWidget {
               SizedBox(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                  child: const FeaturedJobs(),
+                  child: FeaturedJobs(jobs: filteredJobs.value),
                 ),
               ),
               const Footer()
@@ -58,9 +115,15 @@ class Homepage extends StatelessWidget {
 }
 
 class HomepageJumbotron extends StatelessWidget {
-  final List<String> jobTypes = const ['Full-time', 'Part-time'];
+  final ValueChanged<String> setFind;
+  final ValueChanged<String> setType;
+  final List<String> jobTypes = const ['All Jobs', 'Full-time', 'Part-time'];
 
-  const HomepageJumbotron({super.key});
+  const HomepageJumbotron({
+    super.key, 
+    required this.setFind,
+    required this.setType
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -91,9 +154,7 @@ class HomepageJumbotron extends StatelessWidget {
                 labelStyle: AppText.textSm,
                 border: const OutlineInputBorder()
               ),
-              onChanged: (value) => {
-                print('User typed: $value')
-              },
+              onChanged: (value) => setFind(value),
             ),
           ),
           const SizedBox(height: 10,),
@@ -117,7 +178,7 @@ class HomepageJumbotron extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              HomepageDropdownSelect(items: jobTypes, initialValue: null),
+              HomepageDropdownSelect(items: jobTypes, initialValue: "All Jobs", onChanged: setType),
               const SizedBox(width: 10),
               const HomepageFindButton(),
             ],
@@ -130,50 +191,18 @@ class HomepageJumbotron extends StatelessWidget {
   }
 }
 
-class FeaturedJobs extends StatefulWidget {
-  const FeaturedJobs({super.key});
+class FeaturedJobs extends StatelessWidget {
+  final List<Map<String, dynamic>> jobs;
 
-  @override
-  _FeaturedJobsState createState() => _FeaturedJobsState();
-}
-
-class _FeaturedJobsState extends State<FeaturedJobs> {
-  List<Job> jobs = [];
-  bool isLoading = true;
-  String? errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    loadJobs();
-  }
-
-  Future<void> loadJobs() async {
-    try {
-      final fetchedJobs = await JobService.fetchJobs();
-      setState(() {
-        jobs = fetchedJobs;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = e.toString();
-      });
-    }
-  }
+  const FeaturedJobs({
+    super.key,
+    required this.jobs
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 30.0, bottom: 300.0),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     if (jobs.isEmpty) {
-      return const Center(child: Text('No jobs found'));
+      return  Container(padding: const EdgeInsets.symmetric(vertical: 40), child: const CircularProgressIndicator(color: AppColor.info));
     }
 
     return ListView.builder(
@@ -194,15 +223,15 @@ class _FeaturedJobsState extends State<FeaturedJobs> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(job.title, style: AppText.textMd.merge(AppText.fontSemibold)),
+                Text(job["title"], style: AppText.textMd.merge(AppText.fontSemibold)),
                 const SizedBox(height: 12.0),
-                Text(job.company, style: AppText.textSecondary.merge(AppText.fontSemibold)),
+                Text(job["company"], style: AppText.textSecondary.merge(AppText.fontSemibold)),
                 const SizedBox(height: 8.0),
-                Text("📍 ${job.location}", style: AppText.textMuted.merge(AppText.textXs)),
+                Text("📍 ${job["location"]}", style: AppText.textMuted.merge(AppText.textXs)),
                 const SizedBox(height: 8.0),
-                Text("💰 ${job.salary} • ${job.company}", style: AppText.textPrimary.merge(const TextStyle(fontSize: 13)).merge(AppText.fontSemibold)),
+                Text("💰 ${job["salary"]} • ${job["company"]}", style: AppText.textPrimary.merge(const TextStyle(fontSize: 13)).merge(AppText.fontSemibold)),
                 const SizedBox(height: 15.0),
-                FeaturedJobsButton(jobId: job.id),
+                FeaturedJobsButton(jobId: job["id"]),
               ],
             ),
           )

@@ -7,28 +7,20 @@ import 'package:app/core/theme/typography.dart';
 
 class HomepageDropdownSelect extends StatefulWidget {
   final List<String> items;
-  final String? initialValue;
-  final ValueChanged<String?>? onChanged;
+  final String initialValue;
+  final ValueChanged<String> onChanged;
 
   const HomepageDropdownSelect({
     super.key,
     required this.items,
-    this.initialValue,
-    this.onChanged,
+    required this.initialValue,
+    required this.onChanged,
   });
 
   @override
   _HomepageDropdownSelectState createState() => _HomepageDropdownSelectState();
 }
 class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
-  String? selectedValue;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedValue = widget.initialValue;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -39,7 +31,7 @@ class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
         borderRadius: BorderRadius.circular(4),
       ),
       child: DropdownButton(
-        value: selectedValue,
+        value: widget.initialValue,
         hint: const Text('Job Type'),
         items: widget.items.map((String value) {
           return DropdownMenuItem<String>(
@@ -47,10 +39,10 @@ class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
             child: Text(value),
           );
         }).toList(), 
-        onChanged: (String? newValue) {
-          setState(() {
-            selectedValue = newValue;
-          });
+        onChanged: (value) {
+          if (value != null) {
+            widget.onChanged(value);
+          }
         },
         isDense: true,
         underline: const SizedBox(),

@@ -5,15 +5,15 @@ import 'package:http/http.dart' as http;
 class JobService {
   static const String _baseUrl = 'https://x848qg05-3005.asse.devtunnels.ms';
 
-  static Future<List<Job>> fetchJobs() async {
+  static Future<List<Map<String, dynamic>>> fetchJobs() async {
     final url = Uri.parse('$_baseUrl/jobs');
 
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-
-      return data.map((json) => Job.fromJson(json)).toList();
+      final List<dynamic> jsonList = json.decode(response.body);
+      final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
+      return data;
     } else {
       throw Exception('Failed to load jobs: ${response.statusCode}');
     }

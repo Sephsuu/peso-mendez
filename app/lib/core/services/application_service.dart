@@ -78,7 +78,6 @@ class ApplicationService {
 
   static Future<List<Map<String, dynamic>>> updateApplicationStatus(int applicationId, String status) {
     final url = Uri.parse('$_baseUrl/update-status/$applicationId/$status');
-    print(url);
     return http.put(url).then((response) {
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(response.body);

@@ -36,31 +36,28 @@ class UserService {
     await _secureStorage.delete(key: 'jwt_token');
   }
 
-  static Future<Map<String, dynamic>?> fetchLoggedUserData() async {
+  static Future<Map<String, dynamic>> fetchLoggedUserData() async {
     final url = Uri.parse('$_baseUrl/auth/dashboard');
+    final token = await _secureStorage.read(key: 'jwt_token');
+    
+    if (token == null) {
+      throw Exception("Failed to load user data. Please re-log in your account");
+    }
+    
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',  
+      },
+    );
 
-    try {
-      final token = await _secureStorage.read(key: 'jwt_token');
-      if (token == null) {
-        return null;
-      }
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',  // Add the JWT token here
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final user = data['user'];
-        return user;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      return null;
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final user = data['user'];
+      return user;
+    } else {
+      throw Exception("Failed to load user data. Please re-log in your account");
     }
   }
   

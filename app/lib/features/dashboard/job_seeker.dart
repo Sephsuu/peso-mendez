@@ -1,3 +1,4 @@
+import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
@@ -8,6 +9,7 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/register.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 
 class JobSeekerDashboard extends StatelessWidget {
@@ -17,7 +19,6 @@ class JobSeekerDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const isLoading = true;
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -28,20 +29,20 @@ class JobSeekerDashboard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Column(
                 children: [
-                  const SizedBox(height: 10.0),
-                  const DashboardHeader(),
-                  const SizedBox(height: 10.0),
+                  SizedBox(height: 10.0),
+                  DashboardHeader(),
+                  SizedBox(height: 10.0),
                   ProfileStrengthCard(),
-                  const SizedBox(height: 10.0),
-                  const NotificationsCard(),
-                  const SizedBox(height: 10.0),
-                  const GoToMessagesCard(),
-                  const SizedBox(height: 10.0),
-                  const YourApplicationsCard(),
-                  const SizedBox(height: 15.0),
-                  const SuggestedTrainings(),
-                  const SizedBox(height: 15.0),
-                  const SavedJobsCard(),
+                  SizedBox(height: 10.0),
+                  NotificationsCard(),
+                  SizedBox(height: 10.0),
+                  GoToMessagesCard(),
+                  SizedBox(height: 10.0),
+                  YourApplicationsCard(),
+                  SizedBox(height: 15.0),
+                  SuggestedTrainings(),
+                  SizedBox(height: 15.0),
+                  SavedJobsCard(),
                 ],
               ),
             ),
@@ -53,35 +54,31 @@ class JobSeekerDashboard extends StatelessWidget {
   }
 }
 
-class DashboardHeader extends StatefulWidget {
+class DashboardHeader extends HookWidget {
   const DashboardHeader({super.key});
-
-  @override
-  _DashboardHeaderState createState() => _DashboardHeaderState();
-}
-
-class _DashboardHeaderState extends State<DashboardHeader> {
-  String? userName;
-
-  @override
-  void initState() {
-    super.initState();
-    loadUser();
-  }
-
-  void loadUser() async {
-    final data = await UserService.fetchLoggedUserData();
-    setState(() {
-      userName = data?['full_name'] ?? "User";
-    });
-  }
-
+  
   @override
   Widget build(BuildContext context) {
+    final claims = useState<Map<String, dynamic>>({});
+
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final data = await UserService.fetchLoggedUserData();
+          claims.value = data;
+        } catch (e) {
+          if (!context.mounted) return;
+          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
+        }
+      }
+      fetchData();
+      return null;
+    });
+
     return SizedBox(
       width: double.infinity,
       child: Text(
-        userName == null ? '...' : "Welcome Back!\n$userName",
+        claims.value["full_name"] == null ? '...' : "Welcome Back!\n${claims.value["full_name"]}",
         style: AppText.textXl.merge(AppText.fontBold),
         textAlign: TextAlign.center,
       ),
