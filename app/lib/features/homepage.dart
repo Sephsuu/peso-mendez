@@ -117,9 +117,9 @@ class Homepage extends HookWidget {
 class HomepageJumbotron extends StatelessWidget {
   final ValueChanged<String> setFind;
   final ValueChanged<String> setType;
-  final List<String> jobTypes = const ['All Jobs', 'Full-time', 'Part-time'];
+  final List<String> jobTypes = ['All Jobs', 'Full-time', 'Part-time'];
 
-  const HomepageJumbotron({
+  HomepageJumbotron({
     super.key, 
     required this.setFind,
     required this.setType

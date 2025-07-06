@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
     }
 })
 
-router.get('/employer/:employerId', async (req, res) => {
+router.get('/employer-jobs/:employerId', async (req, res) => {
     try {
         const jobs = await jobQuery.getJobsByEmployerId(req.params.employerId);
         res.json(jobs);
@@ -77,5 +77,33 @@ router.get('/employer/location/:employerId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 })
+
+router.put('/update-job', async (req, res) => {
+    try {
+        const {
+            title,
+            company,
+            location,
+            type,
+            salary,
+            visibility,
+            description,
+            id,
+        } = req.body;
+        const job = await jobQuery.updateJob(id, title, company, location, type, salary, visibility, description);
+        return res.json(job);
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete('/delete-job/:id', async (req, res) => {
+    try {
+        const data = await jobQuery.deleteJob(req.params.id);
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 export default router;

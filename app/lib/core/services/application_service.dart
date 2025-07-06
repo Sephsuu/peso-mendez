@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:app/models/models.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ApplicationService {
@@ -49,21 +48,7 @@ class ApplicationService {
   }
 
   static Future<List<Map<String, dynamic>>> getApplicationsByEmployer(int employerId) {
-    final url = Uri.parse('$_baseUrl/$employerId');
-
-    return http.get(url).then((response) {
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = json.decode(response.body);
-        final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
-        return data;
-      } else {
-        throw Exception('Failed to load applications for employer $employerId: ${response.statusCode}');
-      }
-    });
-  }
-
-  static Future<List<Map<String, dynamic>>> getApplicationsByEmployerFilter(int employerId, String jobTitle, String location, String status) {
-    final url = Uri.parse('$_baseUrl/filter/$employerId/$jobTitle/$location/$status');
+    final url = Uri.parse('$_baseUrl/employer-applications/$employerId');
 
     return http.get(url).then((response) {
       if (response.statusCode == 200) {
@@ -85,6 +70,19 @@ class ApplicationService {
         return data;
       } else {
         throw Exception('Failed to load $applicationId: ${response.statusCode}');
+      }
+    });
+  }
+
+  static Future<List<Map<String, dynamic>>> getApplicationsByUser(int userId) async {
+    final url = Uri.parse('$_baseUrl/job-seeker-applications/$userId');
+    return http.get(url).then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        final List<Map<String, dynamic>> data = jsonList.cast<Map<String, dynamic>>();
+        return data;
+      } else {
+        throw Exception('Failed to load $userId: ${response.statusCode}');
       }
     });
   }

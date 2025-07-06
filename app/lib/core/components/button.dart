@@ -1,3 +1,4 @@
+import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/user_service.dart';
@@ -7,7 +8,7 @@ import 'package:app/features/job_seeker/already_applied.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
-import 'package:app/features/forms/post_job_form.dart';
+import 'package:app/features/employer/post_job_form.dart';
 import 'package:app/features/homepage.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/forms/register.dart';
@@ -101,9 +102,7 @@ class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
         } else if (userRole == 'admin') {
           Navigator.push(context, MaterialPageRoute(builder: (context) => AdminDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(userRole ?? 'no token')),
-          );
+          showAlertError(context, "Session expired. Please re-log in.");
         }
       }, 
       child: const Text('View Profile'),
@@ -537,59 +536,6 @@ class EmployerContentCardButton extends StatelessWidget {
     );
   }
 }
-
-// POST NEW JOB
-
-class PostJobButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const PostJobButton({
-    super.key, 
-    required this.onPressed
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.success,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: const VisualDensity(vertical: -2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: onPressed, 
-      child: const Text('🚀 Post Job')
-    );
-  }
-}
-
-class PostJobBackButton extends StatelessWidget {
-  const PostJobBackButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.secondary,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: const VisualDensity(vertical: -2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-        Navigator.of(context).pop();
-      }, 
-      child: const Text('Back')
-    );
-  }
-} 
 
 // APPLIED ALREADY
 

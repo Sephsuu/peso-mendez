@@ -1,7 +1,7 @@
 import pool from "../../db.js";
 
 export async function getJobs() {
-    const [rows] = await pool.query('SELECT * FROM jobs');
+    const [rows] = await pool.query('SELECT * FROM jobs ORDER BY posted_on DESC');
     return rows;
 }
 
@@ -33,7 +33,7 @@ export async function getJobsByEmployerId(employerId) {
         "SELECT * FROM jobs WHERE employer_id = ?",
         [employerId]
     );
-    return [rows];
+    return rows;
 }
 
 export async function getJobsByEmployerIdCount(employerId) {
@@ -60,4 +60,21 @@ export async function getJobLocationByEmployer(employerId) {
     );
 
     return rows;
+}
+
+export async function updateJob(jobId, title, company, location, type, salary, visibility, description) {
+    const [rows] = await pool.query(
+        "UPDATE jobs SET title = ?, company = ?, location = ?, type = ?, salary = ?, visibility = ?, description = ? WHERE id = ?",
+        [title, company, location, type, salary, visibility, description, jobId]
+    );
+    return rows[0];
+}
+
+export async function deleteJob(jobId) {
+    const [rows] = await pool.query(
+        "DELETE FROM jobs WHERE id = ?",
+        [jobId]
+    );
+
+    return rows[0];
 }

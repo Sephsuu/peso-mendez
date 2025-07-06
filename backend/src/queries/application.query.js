@@ -21,6 +21,20 @@ export async function addApplication(jobId, userId) {
     return result;
 } 
 
+export async function getApplicationsByUser(userId) {
+    const [rows] = await pool.query(
+        `SELECT a.id, a.status AS applicationStatus,
+        j.title, j.company, j.location, j.salary, j.type, j.description, j.visibility, j.posted_on,
+        u.full_name, u.email, u.contact FROM applications a
+        JOIN jobs j ON a.job_id = j.id
+        JOIN users u ON j.employer_id = u.id
+        WHERE a.job_seeker_id = ?`,
+        [userId]
+    );
+    
+    return rows;
+}
+
 export async function getApplicationByJobAndUser(jobId, userId) {
     const [rows] = await pool.query(
       "SELECT * FROM applications WHERE job_id = ? AND job_seeker_id = ?",
@@ -39,34 +53,6 @@ export async function getApplicationsByEmployer(employerId) {
         WHERE j.employer_id = ?`,
         [employerId]
     )
-    return rows;
-}
-
-export async function getApplicationsByEmployerFilter(employerId, title, location, applicationStatus) {
-    console.log({ employerId, title, location, applicationStatus });
-    let sql = `
-        SELECT a.*, j.title, j.location, u.full_name
-        FROM applications a
-        JOIN jobs j ON a.job_id = j.id
-        JOIN users u ON a.job_seeker_id = u.id
-        WHERE j.employer_id = ?
-    `;
-    const params = [employerId];
-
-    if (title !== "A") {
-        sql += " AND j.title = ?";
-        params.push(title);
-    }
-    if (location !== "A") {
-        sql += " AND j.location = ?";
-        params.push(location);
-    }
-    if (applicationStatus !== "A") {
-        sql += " AND a.status = ?";
-        params.push(applicationStatus);
-    }
-
-    const [rows] = await pool.query(sql, params);
     return rows;
 }
 

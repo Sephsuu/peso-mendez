@@ -1,4 +1,3 @@
-import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 
@@ -6,29 +5,36 @@ class DashboardSummaryCard extends StatelessWidget {
   final String header;
   final String count;
   final Color color;
+  final Widget onTap;
 
   const DashboardSummaryCard({
     super.key,
     required this.header,
     required this.count,
-    required this.color
+    required this.color,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: Card(
-        color: color,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(header, style: AppText.textLight.merge(AppText.fontSemibold)),
-              const SizedBox(height: 3),
-              Text(count, style: AppText.textLight.merge(AppText.textFxl)),
-            ],
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => onTap));
+        },
+        child: Card(
+          color: color,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(header, style: AppText.textLight.merge(AppText.fontSemibold)),
+                const SizedBox(height: 3),
+                Text(count, style: AppText.textLight.merge(AppText.textFxl)),
+              ],
+            ),
           ),
         ),
       ),

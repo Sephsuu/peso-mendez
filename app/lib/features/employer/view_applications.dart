@@ -2,24 +2,71 @@ import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
-import 'package:app/core/services/application_service.dart';
-import 'package:app/core/services/job_service.dart';
-import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class ViewApplications extends StatelessWidget {
+class ViewApplications extends HookWidget {
   final Function(PageType) onNavigate;
-  final int userId;
+  final List<Map<String, dynamic>> applications;
 
   const ViewApplications({super.key, 
     required this.onNavigate,
-    required this.userId
+    required this.applications,
   });
 
   @override
   Widget build(BuildContext context) {
+    final filteredApplications = useState<List<Map<String, dynamic>>>([]);
+    final selectedJob = useState("");
+    final selectedLocation = useState("");
+    final selectedStatus = useState("");
+
+    final jobSelection = useState<List<String>>([]);
+    final locationSelection = useState<List<String>>([]);
+
+    void setJob(String newVal) {
+      selectedJob.value = newVal;
+    }
+
+    void setLocation(String newVal) {
+      selectedLocation.value = newVal;
+    }
+
+    void setStatus(String newVal) {
+      selectedStatus.value = newVal;
+    }
+
+    useEffect(() {
+      final jobs = applications.map((item) => item["title"].toString()).toSet().toList();
+      final locations = applications.map((item) => item["location"].toString()).toSet().toList();
+
+      jobSelection.value = ["All Jobs", ...jobs];
+      locationSelection.value = ["All Locations", ...locations];
+      filteredApplications.value = applications;
+      return null;
+    }, [applications]);
+
+    useEffect(() {
+      if (selectedJob.value.isNotEmpty && selectedJob.value != "All Jobs") {
+        filteredApplications.value = filteredApplications.value.where((item) {
+          return item["title"] == selectedJob.value;
+        }).toList();
+      } else if (selectedLocation.value.isNotEmpty && selectedJob.value != "All Locations") {
+        filteredApplications.value = filteredApplications.value.where((item) {
+          return item["location"] == selectedLocation.value;
+        }).toList();
+      } else if (selectedStatus.value.isNotEmpty && selectedStatus.value != "All Status") {
+        filteredApplications.value = filteredApplications.value.where((item) {
+          return item["status"] == selectedStatus.value;
+        }).toList();
+      } else {
+        filteredApplications.value = applications;
+      }
+      return null;
+    }, [selectedJob.value, selectedLocation.value, selectedStatus.value]);
+
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -31,10 +78,14 @@ class ViewApplications extends StatelessWidget {
               child: Column(
                 children: [
                   const ViewApplicationHeader(),
-                  ViewApplicationFilter(userId: userId)
+                  const SizedBox(height: 20),
+                  ViewApplicationsFilter(jobs: jobSelection.value, locations: locationSelection.value, setJob: setJob, setLocation: setLocation, setStatus: setStatus),
+                  const SizedBox(height: 20),
+                  ViewApplicationsTable(applications: filteredApplications.value),
                 ],
               ),
             ),
+            const SizedBox(height: 200),
             const Footer(),
           ],
         ),
@@ -44,7 +95,6 @@ class ViewApplications extends StatelessWidget {
 }
 
 class ViewApplicationHeader extends StatelessWidget {
-
   const ViewApplicationHeader({super.key});
 
   @override
@@ -64,184 +114,48 @@ class ViewApplicationHeader extends StatelessWidget {
   }
 }
 
-class ViewApplicationFilter extends StatefulWidget {
-  final int userId;
+class ViewApplicationsFilter extends StatelessWidget {
+  final List<String> jobs;
+  final List<String> locations;
+  final ValueChanged<String> setJob;
+  final ValueChanged<String> setLocation;
+  final ValueChanged<String> setStatus;
 
-  const ViewApplicationFilter({
+  const ViewApplicationsFilter({
     super.key,
-    required this.userId,
+    required this.jobs,
+    required this.locations,
+    required this.setJob,
+    required this.setLocation,
+    required this.setStatus,
   });
 
   @override
-  _ViewApplicationFilterState createState() => _ViewApplicationFilterState();
-}
-class _ViewApplicationFilterState extends State<ViewApplicationFilter> {
-  List<String> jobs = [];
-  List<String> statuses = ['Sent', 'Reviewed', 'Interview', 'Hired', 'Rejected'];
-  List<String> skills = [];
-  List<String> locations = [];
-
-  String? _selectedJob;
-  String? _selectedLocation;
-  String? _selectedStatus;
-
-  String? _appliedJob;
-  String? _appliedLocation;
-  String? _appliedStatus;
-
-  Key _tableKey = UniqueKey();
-
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchData(widget.userId);
-  }
-
-  void _fetchData(employerId) async {
-    try {
-      final List<String> jobsRes = await JobService.getJobTitlesByEmployer(widget.userId);
-      final List<String> locationsRes = await JobService.getJobLocationsByEmployer(widget.userId);
-      setState(() {
-        jobs = jobsRes;
-        locations = locationsRes;
-      });
-      isLoading = false;
-    } catch (e) {
-      const Scaffold(body: CircularProgressIndicator());
-    } 
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
-    }
+    final List<String> statuses = ["All Status", "Sent", "Reviewed", "Interview", "Rejected", "Hired"];
 
     return Column(
       children: [
-        ViewApplicationDropdownSelect(items: jobs, initialValue: _selectedJob, placeholder: 'All Jobs', onChanged: (value) { setState(() { _selectedJob = value; }); }),
+        ViewApplicationDropdownSelect(items: jobs, initialValue: "All Jobs", onChanged: setJob),
         const SizedBox(height: 7),
-        ViewApplicationDropdownSelect(items: locations, initialValue: _selectedLocation, placeholder: 'All Locations', onChanged: (value) { setState(() { _selectedLocation = value; }); }),
+        ViewApplicationDropdownSelect(items: locations, initialValue: "All Locations", onChanged: setLocation),
         const SizedBox(height: 7),
-        ViewApplicationDropdownSelect(items: statuses, initialValue: _selectedStatus, placeholder: 'All Statuses', onChanged: (value) { setState(() { _selectedStatus = value; }); }),
-        const SizedBox(height: 15),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColor.primary,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          ),
-          onPressed: () {
-            setState(() {
-              _appliedJob = _selectedJob;
-              _appliedLocation = _selectedLocation;
-              _appliedStatus = _selectedStatus;
-
-              _tableKey = UniqueKey(); 
-            });
-          }, 
-          child: const Text('Filter')
-        ),
-
-        ViewApplicationTable(
-          key: _tableKey,
-          job: _appliedJob ?? 'A',
-          location: _appliedLocation ?? 'A',
-          status: _appliedStatus ?? 'A',
-          userId: widget.userId,
-        ),
-
+        ViewApplicationDropdownSelect(items: statuses, initialValue: "All Status", onChanged: setStatus),
       ],
     );
   }
 }
 
-class ViewApplicationTable extends StatefulWidget {
-  final int userId;
-  final String job;
-  final String location;
-  final String status;
+class ViewApplicationsTable extends StatelessWidget {
+  final List<Map<String, dynamic>> applications;
 
-  const ViewApplicationTable({
+  const ViewApplicationsTable({
     super.key,
-    required this.job,
-    required this.location,
-    required this.status,
-    required this.userId,
+    required this.applications
   });
 
   @override
-  _ViewApplicationTableState createState() => _ViewApplicationTableState();
-}
-class _ViewApplicationTableState extends State<ViewApplicationTable> {
-  List<Map<String, dynamic>> applications = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchAppropriateData();
-  }
-
-  // This method decides which fetch to use
-  void _fetchAppropriateData() {
-    if (widget.job != "A" || widget.location != "A" || widget.status != "A") {
-      debugPrint('Fetching filtered data');  
-      _fetchDataFilter();
-    } else {
-      debugPrint('Fetching all data');
-      _fetchData();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant ViewApplicationTable oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.job != oldWidget.job ||
-        widget.location != oldWidget.location ||
-        widget.status != oldWidget.status) {
-      _fetchAppropriateData();
-    }
-  }
-
-  void _fetchData() async {
-    try {
-      final List<Map<String, dynamic>> applicationsRes = await ApplicationService.getApplicationsByEmployer(widget.userId);
-      setState(() {
-        applications = applicationsRes;
-      });
-      isLoading = false;
-    } catch (e) {
-      return;
-    }
-  }
-
-  void _fetchDataFilter() async {
-    try {
-      final List<Map<String, dynamic>> applicationsRes = await ApplicationService.getApplicationsByEmployerFilter(
-        widget.userId, widget.job, widget.location, widget.status
-      );
-      setState(() {
-        applications = applicationsRes;
-      });
-      isLoading = false;
-    } catch (e) {
-      // Use ScaffoldMessenger for errors, not Scaffold
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading data')));
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
-    }
-    
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(

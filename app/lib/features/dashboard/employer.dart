@@ -1,73 +1,90 @@
+import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/card.dart';
 import 'package:app/core/components/footer.dart';
-import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/employer/view_active_jobs.dart';
 import 'package:app/features/employer/view_applications.dart';
 import 'package:app/features/homepage.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class EmployerDashboard extends StatefulWidget {
+class EmployerDashboard extends HookWidget {
   final Function(PageType) onNavigate;
 
   const EmployerDashboard({super.key, required this.onNavigate });
 
   @override
-  _EmployerDashboardState createState() => _EmployerDashboardState();
-}
-class _EmployerDashboardState extends State<EmployerDashboard> {
-  late int userId;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadUser();
-  }
-
-  void loadUser() async {
-    final data = await UserService.fetchLoggedUserData();
-    setState(() {
-      userId = data?['id'];
-    });
-    isLoading = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return  const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6)));
+    final claims = useState<Map<String, dynamic>>({});
+    final refresh = useState<bool>(false);
+    final jobs = useState<List<Map<String, dynamic>>>([]);
+    final applications = useState<List<Map<String, dynamic>>>([]);
+
+    Future<void> setRefresh() async {
+      refresh.value = !refresh.value;
+      // await Future.delayed(const Duration(milliseconds: 300));
     }
+
+    // Fetch use token and define claims of logged user
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final data = await UserService.fetchLoggedUserData();
+          claims.value = data;
+        } catch (e) {
+          if (!context.mounted) return;
+          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
+        }
+      }
+      fetchData();
+      return null;
+    }, []);
+
+    // Fetch jobs and existion application for the jobs created by logged employer
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final jobsRes = await JobService.fetchJobsByEmployer(claims.value["id"]);
+          final applicationsRes = await ApplicationService.getApplicationsByEmployer(claims.value["id"]);
+          jobs.value = jobsRes;
+          applications.value = applicationsRes;
+        } catch (e) {
+          if (!context.mounted) return;
+          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
+        }
+      }
+      fetchData();
+      return null;
+    }, [claims.value["id"]]);
 
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: RefreshIndicator(
-        onRefresh: AppLoader.handleRefresh,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                child: Column(
-                  children: [
-                    DashboardHeader(),
-                    const SizedBox(height: 5),
-                    DashboardSummary(userId: userId,),
-                    const SizedBox(height: 10),
-                    DashboardOtherContent(userId: userId,),
-                  ],
-                ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              child: Column(
+                children: [
+                  DashboardHeader(),
+                  const SizedBox(height: 5),
+                  DashboardSummary(claims: claims.value, jobs: jobs.value, applications: applications.value),
+                  const SizedBox(height: 10),
+                  DashboardOtherContent(claims: claims.value, applications: applications.value),
+                ],
               ),
-              const Footer(),
-            ],
-          ),
+            ),
+            const Footer(),
+          ],
         ),
       ),
     );
@@ -76,7 +93,6 @@ class _EmployerDashboardState extends State<EmployerDashboard> {
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -109,56 +125,39 @@ class DashboardHeader extends StatelessWidget {
   }
 }
 
-class DashboardSummary extends StatefulWidget {
-  final int userId;
+class DashboardSummary extends StatelessWidget {
+  final Map<String, dynamic> claims;
+  final List<Map<String, dynamic>> jobs;
+  final List<Map<String, dynamic>> applications;
+
   const DashboardSummary({
     super.key,
-    required this.userId
+    required this.claims,
+    required this.jobs,
+    required this.applications,
   });
-  @override
-  _DashboardSummaryState createState() => _DashboardSummaryState();
-}
-class _DashboardSummaryState extends State<DashboardSummary> {
-  int? activeJobCount;
-  int applicationCount = 0;
-  bool isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    loadCounts(widget.userId);
-  }
-
-  Future<void> loadCounts(int userId) async {
-    final activeJobsCount = await JobService.fetchJobCountByEmployer(userId);
-    setState(() {
-      activeJobCount = activeJobsCount;
-    });
-    isLoading = false;
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
-    }
-    
     return Column(
       children: [
-        DashboardSummaryCard(header: '💼 Active Jobs', count: activeJobCount == null ? '...' : activeJobCount.toString(), color: AppColor.success),
-        DashboardSummaryCard(header: '👥 Applications', count: 5.toString(), color: AppColor.primary),
-        const DashboardSummaryCard(header: '📊 Trends', count: 'Coming soon...', color: AppColor.info),
+        DashboardSummaryCard(header: '💼 Active Jobs', count: jobs.length.toString(), color: AppColor.success, onTap: ViewActiveJobs(onNavigate: (page) => globalNavigateTo?.call(page), jobs: jobs,)),
+        DashboardSummaryCard(header: '👥 Applications', count: applications.length.toString(), color: AppColor.primary, onTap: ViewApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications)),
+        DashboardSummaryCard(header: '📊 Trends', count: 'Coming soon...', color: AppColor.info, onTap: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
       ],
     );
   }
 }
 
 class DashboardOtherContent extends StatelessWidget {
-  final int userId;
+  final Map<String, dynamic> claims;
+  final List<Map<String, dynamic>> applications;
 
   const DashboardOtherContent({
     super.key,
-    required this.userId,
+    required this.claims,
+    required this.applications,
   });
 
   @override
@@ -167,7 +166,7 @@ class DashboardOtherContent extends StatelessWidget {
       children: [
         DashboardOtherContentCard(header: '📢 Post Jobs', paragraph: 'Create new job posts with Lite, Branded, or Premium visibility.', button: PostANewJobButton()),
         const SizedBox(height: 10),
-        DashboardOtherContentCard(header: '📄 Manage Applications', paragraph: 'View, filter, and track candidate applications.', button: EmployerContentCardButton(text: 'View Applications', page: ViewApplications(onNavigate: (page) => globalNavigateTo?.call(page), userId: userId))),
+        DashboardOtherContentCard(header: '📄 Manage Applications', paragraph: 'View, filter, and track candidate applications.', button: EmployerContentCardButton(text: 'View Applications', page: ViewApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications))),
         const SizedBox(height: 10),
         DashboardOtherContentCard(header: '💬 Communication', paragraph: 'Message applicants directly and receive email notifications', button: EmployerContentCardButton(text: 'Open Messages', page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page)))),
         const SizedBox(height: 10),

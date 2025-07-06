@@ -3,26 +3,61 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/register.dart';
+import 'package:app/features/job_seeker/all_applications.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 
-class JobSeekerDashboard extends StatelessWidget {
+class JobSeekerDashboard extends HookWidget {
   final Function(PageType) onNavigate;
 
   const JobSeekerDashboard({super.key, required this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
+    final claims = useState<Map<String, dynamic>>({});
+    final applications = useState<List<Map<String, dynamic>>>([]);
+
+    // Fetch use token and define claims of logged user
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final data = await UserService.fetchLoggedUserData();
+          claims.value = data;
+        } catch (e) {
+          if (!context.mounted) return;
+          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
+        }
+      }
+      fetchData();
+      return null;
+    }, []);
+
+    // Fetch applications done by the user
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final data = await ApplicationService.getApplicationsByUser(claims.value["id"]);
+          applications.value = data;
+        } catch (e) {
+          if (!context.mounted) return;
+          showAlertError(context, "Failed to fetch applications. Please try again.");
+        }
+      }
+      fetchData();
+      return null;
+    }, [claims.value["id"]]);
+
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           children: [
             Padding(
@@ -30,7 +65,7 @@ class JobSeekerDashboard extends StatelessWidget {
                 child: Column(
                 children: [
                   SizedBox(height: 10.0),
-                  DashboardHeader(),
+                  DashboardHeader(fullName: claims.value["full_name"] ?? "..."),
                   SizedBox(height: 10.0),
                   ProfileStrengthCard(),
                   SizedBox(height: 10.0),
@@ -38,7 +73,7 @@ class JobSeekerDashboard extends StatelessWidget {
                   SizedBox(height: 10.0),
                   GoToMessagesCard(),
                   SizedBox(height: 10.0),
-                  YourApplicationsCard(),
+                  YourApplicationsCard(applications: applications.value),
                   SizedBox(height: 15.0),
                   SuggestedTrainings(),
                   SizedBox(height: 15.0),
@@ -54,31 +89,20 @@ class JobSeekerDashboard extends StatelessWidget {
   }
 }
 
-class DashboardHeader extends HookWidget {
-  const DashboardHeader({super.key});
+class DashboardHeader extends StatelessWidget {
+  final String fullName; 
+
+  const DashboardHeader({
+    super.key,
+    required this.fullName,
+  });
   
   @override
   Widget build(BuildContext context) {
-    final claims = useState<Map<String, dynamic>>({});
-
-    useEffect(() {
-      void fetchData() async {
-        try {
-          final data = await UserService.fetchLoggedUserData();
-          claims.value = data;
-        } catch (e) {
-          if (!context.mounted) return;
-          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
-        }
-      }
-      fetchData();
-      return null;
-    });
-
     return SizedBox(
       width: double.infinity,
       child: Text(
-        claims.value["full_name"] == null ? '...' : "Welcome Back!\n${claims.value["full_name"]}",
+        "Welcome Back!\n$fullName",
         style: AppText.textXl.merge(AppText.fontBold),
         textAlign: TextAlign.center,
       ),
@@ -252,14 +276,12 @@ class GoToMessagesCard extends StatelessWidget {
   }
 }
 
-class YourApplicationsCard extends StatefulWidget {
-  const YourApplicationsCard({super.key});
-
-  @override
-  _YourApplicationsCardState createState() => _YourApplicationsCardState();
-}
-
-class _YourApplicationsCardState extends State<YourApplicationsCard> {
+class YourApplicationsCard extends HookWidget {
+  final List<Map<String, dynamic>> applications;
+  const YourApplicationsCard({
+    super.key,
+    required this.applications,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -272,12 +294,12 @@ class _YourApplicationsCardState extends State<YourApplicationsCard> {
             children: [
               Text('Your Applications', style: AppText.textLg.merge(AppText.fontSemibold)),
               GestureDetector(
-                child: Text('Sea All', style: AppText.textXs.merge(AppText.textPrimary)),
+                child: Text('Sea All', style: AppText.textSm.merge(AppText.textPrimary)),
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Register(onNavigate: (page) => globalNavigateTo?.call(page))
+                      builder: (context) => AllApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications)
                     ),
                   );
                 },
@@ -285,19 +307,56 @@ class _YourApplicationsCardState extends State<YourApplicationsCard> {
             ],
           ),
           const SizedBox(height: 5.0),
-          Card(
-            color: const Color.fromARGB(255, 211, 255, 235),
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                children: [
-                  Text("You haven't applied to any jobs yet.\nStart applying to jobs from the job listings page!", style: AppText.textSuccess),
-                  const SizedBox(height: 10.0),
-                  BrowseJobsButton()
+          applications.isEmpty ?
+            Card(
+              color: const Color.fromARGB(255, 211, 255, 235),
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: [
+                    Text("You haven't applied to any jobs yet.\nStart applying to jobs from the job listings page!", style: AppText.textSuccess),
+                    const SizedBox(height: 10.0),
+                    BrowseJobsButton()
+                  ],
+                )
+              ),
+            )
+          : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Job Title')),
+                  DataColumn(label: Text('Status')),
+                  DataColumn(label: Text('Actions')),
                 ],
-              )
-            ),
-          )
+                rows: applications.take(5).map((application) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(application['title'] ?? 'N/A')),
+                      DataCell(Text(application['applicationStatus'] ?? 'N/A')),
+                      DataCell(
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => AllApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications)));
+                              },
+                              child: Text("View", style: AppText.textPrimary),
+                            ),
+                            const SizedBox(width: 10), 
+                            GestureDetector(
+                              onTap: null,
+                              child: Text("Message", style: AppText.textSuccess),
+                            ),
+                          ],
+                        )
+                      ),
+
+                    ],
+                  );
+                }).toList()
+              ),
+            )
         ],
       )
     );

@@ -7,6 +7,7 @@ import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/services/user_service.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/main.dart';
@@ -72,7 +73,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
   void loadUser() async {
     final data = await UserService.fetchLoggedUserData();
     setState(() {
-      employerId = data?['id'] ?? 0;
+      employerId = data['id'];
     });
   }
 
@@ -156,9 +157,31 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           const SizedBox(height: 20),
           Row(
             children: [
-              PostJobButton(onPressed: _submitForm),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: AppColor.light,
+                  backgroundColor: AppColor.success,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4)
+                  )
+                ),
+                onPressed: _submitForm, 
+                child: const Text("🚀 Post Job")
+              ),
               const SizedBox(width: 15),
-              PostJobBackButton(),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: AppColor.light,
+                  backgroundColor: AppColor.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4)
+                  )
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }, 
+                child: const Text("Cancel")
+              ),
             ],
           )
           // RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),
