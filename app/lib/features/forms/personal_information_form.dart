@@ -128,7 +128,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                     if (date == null) return 'Please enter a date';
                     return null;
                   },
-                  onDateSelected: (DateTime value) {
+                  onChanged: (DateTime? value) {
                     print('Selected date: $value');
                   },
                 ),

@@ -9,6 +9,7 @@ import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/register.dart';
 import 'package:app/features/job_seeker/all_applications.dart';
+import 'package:app/features/job_seeker/view_application.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -339,7 +340,7 @@ class YourApplicationsCard extends HookWidget {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => AllApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewApplication(onNavigate: (page) => globalNavigateTo?.call(page), application: application)));
                               },
                               child: Text("View", style: AppText.textPrimary),
                             ),
