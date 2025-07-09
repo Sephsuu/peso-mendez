@@ -29,7 +29,9 @@ class ViewApplication extends HookWidget {
           SingleChildScrollView(
             child: Column(
               children: [
-                ViewApplicationCover(application: application)
+                ViewApplicationCover(application: application),
+                JobDescriptionCard(description: application["description"]),
+                JobDetailsCard(application: application)
               ],
             ),
           ),
@@ -74,7 +76,7 @@ class ViewApplicationCover extends StatelessWidget {
               const Icon(Icons.location_on, size: 20.0, color: Colors.white),
               const SizedBox(width: 10),
               Text(application["location"], style: AppText.textLight.merge(AppText.textMd)),
-              const SizedBox(width: 40),
+              const SizedBox(width: 20),
               const Icon(Icons.monetization_on, size: 20.0, color: Colors.white),
               const SizedBox(width: 10),
               Text(application["salary"], style: AppText.textLight.merge(AppText.textMd)),
@@ -86,7 +88,7 @@ class ViewApplicationCover extends StatelessWidget {
               const Icon(Icons.work, size: 20.0, color: Colors.white),
               const SizedBox(width: 10),
               Text(application["type"], style: AppText.textLight.merge(AppText.textMd)),
-              const SizedBox(width: 40),
+              const SizedBox(width: 20),
               const Icon(Icons.calendar_month, size: 20.0, color: Colors.white),
               const SizedBox(width: 10),
               Text(DateFormat("MMM d, y").format(DateTime.parse(application["posted_on"])).toString(), style: AppText.textLight.merge(AppText.textMd)),
@@ -94,7 +96,6 @@ class ViewApplicationCover extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -113,6 +114,7 @@ class ViewApplicationCover extends StatelessWidget {
                   ],
                 )
               ),
+              const SizedBox(width: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.success,
@@ -133,6 +135,156 @@ class ViewApplicationCover extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class JobDescriptionCard extends StatelessWidget {
+  final String description;
+
+  const JobDescriptionCard({
+    super.key,
+    required this.description
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Card(
+        color: AppColor.light,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row( 
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.file_copy, size: 20),
+                  const SizedBox(width: 10),
+                  Text("Job Description", style: AppText.textLg.merge(AppText.fontSemibold))
+                ]
+              ),
+              const SizedBox(height: 5),
+              Text(description)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class JobDetailsCard extends StatelessWidget {
+  final Map<String, dynamic> application;
+
+  const JobDetailsCard({
+    super.key,
+    required this.application
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Card(
+        color: AppColor.light,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row( 
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.info, size: 20),
+                  const SizedBox(width: 10),
+                  Text("Job Details", style: AppText.textLg.merge(AppText.fontSemibold))
+                ]
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text("Job Title:", style: AppText.textPrimary.merge(AppText.fontSemibold)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(application["type"]),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text("Salary:", style: AppText.textPrimary.merge(AppText.fontSemibold)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(application["salary"]),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text("Location:", style: AppText.textPrimary.merge(AppText.fontSemibold)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(application["location"]),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text("Date Posted:", style: AppText.textPrimary.merge(AppText.fontSemibold)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(DateFormat("MMM d, y").format(DateTime.parse(application["posted_on"])).toString()),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text("Visibility:", style: AppText.textPrimary.merge(AppText.fontSemibold)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(application["visibility"]),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text("Job Status:", style: AppText.textPrimary.merge(AppText.fontSemibold)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(application["status"]),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
