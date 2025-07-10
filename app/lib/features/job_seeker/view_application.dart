@@ -24,20 +24,16 @@ class ViewApplication extends HookWidget {
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                ViewApplicationCover(application: application),
-                JobDescriptionCard(description: application["description"]),
-                JobDetailsCard(application: application)
-              ],
-            ),
-          ),
-          const Footer()
-        ],
-      )
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            ViewApplicationCover(application: application),
+            JobDescriptionCard(description: application["description"]),
+            JobDetailsCard(application: application),
+            AboutCompanyCard(application: application,)
+          ],
+        ),
+      ),
     );
   }
 }
@@ -282,6 +278,100 @@ class JobDetailsCard extends StatelessWidget {
                   )
                 ],
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AboutCompanyCard extends StatelessWidget {
+  final Map<String, dynamic> application;
+
+  const AboutCompanyCard({
+    super.key,
+    required this.application
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Card(
+        color: AppColor.light,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row( 
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.business, size: 20),
+                  const SizedBox(width: 10),
+                  Text("About the Company", style: AppText.textLg.merge(AppText.fontSemibold))
+                ]
+              ),
+              const SizedBox(height: 15),
+              Center(
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppColor.primary,  
+                      width: 2.0,        
+                    ),
+                    color: AppColor.light,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(child: Icon(Icons.business, size: 50)),
+                ),
+              ),
+              const SizedBox(height: 15),
+              Center(child: Text(application["full_name"], style: AppText.textMd.merge(AppText.fontSemibold))),
+              Center(child: Text("Employer", style: AppText.textSm.merge(AppText.fontSemibold).merge(AppText.textSecondary))),
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.mail, size: 20, color: AppColor.primary),
+                  const SizedBox(width: 5),
+                  Text(application["email"], style: AppText.textSm)
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.phone, size: 20, color: AppColor.primary),
+                  const SizedBox(width: 5),
+                  Text(application["contact"], style: AppText.textSm)
+                ],
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColor.primary,
+                    foregroundColor: AppColor.light,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4)
+                    )
+                  ),
+                  onPressed: () {},
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.mail, size: 20, color: AppColor.light),
+                      const SizedBox(width: 5),
+                      Text("Send Message", style: AppText.textSm)
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
