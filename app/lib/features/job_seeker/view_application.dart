@@ -30,7 +30,8 @@ class ViewApplication extends HookWidget {
             ViewApplicationCover(application: application),
             JobDescriptionCard(description: application["description"]),
             JobDetailsCard(application: application),
-            AboutCompanyCard(application: application,)
+            AboutCompanyCard(application: application),
+            Footer()
           ],
         ),
       ),
