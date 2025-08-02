@@ -1,7 +1,6 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 
@@ -102,7 +101,7 @@ class Homepage extends HookWidget {
               SizedBox(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                  child: FeaturedJobs(jobs: filteredJobs.value),
+                  child: FeaturedJobs(jobs: filteredJobs.value)
                 ),
               ),
               const Footer()
@@ -202,7 +201,7 @@ class FeaturedJobs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (jobs.isEmpty) {
-      return  Container(padding: const EdgeInsets.symmetric(vertical: 40), child: const CircularProgressIndicator(color: AppColor.info));
+      return Container(padding: const EdgeInsets.symmetric(vertical: 40), child: const CircularProgressIndicator(color: AppColor.info));
     }
 
     return ListView.builder(

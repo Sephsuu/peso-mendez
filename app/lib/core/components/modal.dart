@@ -1,10 +1,9 @@
 import 'package:app/core/components/button.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/models/models.dart';
 import 'package:flutter/material.dart';
 
-Future<void> showJobDetailModal(BuildContext context, Job job, int userId) async {
+Future<void> showJobDetailModal(BuildContext context, Map<String, dynamic> job, int userId) async {
   showDialog(
     context: context,
     barrierDismissible: false, // prevent dismiss while loading
@@ -19,7 +18,7 @@ Future<void> showJobDetailModal(BuildContext context, Job job, int userId) async
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Apply for ${job.title} at ${job.location}", style: AppText.textXl.merge(AppText.fontSemibold)),
+          title: Text("Apply for ${job['title']} at ${job['location']}", style: AppText.textXl.merge(AppText.fontSemibold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,9 +28,9 @@ Future<void> showJobDetailModal(BuildContext context, Job job, int userId) async
                   style: AppText.textDark.copyWith(height: 1.5),
                   children: [
                     const TextSpan(text: "You're about to apply for: "),
-                    TextSpan(text: job.title, style: AppText.fontSemibold),
+                    TextSpan(text: job['title'], style: AppText.fontSemibold),
                     const TextSpan(text: " at  "),
-                    TextSpan(text: "${job.location}.", style: AppText.fontSemibold),
+                    TextSpan(text: "${job['location']}.", style: AppText.fontSemibold),
                   ]
                 ),
               ),

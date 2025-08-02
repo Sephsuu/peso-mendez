@@ -5,13 +5,14 @@ import 'package:app/core/services/application_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/main.dart';
-import 'package:app/models/models.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class AlreadyApplied extends StatefulWidget {
+class AlreadyApplied extends HookWidget {
   final Function(PageType) onNavigate;
-  final Job job;
+  final Map<String, dynamic> job;
   final int userId;
+
   const AlreadyApplied({
     super.key, 
     required this.onNavigate,
@@ -20,35 +21,24 @@ class AlreadyApplied extends StatefulWidget {
   });
 
   @override
-  _AlreadyAppliedState createState() => _AlreadyAppliedState();
-}
-
-class _AlreadyAppliedState extends State<AlreadyApplied> {
-  Application? application;
-  String? errorMessage;
-  bool isLoading = true;
-  String? error;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadApplication();
-  }
-
-  void _loadApplication() async {
-    try {
-      application = await ApplicationService.getApplicationByJobAndUser(widget.job.id, widget.userId);
-    } catch (e) {
-      errorMessage = 'Failed to load application: $e';
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-  @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    final loading = useState(true);
+    final application = useState<Map<String, dynamic>>({});
+
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final res = await ApplicationService.getApplicationByJobAndUser(job['id'], userId);
+          application.value = res;
+          loading.value = false;
+        } catch (e) {
+          debugPrint('$e');
+        }
+      }
+      fetchData();
+      return null;
+    }, []);
+    if (loading.value) {
       return Scaffold(
         appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
         endDrawer: const OffcanvasNavigation(),
@@ -64,7 +54,7 @@ class _AlreadyAppliedState extends State<AlreadyApplied> {
           padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
           child: Column(
             children: [
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: Text('Apply for ${widget.job.title} at ${widget.job.location}', style: AppText.textXl.merge(AppText.fontSemibold))),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: Text('Apply for ${job['title']} at ${job['location']}', style: AppText.textXl.merge(AppText.fontSemibold))),
               Card(
                 color: const Color.fromARGB(255, 210, 245, 227),
                 child: Padding(
@@ -75,7 +65,7 @@ class _AlreadyAppliedState extends State<AlreadyApplied> {
                       const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
-                        child: Text('Your application status is ${application?.status}', style: AppText.fontSemibold.merge(AppText.textSuccess)),
+                        child: Text('Your application status is ${application.value['status']}', style: AppText.fontSemibold.merge(AppText.textSuccess)),
                       ),
                       const SizedBox(height: 15),
                       Row(

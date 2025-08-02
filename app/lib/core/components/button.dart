@@ -4,9 +4,9 @@ import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/admin.dart';
-import 'package:app/features/job_seeker/already_applied.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
+import 'package:app/features/job_seeker/already_applied.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/employer/post_job_form.dart';
 import 'package:app/features/homepage.dart';
@@ -17,6 +17,7 @@ import 'package:app/main.dart';
 import 'package:app/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/colors.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 // HOMEPAGE
 
@@ -68,7 +69,7 @@ class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
   void loadUser() async {
     final data = await UserService.fetchLoggedUserData();
     setState(() {
-      userRole = data?['role'] ?? "no role";
+      userRole = data['role'] ?? "no role";
     });
   }
 
@@ -353,7 +354,7 @@ class BrowseJobsButton extends StatelessWidget {
 // VIEW JOB DETAIL
 
 class ViewJobApplyJobButton extends StatelessWidget {
-  final Job job;
+  final Map<String, dynamic> job;
   final int userId;
   const ViewJobApplyJobButton({
     super.key, 
@@ -429,8 +430,8 @@ class ViewJobBackButton extends StatelessWidget {
   }
 }
 
-class SubmitApplicationButton extends StatefulWidget {
-  final Job job;
+class SubmitApplicationButton extends HookWidget {
+  final Map<String, dynamic> job;
   final int userId;
 
   const SubmitApplicationButton({
@@ -439,20 +440,11 @@ class SubmitApplicationButton extends StatefulWidget {
     required this.userId,
   });
 
-  @override
-  _SubmitApplicationButtonState createState() => _SubmitApplicationButtonState();
-}
-class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
-
-  Future<void> _applyForJob(Job job, int userId) async {
+  void applyForJob(BuildContext context, Map<String, dynamic> job, int userId) async {
     try {
-      await ApplicationService.getApplicationByJobAndUser(job.id, userId);
       Navigator.push(context, MaterialPageRoute(builder: (context) => AlreadyApplied(onNavigate: (page) => globalNavigateTo?.call(page), job: job, userId: userId)));
-    } catch (e) {
-      await ApplicationService.submitApplication(job.id, userId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You can apply: $job, $userId')),
-      );
+    } catch (e) { 
+      await ApplicationService.submitApplication(job['id'], userId);
     }
   }
 
@@ -469,7 +461,7 @@ class _SubmitApplicationButtonState extends State<SubmitApplicationButton> {
           borderRadius: BorderRadius.circular(4),
         ),
       ),
-      onPressed: () => _applyForJob(widget.job, widget.userId),
+      onPressed: () => applyForJob(context, job, userId),
       child: const Text('Submit Application'),
     );
   }

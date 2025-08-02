@@ -31,7 +31,7 @@ class ViewApplication extends HookWidget {
             JobDescriptionCard(description: application["description"]),
             JobDetailsCard(application: application),
             AboutCompanyCard(application: application),
-            Footer()
+            const Footer()
           ],
         ),
       ),
@@ -103,10 +103,10 @@ class ViewApplicationCover extends StatelessWidget {
                   )
                 ),
                 onPressed: () {}, 
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(Icons.bookmark, size: 20.0, color: Colors.black),
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5),
                     Text("Save Job")
                   ],
                 )

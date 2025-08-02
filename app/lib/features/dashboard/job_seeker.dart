@@ -1,6 +1,7 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';
@@ -286,6 +287,9 @@ class YourApplicationsCard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (applications.isEmpty) {
+      return const Loader();
+    }
     return SizedBox(
       width: double.infinity,
       child: Column(

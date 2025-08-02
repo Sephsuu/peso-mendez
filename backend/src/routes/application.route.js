@@ -3,7 +3,7 @@ import * as applicationQuery from '../queries/application.query.js';
 
 const router = express.Router();
 
-router.get('/get-application/:jobId/:userId', async (req, res) => {
+router.get('/get-by-job-user/:jobId/:userId', async (req, res) => {
   const { jobId, userId } = req.params;
     try {
       const application = await applicationQuery.getApplicationByJobAndUser(jobId, userId);

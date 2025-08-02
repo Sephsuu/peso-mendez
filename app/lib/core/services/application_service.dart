@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:app/models/models.dart';
 import 'package:http/http.dart' as http;
 
 class ApplicationService {
@@ -34,14 +33,14 @@ class ApplicationService {
     }
   }
 
-  static Future<Application> getApplicationByJobAndUser(int jobId, int userId) async {
-    final url = Uri.parse('$_baseUrl/$jobId/$userId');
+  static Future<Map<String, dynamic>> getApplicationByJobAndUser(int jobId, int userId) async {
+    final url = Uri.parse('$_baseUrl/get-by-job-user/$jobId/$userId');
 
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-      return Application.fromJson(data);
+      return data;
     } else {
       throw Exception('Failed to load application for job $jobId and user $userId: ${response.statusCode}');
     }

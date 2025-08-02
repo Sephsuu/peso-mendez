@@ -1,5 +1,6 @@
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/job_service.dart';
@@ -7,22 +8,18 @@ import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/main.dart';
-import 'package:app/models/models.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class ViewJobDetail extends StatefulWidget {
+class ViewJobDetail extends StatelessWidget {
   final Function(PageType) onNavigate;
   final int jobId;
+
   const ViewJobDetail({
     super.key,
     required this.jobId,
     required this.onNavigate
   });
-  @override
-  _ViewJobDetailState createState() => _ViewJobDetailState();
-}
-
-class _ViewJobDetailState extends State<ViewJobDetail> {
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +29,7 @@ class _ViewJobDetailState extends State<ViewJobDetail> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ViewJobDetailCard(jobId: widget.jobId),
+            ViewJobDetailCard(jobId: jobId),
             const SizedBox(height: 200),
             const Footer(),
           ],
@@ -42,53 +39,42 @@ class _ViewJobDetailState extends State<ViewJobDetail> {
   }
 }
 
-class ViewJobDetailCard extends StatefulWidget {
+
+class ViewJobDetailCard extends HookWidget {
   final int jobId;
-  const ViewJobDetailCard({super.key, required this.jobId});
-  @override
-  _ViewJobDetailCardState createState() => _ViewJobDetailCardState();
-}
-
-class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
-  late Job job;
-  bool isLoading = true;
-  String? error;
-  User? employer;
-  late int userId;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadJobDetail();
-  }
-
-  Future<void> _loadJobDetail() async {
-    try {
-      final fetchedJob = await JobService.fetchJobById(widget.jobId);
-      final fetchedEmployer = await UserService.fetchUserById(fetchedJob.employer_id);
-      final fetchedUser = await UserService.fetchLoggedUserData();
-      setState(() {
-        job = fetchedJob;
-        employer = fetchedEmployer;
-        userId = fetchedUser?['id'];
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        error = e.toString();
-        isLoading = false;
-      });
-    }
-  }
-
+  const ViewJobDetailCard({
+    super.key,
+    required this.jobId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 30.0, bottom: 300.0),
-        child: Center(child: CircularProgressIndicator()),
-      );
+    final job = useState<Map<String, dynamic>>({});
+    final employer = useState<Map<String, dynamic>>({});
+    final loading = useState(true);
+    final userId = useState(0);
+
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final fetchedJob = await JobService.fetchJobById(jobId);
+          final fetchedEmployer = await UserService.fetchUserById(fetchedJob['employer_id']);
+          final fetchedUser = await UserService.fetchLoggedUserData();
+          job.value = fetchedJob;
+          employer.value = fetchedEmployer;
+          userId.value = fetchedUser['id'];
+          loading.value = false;
+        } catch (e) {
+          print('ERROR 1');
+          throw Exception(e);
+        }
+      }
+      fetchData();
+      return null;
+    }, []);
+
+    if (loading.value || job.value.isEmpty || employer.value.isEmpty || userId.value == 0) {
+      return const Loader();
     }
 
     return SizedBox(
@@ -102,7 +88,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
               crossAxisAlignment: CrossAxisAlignment.start, 
               children: [
                 const SizedBox(height: 10.0),
-                Text(job.title, style: AppText.textXl.merge(AppText.fontSemibold)),
+                Text(job.value['title'], style: AppText.textXl.merge(AppText.fontSemibold)),
                 const SizedBox(height: 5.0),
                 LinearProgressIndicator(
                   value: 1,
@@ -117,7 +103,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job.company,
+                        job.value['company'],
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -131,7 +117,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job.location,
+                        job.value['location'],
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -145,7 +131,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job.salary,
+                        job.value['salary'],
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -159,7 +145,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        job.type,
+                        job.value['type'],
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -173,7 +159,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        employer?.fullName ?? '',
+                        employer.value['full_name'],
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -187,7 +173,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        employer?.email ?? '',
+                        employer.value['email'],
                         overflow: TextOverflow.ellipsis, 
                         maxLines: 1,                     
                       ),
@@ -221,7 +207,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                           child: Padding(
                             padding: const EdgeInsets.all(5),
                             child: Text(
-                              job.description,
+                              job.value['description'],
                               softWrap: true, // optional, true by default
                             ),
                           ),
@@ -231,7 +217,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
                   ),
                 ),
                 const SizedBox(height: 15.0),
-                ViewJobDetailButtons(job: job, userId: userId),
+                ViewJobDetailButtons(job: job.value, userId: userId.value),
                 const SizedBox(height: 15),
               ],
             ),
@@ -243,7 +229,7 @@ class _ViewJobDetailCardState extends State<ViewJobDetailCard> {
 }
 
 class ViewJobDetailButtons extends StatelessWidget {
-  final Job job;
+  final Map<String, dynamic> job;
   final int userId;
 
   const ViewJobDetailButtons({

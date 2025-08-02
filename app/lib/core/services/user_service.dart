@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:app/models/models.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/features/forms/login.dart';
@@ -75,15 +74,11 @@ class UserService {
     });
   }
 
-  static Future<User?> fetchUserById(int userId) async {
+  static Future<Map<String, dynamic>> fetchUserById(int userId) async {
     final url = Uri.parse('$_baseUrl/users/$userId');
 
     try {
       final token = await _secureStorage.read(key: 'jwt_token');
-      if (token == null) {
-        return null;
-      }
-
       final response = await http.get(
         url,
         headers: {
@@ -94,14 +89,12 @@ class UserService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return User.fromJson(data);  // Assuming the API returns the user object directly
+        return data;  // Assuming the API returns the user object directly
       } else {
-        // Optionally handle different status codes here
-        return null;
+        throw Exception('Something went wrong.');
       }
     } catch (e) {
-      // Optionally log the error
-      return null;
+      throw Exception('Something went wrong.');
     }
   }
 
