@@ -351,7 +351,7 @@ class BrowseJobsButton extends StatelessWidget {
   }
 }
 
-// VIEW JOB DETAIL
+// VIEW JOB DETAIL (job_seeker/view_job_detail.dart)
 
 class ViewJobApplyJobButton extends StatelessWidget {
   final Map<String, dynamic> job;
@@ -442,11 +442,41 @@ class SubmitApplicationButton extends HookWidget {
 
   void applyForJob(BuildContext context, Map<String, dynamic> job, int userId) async {
     try {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => AlreadyApplied(onNavigate: (page) => globalNavigateTo?.call(page), job: job, userId: userId)));
-    } catch (e) { 
+      final data = await ApplicationService.getApplicationByJobAndUser(job['id'], userId);
+      if (data.isNotEmpty) {
+        if (!context.mounted) return;
+        Navigator.of(context).pop(); 
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AlreadyApplied(
+              onNavigate: (page) => globalNavigateTo?.call(page),
+              job: job,
+              userId: userId,
+            ),
+          ),
+        );
+        return; 
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+
+    try {
       await ApplicationService.submitApplication(job['id'], userId);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You have applie to job: ${job['title']}')),
+      );
+      Navigator.of(context).pop(); 
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit application: $e')),
+      );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

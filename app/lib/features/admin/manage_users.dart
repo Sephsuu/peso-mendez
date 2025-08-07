@@ -5,8 +5,9 @@ import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class ManageUsers extends StatelessWidget {
+class ManageUsers extends HookWidget {
   final Function(PageType) onNavigate;
   
   const ManageUsers({
@@ -16,6 +17,41 @@ class ManageUsers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    final loading = useState(true);
+    final find = useState("");
+    final users = useState<List<Map<String, dynamic>>>([]);
+    final filteredUsers = useState<List<Map<String, dynamic>>>([]);
+
+    void setFind(String newVal) {
+      find.value = newVal;
+    }    
+
+    useEffect(() {
+      void fetchData () async {
+        try {
+          final res = await UserService.fetchUsers();
+          users.value = res;
+        } catch (e) { throw Exception(e); }
+        finally { loading.value = false; }
+      }
+      fetchData();
+      return null;
+    }, []);
+
+    useEffect(() {
+      if (find.value.isEmpty) {
+        filteredUsers.value = users.value;
+      } else {
+        filteredUsers.value = users.value.where((item) {
+          final fullName = item["full_name"]?.toLowerCase() ?? '';
+          return fullName.contains(find.value.toLowerCase());
+        }).toList();
+      }
+      return null;
+    }, [find.value, users.value]);
+
+
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -35,7 +71,23 @@ class ManageUsers extends StatelessWidget {
                 ),
               ],
             ),
-            UsersTable(),
+            SizedBox(
+              width: screenWidth * 0.9,
+              child: TextField(
+                style: AppText.textXs,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColor.light,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+                  labelText: 'Job title, keywords, or company',
+                  labelStyle: AppText.textSm,
+                  border: const OutlineInputBorder()
+                ),
+                onChanged: (value) => setFind(value),
+              ),
+            ),
+            UsersTable(users: filteredUsers.value, loading: loading.value),
           ],
         ),
       ),
@@ -43,38 +95,19 @@ class ManageUsers extends StatelessWidget {
   }
 }
 
-class UsersTable extends StatefulWidget {
-  const UsersTable({Key? key}) : super(key: key);
-
-  @override
-  _UsersTableState createState() => _UsersTableState();
-}
-
-class _UsersTableState extends State<UsersTable> {
-  List<Map<String, dynamic>> users = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchData();
-  }
-
-  void _fetchData() async {
-    try {
-      final List<Map<String, dynamic>> usersRes = await UserService.fetchUsers();
-      setState(() {
-        users = usersRes;
-      });
-      isLoading = false;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
-  }
-
+class UsersTable extends HookWidget {
+  final List<Map<String, dynamic>> users;
+  final bool loading;
+  const UsersTable({
+    super.key,
+    required this.users,
+    required this.loading,
+  });
+  
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+
+    if (loading) {
       return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
     }
 

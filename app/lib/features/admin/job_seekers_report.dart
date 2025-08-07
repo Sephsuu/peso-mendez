@@ -91,7 +91,7 @@ class _JobSeekersTableState extends State<JobSeekersTable> {
         rows: jobSeekers.map((user) {
           return DataRow(
             cells: [
-              DataCell(Text(user["id"].toString() ?? 'N/A')),
+              DataCell(Text(user["id"].toString())),
               DataCell(Text(user["full_name"] ?? 'N/A')),
               DataCell(Text(user["email"] ?? 'N/A')),
               DataCell(Text(user["username"] ?? 'N/A')),

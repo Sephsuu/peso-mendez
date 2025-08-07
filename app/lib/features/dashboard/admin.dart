@@ -30,9 +30,9 @@ class AdminDashboard extends StatelessWidget {
           child: Column(
             children: [
               Text("Administrator Dashboard", style: AppText.textXl.merge(AppText.fontSemibold)),
-              AdminSummary(),
+              const AdminSummary(),
               const SizedBox(height: 15),
-              EmployerVerificationQueue(),
+              const EmployerVerificationQueue(),
               const SizedBox(height: 15),
               AdminActions(),
               const SizedBox(height: 15),

@@ -3,6 +3,7 @@ import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 
+// VIEW JOB DETAIL (view_job_detal.dart)
 Future<void> showJobDetailModal(BuildContext context, Map<String, dynamic> job, int userId) async {
   showDialog(
     context: context,

@@ -52,8 +52,6 @@ class Homepage extends HookWidget {
       return null;
     }, []);
 
-    filteredJobs.value = jobs.value;
-
     // Filter all jobs depending on find search
     useEffect(() {
       if (find.value.isEmpty) {
@@ -65,7 +63,7 @@ class Homepage extends HookWidget {
         }).toList();
       }
       return null;
-    }, [find.value]);
+    }, [find.value, jobs.value]);
 
     // Filter jobs depending on type
     useEffect(() {
