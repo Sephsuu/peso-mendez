@@ -57,11 +57,8 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.get('/dashboard', authenticateToken, (req, res) => {
-  res.json({
-    message: `Welcome ${req.user.full_name}`,
-    user: req.user,
-  });
+router.get('/get-claims', authenticateToken, (req, res) => {
+  res.json(req.user);
 });
 
 export default router;

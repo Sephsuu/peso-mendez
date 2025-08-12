@@ -3,6 +3,7 @@ import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -57,9 +58,9 @@ class ViewJobDetailCard extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final fetchedJob = await JobService.fetchJobById(jobId);
-          final fetchedEmployer = await UserService.fetchUserById(fetchedJob['employer_id']);
-          final fetchedUser = await UserService.fetchLoggedUserData();
+          final fetchedJob = await JobService.getJobById(jobId);
+          final fetchedEmployer = await UserService.getUserById(fetchedJob['employer_id']);
+          final fetchedUser = await AuthService.getClaims();
           job.value = fetchedJob;
           employer.value = fetchedEmployer;
           userId.value = fetchedUser['id'];

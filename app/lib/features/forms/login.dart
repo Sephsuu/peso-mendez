@@ -112,9 +112,7 @@ class _LoginFormState extends State<LoginForm> {
             } else if (role == 'admin') {
               if (!mounted) return;
               Navigator.push(context, MaterialPageRoute(
-                builder: (context) => AdminDashboard(
-                  onNavigate: (page) => globalNavigateTo?.call(page),
-                ),
+                builder: (context) => const AdminDashboard(),
               ));
             }
           } else {

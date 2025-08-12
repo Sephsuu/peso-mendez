@@ -4,19 +4,20 @@ import * as jobQuery from '../queries/job.query.js';
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    try {
-        const jobs = await jobQuery.getJobs();
-        return res.json(jobs);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+	try {
+		const jobs = await jobQuery.getJobs();
+		return res.json(jobs);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/get-by-id', async (req, res) => {
+	const { id } = req.query;
     try {
-        const job = await jobQuery.getJobById(req.params.id);
+        const job = await jobQuery.getJobById(id);
         if (!job) {
-            res.status(404).json({ message: `No job with id ${req.params.id}` })
+            res.status(404).json({ message: `No job with id ${id}` })
         }
         res.json(job);
     } catch (err) {
@@ -24,61 +25,36 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.post('/', async (req, res) => {
+router.get('/get-by-employer', async (req, res) => {
+	const { id } = req.query;
     try {
-        const { title, company, location, salary, type, description, employerId, visibility } = req.body;
-
-        if ( !title, !company, !location, !salary, !type, !description, !employerId, !visibility) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-
-        const job = await jobQuery.createJob(title, company, location, salary, type, description, employerId, visibility);
-        res.status(201).json({ message: 'Job created successfully', job });
+			const jobs = await jobQuery.getJobsByEmployer(id);
+			res.json(jobs);
     } catch (err) {
-        console.log(err);
+      res.status(500).json({ error: err.message });
     }
 })
 
-router.get('/employer-jobs/:employerId', async (req, res) => {
+router.post('/create', async (req, res) => {
     try {
-        const jobs = await jobQuery.getJobsByEmployerId(req.params.employerId);
-        res.json(jobs);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-})
-
-router.get('/employer/count/:employerId', async (req, res) => {
-    try {
-        const rawCount = await jobQuery.getJobsByEmployerIdCount(req.params.employerId);
-        const count = rawCount[0][0]['COUNT(*)'];
-        res.json({ count: count });
-    } catch (err) {
+        const {
+            title,
+            company,
+            location,
+            type,
+            salary,
+            visibility,
+            description,
+            employerId,
+        } = req.body;
+        const job = await jobQuery.createJob(employerId, title, company, location, type, salary, visibility, description);
+        return res.json(job);
+    } catch(err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-router.get('/employer/title/:employerId', async (req, res) => {
-    try {
-        const jobs = await jobQuery.getJobTitleByEmployer(req.params.employerId);
-        const titles = jobs.map(job => job.title);
-        res.json(titles);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-router.get('/employer/location/:employerId', async (req, res) => {
-    try {
-        const jobs = await jobQuery.getJobLocationByEmployer(req.params.employerId);
-        const locations = jobs.map(job => job.location);
-        res.json(locations);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-})
-
-router.put('/update-job', async (req, res) => {
+router.patch('/update', async (req, res) => {
     try {
         const {
             title,
@@ -97,13 +73,14 @@ router.put('/update-job', async (req, res) => {
     }
 });
 
-router.delete('/delete-job/:id', async (req, res) => {
-    try {
-        const data = await jobQuery.deleteJob(req.params.id);
-        res.json(data);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+router.delete('/delete', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const data = await jobQuery.deleteJob(id);
+		res.json(data);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 });
 
 export default router;

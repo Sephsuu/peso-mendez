@@ -1,7 +1,7 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/services/application_service.dart';
-import 'package:app/core/services/user_service.dart';
+import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/dashboard/employer.dart';
@@ -60,14 +60,14 @@ class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
   }
 
   void checkLoginStatus() async {
-    final loggedIn = await UserService.isLoggedIn();
+    final loggedIn = await AuthService.isLoggedIn();
     setState(() {
       _loggedIn = loggedIn;
     });
   }
 
   void loadUser() async {
-    final data = await UserService.fetchLoggedUserData();
+    final data = await AuthService.getClaims();
     setState(() {
       userRole = data['role'] ?? "no role";
     });
@@ -101,7 +101,7 @@ class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
         } else if (userRole == 'job_seeker') {
           Navigator.push(context, MaterialPageRoute(builder: (context) => JobSeekerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
         } else if (userRole == 'admin') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AdminDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminDashboard()));
         } else {
           showAlertError(context, "Session expired. Please re-log in.");
         }
@@ -130,7 +130,7 @@ class _FeaturedJobsButtonState extends State<FeaturedJobsButton> {
   }
 
   void checkLoginStatus() async {
-    final loggedIn = await UserService.isLoggedIn();
+    final loggedIn = await AuthService.isLoggedIn();
     setState(() {
       _loggedIn = loggedIn;
     });
@@ -172,24 +172,10 @@ class _SignInOrRegisterButtonState extends State<SignInOrRegisterButton> {
   }
 
   void checkLoginStatus() async {
-    final loggedIn = await UserService.isLoggedIn();
+    final loggedIn = await AuthService.isLoggedIn();
     setState(() {
       _loggedIn = loggedIn;
     });
-  }
-
-  void logout(BuildContext context) async {
-    await UserService.deleteToken();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Successfully logged out.')),
-    );
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page)),
-      ),
-      (route) => false, // Remove all previous routes
-    );
   }
 
   @override
@@ -216,7 +202,7 @@ class _SignInOrRegisterButtonState extends State<SignInOrRegisterButton> {
               borderRadius: BorderRadius.circular(4)
             )
           ),
-          onPressed: () => logout(context), 
+          onPressed: () => AuthService.logout(context), 
           child: const Text('Logout')
         );
   }
@@ -433,19 +419,23 @@ class ViewJobBackButton extends StatelessWidget {
 class SubmitApplicationButton extends HookWidget {
   final Map<String, dynamic> job;
   final int userId;
+  final VoidCallback? onClose;
 
   const SubmitApplicationButton({
     super.key,
     required this.job,
     required this.userId,
+    this.onClose
   });
 
   void applyForJob(BuildContext context, Map<String, dynamic> job, int userId) async {
     try {
-      final data = await ApplicationService.getApplicationByJobAndUser(job['id'], userId);
+      print('Clicked');
+      final data = await ApplicationService.getApplicationByJobAndUser(job['id'], userId) ?? {};
+      print(data);
       if (data.isNotEmpty) {
         if (!context.mounted) return;
-        Navigator.of(context).pop(); 
+        onClose!(); // Close modal
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -463,12 +453,14 @@ class SubmitApplicationButton extends HookWidget {
     }
 
     try {
-      await ApplicationService.submitApplication(job['id'], userId);
+      print('No app. ${job["id"]} ${userId}');
+      await ApplicationService.createApplication(job['id'], userId);
+      print('applied');
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You have applie to job: ${job['title']}')),
+        SnackBar(content: Text('You have applied to job: ${job['title']}')),
       );
-      Navigator.of(context).pop(); 
+      onClose!(); // Close modal here too
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

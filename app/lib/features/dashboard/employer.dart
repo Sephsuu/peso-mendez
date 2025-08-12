@@ -5,8 +5,8 @@ import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';
+import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/job_service.dart';
-import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/employer/view_active_jobs.dart';
@@ -37,7 +37,7 @@ class EmployerDashboard extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final data = await UserService.fetchLoggedUserData();
+          final data = await AuthService.getClaims();
           claims.value = data;
         } catch (e) {
           if (!context.mounted) return;
@@ -52,7 +52,7 @@ class EmployerDashboard extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final jobsRes = await JobService.fetchJobsByEmployer(claims.value["id"]);
+          final jobsRes = await JobService.getJobsByEmployer(claims.value["id"]);
           final applicationsRes = await ApplicationService.getApplicationsByEmployer(claims.value["id"]);
           jobs.value = jobsRes;
           applications.value = applicationsRes;

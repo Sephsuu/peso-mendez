@@ -53,12 +53,12 @@ class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
 }
 
 class RegisterDrowdownSelectRequired extends StatefulWidget {
-  String? initialValue;
+  final String? initialValue;
   final ValueChanged<String?> onChanged;
   final List<String> items;
   final String placeholder;
 
-  RegisterDrowdownSelectRequired({
+  const RegisterDrowdownSelectRequired({
     super.key,
     required this.items,
     this.initialValue,
@@ -114,12 +114,12 @@ class _RegisterDrowdownSelectRequiredState extends State<RegisterDrowdownSelectR
 }
 
 class RegisterDrowdownSelect extends StatefulWidget {
-  String? initialValue;
+  final String? initialValue;
   final ValueChanged<String?> onChanged;
   final List<String> items;
   final String placeholder;
 
-  RegisterDrowdownSelect({
+  const RegisterDrowdownSelect({
     super.key,
     required this.items,
     this.initialValue,
@@ -168,14 +168,14 @@ class _RegisterDrowdownSelectState extends State<RegisterDrowdownSelect> {
   }
 }
 
-class PostNewJobDrowdownSelectRequired extends StatefulWidget {
-  String? initialValue;
+class AppDropdownSelect extends StatefulWidget {
+  final String? initialValue;
   final ValueChanged<String?> onChanged;
   final List<String> items;
   final String placeholder;
   final String label;
 
-  PostNewJobDrowdownSelectRequired({
+  const AppDropdownSelect({
     super.key,
     required this.items,
     this.initialValue,
@@ -185,9 +185,9 @@ class PostNewJobDrowdownSelectRequired extends StatefulWidget {
   });
 
   @override
-  _PostNewJobDrowdownSelectRequiredState createState() => _PostNewJobDrowdownSelectRequiredState();
+  _AppDropdownSelectState createState() => _AppDropdownSelectState();
 }
-class _PostNewJobDrowdownSelectRequiredState extends State<PostNewJobDrowdownSelectRequired> {
+class _AppDropdownSelectState extends State<AppDropdownSelect> {
   String? selectedValue;
 
   @override

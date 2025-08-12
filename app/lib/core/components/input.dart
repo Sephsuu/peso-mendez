@@ -104,12 +104,12 @@ class _RegisterTextareaFieldPlaceholderRequiredState extends State<RegisterTexta
   }
 }
 
-class PostNewJopTextField extends StatefulWidget {
+class AppTextField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final int? maxLine;
 
-  const PostNewJopTextField({
+  const AppTextField({
     super.key,
     required this.controller,
     required this.label,
@@ -117,9 +117,9 @@ class PostNewJopTextField extends StatefulWidget {
   });
 
   @override
-  _PostNewJopTextFieldState createState() => _PostNewJopTextFieldState();
+  _AppTextFieldState createState() => _AppTextFieldState();
 }
-class _PostNewJopTextFieldState extends State<PostNewJopTextField> {
+class _AppTextFieldState extends State<AppTextField> {
   @override
   Widget build(BuildContext context) {
     return Column(

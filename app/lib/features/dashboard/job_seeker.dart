@@ -5,7 +5,7 @@ import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';
-import 'package:app/core/services/user_service.dart';
+import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/register.dart';
@@ -26,11 +26,10 @@ class JobSeekerDashboard extends HookWidget {
     final claims = useState<Map<String, dynamic>>({});
     final applications = useState<List<Map<String, dynamic>>>([]);
 
-    // Fetch use token and define claims of logged user
     useEffect(() {
       void fetchData() async {
         try {
-          final data = await UserService.fetchLoggedUserData();
+          final data = await AuthService.getClaims();
           claims.value = data;
         } catch (e) {
           if (!context.mounted) return;

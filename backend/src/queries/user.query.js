@@ -46,7 +46,6 @@ export async function getUserByEmailOrUsername(emailOrUsername) {
     return rows[0]; 
 }
 
-
 export async function registerUser(fullName, email, contactNumber, username, password, role) {
     const checkQuery = `
         SELECT 1 FROM users WHERE email = ? OR username = ? LIMIT 1
@@ -79,4 +78,17 @@ export async function registerUser(fullName, email, contactNumber, username, pas
     ]);
 
     return { userId: result.insertId };
+}
+
+export async function deactivateUser(id) {
+    await pool.query(
+        `UPDATE users SET status = "inactive" WHERE id = ?`,
+        [id]
+    );
+    const [rows] = await pool.query(
+        `SELECT * FROM users WHERE id = ?`,
+        [id]
+    );
+
+    return rows.length ? rows[0] : null;
 }

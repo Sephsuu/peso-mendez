@@ -4,6 +4,7 @@ import authRouter from './src/routes/auth.route.js';
 import userRouter from './src/routes/user.route.js';
 import jobRouter from './src/routes/job.route.js';
 import applicationRouter from './src/routes/application.route.js';
+import announcementRouter from './src/routes/announcement.route.js';
 
 const secret = 'your-static-development-secret-key-here';
 
@@ -28,6 +29,7 @@ app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/jobs', jobRouter);
 app.use('/applications', applicationRouter);
+app.use('/announcements', announcementRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

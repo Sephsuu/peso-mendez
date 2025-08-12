@@ -43,7 +43,11 @@ Future<void> showJobDetailModal(BuildContext context, Map<String, dynamic> job, 
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SubmitApplicationButton(job: job, userId: userId),
+                SubmitApplicationButton(
+                  job: job, 
+                  userId: userId,
+                  onClose: () => Navigator.of(context).pop(), 
+                ),
                 const SizedBox(width: 5),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),

@@ -3,56 +3,57 @@ import * as applicationQuery from '../queries/application.query.js';
 
 const router = express.Router();
 
-router.get('/get-by-job-user/:jobId/:userId', async (req, res) => {
-  const { jobId, userId } = req.params;
-    try {
-      const application = await applicationQuery.getApplicationByJobAndUser(jobId, userId);
-      if (!application) {
-        res.status(404).json({ message: `No app with id ${req.params.userId}` })
-      }
-      res.json(application);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-router.get('/job-seeker-applications/:userId', async (req, res) => {
+router.get('/get-by-job-user', async (req, res) => {
+  const { jobId, userId } = req.query;
   try {
-    const applications = await applicationQuery.getApplicationsByUser(req.params.userId);
-    
-    res.json(applications);
+    const application = await applicationQuery.getApplicationByJobAndUser(jobId, userId);
+    if (!application) {
+      res.status(404).json({ message: `No app with id ${userId}` })
+    }
+    res.json(application);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err.message });
   }
 });
 
-router.get('/employer-applications/:employerId', async (req, res) => {
+router.get('/get-by-employer', async (req, res) => {
+  const { id } = req.query;
   try {
-    const applications = await applicationQuery.getApplicationsByEmployer(req.params.employerId);
+    const applications = await applicationQuery.getApplicationsByEmployer(id);
     res.json(applications);
   } catch (err) {
     console.log(err);
   }
 });
 
-router.post('/', async (req, res) => {
-    try {
-        const { jobId, userId } = req.body;
-
-        if ( !jobId, !userId) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-
-        const application = await applicationQuery.addApplication(jobId, userId);
-        res.status(201).json({ message: 'Application created successfully', application });
-    } catch (err) {
-        console.log(err);
-    }
+router.get('/get-by-user', async (req, res) => {
+  const { id } = req.query;
+  try {
+    const applications = await applicationQuery.getApplicationsByUser(id);
+    res.json(applications);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.put('/update-status/:applicationId/:status', async (req, res) => {
+router.post('/create', async (req, res) => {
+  const { jobId, userId } = req.query;
+  
   try {
-    const application = await applicationQuery.updateApplicationStatus(req.params.applicationId, req.params.status);
+    if ( !jobId && !userId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const application = await applicationQuery.createApplication(jobId, userId);
+    res.status(201).json(application);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.put('/update-status', async (req, res) => {
+  const { id, status } = req.query;
+  try {
+    const application = await applicationQuery.updateApplicationStatus(id, status);
     res.json(application)
   } catch (err) {
       console.log(err);

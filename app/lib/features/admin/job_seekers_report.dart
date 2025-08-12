@@ -62,7 +62,7 @@ class _JobSeekersTableState extends State<JobSeekersTable> {
 
   void _fetchData() async {
     try {
-      final List<Map<String, dynamic>> jobSeekersRes = await UserService.fetchUserByRole("job_seeker");
+      final List<Map<String, dynamic>> jobSeekersRes = await UserService.getUserByRole("job_seeker");
       setState(() {
         jobSeekers = jobSeekersRes;
       });

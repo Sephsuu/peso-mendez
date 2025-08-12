@@ -1,18 +1,16 @@
+import 'package:app/core/components/admin/modal/deactivate_modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ManageUsers extends HookWidget {
-  final Function(PageType) onNavigate;
   
   const ManageUsers({
     super.key,
-    required this.onNavigate
   });
 
   @override
@@ -30,7 +28,7 @@ class ManageUsers extends HookWidget {
     useEffect(() {
       void fetchData () async {
         try {
-          final res = await UserService.fetchUsers();
+          final res = await UserService.getAllUsers();
           users.value = res;
         } catch (e) { throw Exception(e); }
         finally { loading.value = false; }
@@ -45,7 +43,8 @@ class ManageUsers extends HookWidget {
       } else {
         filteredUsers.value = users.value.where((item) {
           final fullName = item["full_name"]?.toLowerCase() ?? '';
-          return fullName.contains(find.value.toLowerCase());
+          final email = item["email"]?.toLowerCase() ?? '';
+          return fullName.contains(find.value.toLowerCase()) || email.contains(find.value.toLowerCase());
         }).toList();
       }
       return null;
@@ -56,7 +55,7 @@ class ManageUsers extends HookWidget {
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         child: Column(
           children: [
             Row(
@@ -87,7 +86,10 @@ class ManageUsers extends HookWidget {
                 onChanged: (value) => setFind(value),
               ),
             ),
-            UsersTable(users: filteredUsers.value, loading: loading.value),
+            UsersTable(
+              users: filteredUsers.value, 
+              loading: loading.value
+            ),
           ],
         ),
       ),
@@ -95,7 +97,7 @@ class ManageUsers extends HookWidget {
   }
 }
 
-class UsersTable extends HookWidget {
+class UsersTable extends StatelessWidget {
   final List<Map<String, dynamic>> users;
   final bool loading;
   const UsersTable({
@@ -118,26 +120,36 @@ class UsersTable extends HookWidget {
           DataColumn(label: Text('#')),
           DataColumn(label: Text('Full Name')),
           DataColumn(label: Text('E-mail Address')),
+          DataColumn(label: Text('Contact Number')),
           DataColumn(label: Text('Username')),
           DataColumn(label: Text('Role')),
           DataColumn(label: Text('Status')),
           DataColumn(label: Text('Registered At')),
           DataColumn(label: Text('Actions')),
         ], 
-        rows: users.map((user) {
+        rows: users.asMap().entries.map((entry) {
+          int index = entry.key;     
+          var user = entry.value;
+
           return DataRow(
             cells: [
-              DataCell(Text(user["id"].toString())),
+              DataCell(Text((index + 1).toString())),        
               DataCell(Text(user["full_name"] ?? 'N/A')),
               DataCell(Text(user["email"] ?? 'N/A')),
-              DataCell(Text(user["username"] ?? 'N/A')),
+              DataCell(Text(user["contact"] ?? 'N/A')),
               DataCell(Text(user["role"] ?? 'N/A')),
               DataCell(Text(user["status"] ?? 'N/A')),
               DataCell(Text(user["created_at"] ?? 'N/A')),
               DataCell(Text(user["id"].toString())),
+              DataCell(
+                GestureDetector(
+                  child: Text('Deactivate', style: AppText.textDanger),
+                  onTap: () => deactivateModal(context, user),
+                )
+              ),
             ]
           );
-        }).toList()
+        }).toList(),
       ),
     );
   }

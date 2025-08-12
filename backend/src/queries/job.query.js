@@ -14,7 +14,6 @@ export async function getJobById(id) {
 }
 
 export async function createJob(title, company, location, salary, type, description, employerId, visibility) {
-    const now = new Date();
     const insertQuery = `
         INSERT INTO jobs
         (title, company, location, salary, type, description, employer_id, visibility)
@@ -28,37 +27,11 @@ export async function createJob(title, company, location, salary, type, descript
     return result;
 }
 
-export async function getJobsByEmployerId(employerId) {
+export async function getJobsByEmployer(employerId) {
     const [rows] = await pool.query(
         "SELECT * FROM jobs WHERE employer_id = ?",
         [employerId]
     );
-    return rows;
-}
-
-export async function getJobsByEmployerIdCount(employerId) {
-    const rows = await pool.query(
-        "SELECT COUNT(*) FROM jobs WHERE employer_id = ?",
-        [employerId]
-    );
-    return rows;
-}
-
-export async function getJobTitleByEmployer(employerId) {
-    const [rows] = await pool.query(
-        "SELECT DISTINCT title FROM jobs WHERE employer_id = ?",
-        [employerId]
-    );
-
-    return rows;
-}
-
-export async function getJobLocationByEmployer(employerId) {
-    const [rows] = await pool.query(
-        "SELECT DISTINCT location FROM jobs WHERE employer_id = ?",
-        [employerId]
-    );
-
     return rows;
 }
 

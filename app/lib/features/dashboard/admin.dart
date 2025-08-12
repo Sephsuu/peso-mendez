@@ -1,3 +1,4 @@
+import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/card.dart';
 import 'package:app/core/components/navigation.dart';
@@ -8,15 +9,15 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/features/admin/employers_report.dart';
 import 'package:app/features/admin/job_seekers_report.dart';
 import 'package:app/features/admin/manage_users.dart';
+import 'package:app/features/admin/post_announcement.dart';
 import 'package:app/features/homepage.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AdminDashboard extends StatelessWidget {
-  final Function(PageType) onNavigate;
   const AdminDashboard({
     super.key,
-    required this.onNavigate,
   });
   
   @override
@@ -45,43 +46,30 @@ class AdminDashboard extends StatelessWidget {
   }
 }
 
-class AdminSummary extends StatefulWidget {
-  const AdminSummary({Key? key}) : super(key: key);
-
-  @override
-  _AdminSummaryState createState() => _AdminSummaryState();
-}
-class _AdminSummaryState extends State<AdminSummary> {
-  int usersCount = 0;
-  int employersCount = 0;
-  int jobSeekersCount = 0;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchData();
-  }
-
-  void _fetchData() async {
-    try {
-      final usersCountRes = await UserService.fetchUsersCount("users");
-      final employersCountRes = await UserService.fetchUsersCount("employer");
-      final jobSeekersCountRes = await UserService.fetchUsersCount("job_seeker");
-      setState(() {
-        usersCount = (usersCountRes["count"] ?? 0) as int;
-        employersCount = (employersCountRes["count"] ?? 0) as int;
-        jobSeekersCount = (jobSeekersCountRes["count"] ?? 0) as int;
-      });
-      isLoading = false;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
-  }
-
+class AdminSummary extends HookWidget {
+  const AdminSummary({ super.key });
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    final loading = useState(true);
+    final users = useState<List<Map<String, dynamic>>>([]);
+
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final res = await UserService.getAllUsers();
+          users.value = res;
+        } catch(e) { showAlertError(context, "Error: $e"); }
+        finally { loading.value = false; }
+      }
+      fetchData();
+      return null;
+    }, []);
+
+    final usersCount = users.value.length;
+    final employersCount = users.value.where((i) => i["role"] == "employer").length;
+    final jobSeekersCount = users.value.where((i) => i["role"] == "employer").length;
+
+    if (loading.value) {
       return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
     }
     
@@ -122,8 +110,8 @@ class AdminActions extends StatelessWidget {
     return Column(
       children: [
         Text("Admin Actions", style: AppText.textXl.merge(AppText.fontSemibold)),
-        AdminActionButton(color: AppColor.dark, text: "Manage Users", page: ManageUsers(onNavigate: (page) => globalNavigateTo?.call(page))),
-        AdminActionButton(color: AppColor.primary, text: "Post Announcement", page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
+        const AdminActionButton(color: AppColor.dark, text: "Manage Users", page: ManageUsers()),
+        AdminActionButton(color: AppColor.primary, text: "Post Announcement", page: PostAnnouncement(onNavigate: (page) => globalNavigateTo?.call(page))),
         AdminActionButton(color: AppColor.warning, text: "Manage Events", page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
         AdminActionButton(color: AppColor.info, text: "Manage Trainings", page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
       ],
@@ -138,7 +126,7 @@ class PerformanceAndReports extends StatelessWidget {
       children: [
         Text("📊 Performance & Reports", style: AppText.textXl.merge(AppText.fontSemibold)),
         AdminActionButton(color: AppColor.primary, text: "Users Report", page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
-        AdminActionButton(color: AppColor.info, text: "Employers Report", page: EmployersReport(onNavigate: (page) => globalNavigateTo?.call(page))),
+        AdminActionButton(color: AppColor.info, text: "Employers Report", page: EmployersReport()),
         AdminActionButton(color: AppColor.success, text: "Job Seekers Report", page: JobSeekersReport(onNavigate: (page) => globalNavigateTo?.call(page))),
       ],
     );

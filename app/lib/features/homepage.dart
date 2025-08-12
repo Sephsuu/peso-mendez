@@ -41,7 +41,7 @@ class Homepage extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final data = await JobService.fetchJobs();
+          final data = await JobService.getAllJobs();
           jobs.value = data;
         } catch (e) {
           if (!context.mounted) return;

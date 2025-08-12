@@ -1,6 +1,6 @@
 import pool from "../../db.js";
 
-export async function addApplication(jobId, userId) {
+export async function createApplication(jobId, userId) {
     const checkQuery = `
         SELECT 1 FROM applications WHERE job_id = ? AND job_seeker_id = ? LIMIT 1
     `;
@@ -15,7 +15,8 @@ export async function addApplication(jobId, userId) {
         (job_id, job_seeker_id)
         VALUES (?, ?)
     `;
-
+    console.log(jobId, userId);
+    
     const [result] = await pool.query(insertQuery, [jobId, userId]);
 
     return result;

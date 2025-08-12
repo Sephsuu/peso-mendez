@@ -1,12 +1,11 @@
 import 'dart:convert';
 
-import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
-import 'package:app/core/services/user_service.dart';
+import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
@@ -71,7 +70,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
   }
 
   void loadUser() async {
-    final data = await UserService.fetchLoggedUserData();
+    final data = await AuthService.getClaims();
     setState(() {
       employerId = data['id'];
     });
@@ -98,7 +97,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
       final visibilityValue = _visibility;
 
       try {
-        final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/jobs');
+        final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/jobs/create');
 
         final response = await http.post(
           url,
@@ -115,12 +114,19 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           }),
         );
 
-        if (response.statusCode == 201) {
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Job successfully added.')),
           );
 
-          Navigator.push(context, MaterialPageRoute(builder: (context) => EmployerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => EmployerDashboard(
+                onNavigate: (page) => globalNavigateTo?.call(page),
+              ),
+            ),
+          );
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -141,19 +147,19 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
             alignment: Alignment.center,
             child: Text('📝 Post a New Job', style: AppText.textXl.merge(AppText.fontSemibold)),
           ),
-          PostNewJopTextField(controller: _jobTitle, label: 'Job Title'),
+          AppTextField(controller: _jobTitle, label: 'Job Title'),
           const SizedBox(height: 10),
-          PostNewJopTextField(controller: _company, label: 'Company'),
+          AppTextField(controller: _company, label: 'Company'),
           const SizedBox(height: 10),
-          PostNewJopTextField(controller: _location, label: 'Location'),
+          AppTextField(controller: _location, label: 'Location'),
           const SizedBox(height: 10),
-          PostNewJobDrowdownSelectRequired(items: types, label: 'Job Type', initialValue: _jobType, placeholder: 'Select Type', onChanged: (value) { setState(() { _jobType = value; });}),
+          AppDropdownSelect(items: types, label: 'Job Type', initialValue: _jobType, placeholder: 'Select Type', onChanged: (value) { setState(() { _jobType = value; });}),
           const SizedBox(height: 10),
-          PostNewJobDrowdownSelectRequired(items: visibilities, label: 'Visibility', initialValue: _visibility, placeholder: 'Select Visibility', onChanged: (value) { setState(() { _visibility = value; });}),
+          AppDropdownSelect(items: visibilities, label: 'Visibility', initialValue: _visibility, placeholder: 'Select Visibility', onChanged: (value) { setState(() { _visibility = value; });}),
           const SizedBox(height: 10),
-          PostNewJopTextField(controller: _salary, label: 'Salary'),
+          AppTextField(controller: _salary, label: 'Salary'),
           const SizedBox(height: 10),
-          PostNewJopTextField(controller: _description, label: 'Job Description', maxLine: 4),
+          AppTextField(controller: _description, label: 'Job Description', maxLine: 4),
           const SizedBox(height: 20),
           Row(
             children: [

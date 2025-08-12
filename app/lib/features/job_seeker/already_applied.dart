@@ -28,7 +28,7 @@ class AlreadyApplied extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final res = await ApplicationService.getApplicationByJobAndUser(job['id'], userId);
+          final res = await ApplicationService.getApplicationByJobAndUser(job['id'], userId) ?? {};
           application.value = res;
           loading.value = false;
         } catch (e) {
