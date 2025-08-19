@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
+import 'package:app/features/forms/personal_information_form.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,9 +10,7 @@ import 'package:app/core/components/button.dart';
 
 
 class RegisterForm extends StatefulWidget {
-  final VoidCallback onNext;
-
-  const RegisterForm({super.key, required this.onNext});
+  const RegisterForm({super.key});
 
   @override 
   _RegisterFormState createState() => _RegisterFormState();
@@ -57,7 +56,7 @@ class _RegisterFormState extends State<RegisterForm> {
       try {
         final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/auth/register');
 
-        final response = await http.post(
+        final res = await http.post(
           url,
           headers: {
             'Content-Type': 'application/json',
@@ -72,14 +71,18 @@ class _RegisterFormState extends State<RegisterForm> {
           })
         );
 
-        if (response.statusCode == 201) {
+        final Map<String, dynamic> response = jsonDecode(res.body);
+
+        if (res.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('You are successfully registered. Please fill up the following forms.'))
           );
-
-          widget.onNext();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PersonalInformationForm(userId: response["userId"])),
+          );
         } else {
-          final errorData = jsonDecode(response.body);
+          final errorData = jsonDecode(res.body);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('${errorData['error']}')),
           );

@@ -3,7 +3,7 @@ import 'package:app/core/services/_endpoint.dart';
 class ApplicationService {
   static const String url = "$BASE_URL/applications";
 
-  static Future<Map<String, dynamic>?> getApplicationByJobAndUser(int jobId, int userId) async {
+  static Future<Map<String, dynamic>> getApplicationByJobAndUser(int jobId, int userId) async {
     return await request(
       '$url/get-by-job-user?jobId=$jobId&userId=$userId',
       method: 'GET'

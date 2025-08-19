@@ -24,10 +24,27 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> createPersonalInformation(Map<String, dynamic> personalInfo) async {
+    return await request(
+      '$url/create-personal-info',
+      method: 'POST',
+      body: personalInfo
+    );
+  }
+
+  static Future<Map<String, dynamic>> createJobReference(Map<String, dynamic> jobRef) async {
+    print(jobRef);
+    return await request(
+      '$url/create-job-ref',
+      method: 'POST',
+      body: jobRef
+    );
+  }
+
   static Future<Map<String, dynamic>> deactivateUser(int id) async {
     return await request(
       '$url/deactivate?id=$id',
-      method: 'PATCH'
+      method: 'PATCH',
     );
   }
 

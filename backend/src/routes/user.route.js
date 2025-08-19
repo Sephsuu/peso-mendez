@@ -36,6 +36,26 @@ router.get('/get-by-role', async (req, res) => {
 	}
 });
 
+router.post('/create-personal-info', async (req, res) => {
+	const personalInfo = req.body;
+	try {
+		const query = await userQuery.createPersonalinformation(personalInfo);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+router.post('/create-job-ref', async (req, res) => {
+	const jobRef = req.body;
+	try {
+		const query = await userQuery.createJobReference(jobRef);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;
 	try {

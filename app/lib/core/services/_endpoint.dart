@@ -59,12 +59,14 @@ Future<dynamic> request(
         print('Method: GET');
         res = await http.get(url, headers: headers);
     }
-    print(res.statusCode);
+    print('Body: ${jsonEncode(body)}');
+    print('Response Code: ${res.statusCode}');
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
       if (res.body.isEmpty) return null;
 
       final decoded = jsonDecode(res.body);
+      print('Response Body: ${jsonDecode(res.body)}');
       if (decoded is List) {
         return decoded.map((e) => e as Map<String, dynamic>).toList();
       }

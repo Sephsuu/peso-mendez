@@ -1,51 +1,103 @@
+import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/hooks/use_claims.dart';
+import 'package:app/core/services/application_service.dart';
+import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 class ViewApplication extends HookWidget {
-  final Function(PageType) onNavigate;
   final Map<String, dynamic> application;
 
   const ViewApplication({
     super.key,
-    required this.onNavigate,
     required this.application
   });
 
   @override
   Widget build(BuildContext context) {
+    final claims = useClaimsHook(context);
+    final loading = useState(true);
+    final isSaved = useState(false);
+    final isApplied = useState(false);
+
+    useEffect(() {
+      void fetchData() async {
+        if (claims.isNotEmpty) {
+          final saved = await JobService.getSavedJobByUserJob(claims['id'], application['job_id']);
+          final applied = await ApplicationService.getApplicationByJobAndUser(application['job_id'], claims['id']);
+          isSaved.value = saved.isNotEmpty;
+          isApplied.value = applied.isNotEmpty;
+          loading.value = false;
+        }
+      }
+      fetchData();
+      return null;
+    }, [claims, isSaved.value]);
+
+    void saveJob() async {
+      try {
+        final res = await JobService.saveJob(claims['id'], application['job_id']);
+        if (res.isNotEmpty) {
+          Fluttertoast.showToast(
+            msg: 'Announcement created sucesssfully',
+            toastLength: Toast.LENGTH_LONG, 
+            gravity: ToastGravity.TOP,
+            backgroundColor: AppColor.light,
+            textColor: AppColor.dark
+          );
+        }
+        isSaved.value = !isSaved.value;
+      } catch (e) { 
+        if (!context.mounted) return;
+        showAlertError(context, 'Error $e'); 
+      }
+    }
+
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
+      body: !loading.value ? SingleChildScrollView(
         child: Column(
           children: [
-            ViewApplicationCover(application: application),
+            ViewApplicationCover(
+              application: application,
+              isApplied: isApplied.value,
+              isSaved: isSaved.value,
+              saveJob: saveJob,
+            ),
             JobDescriptionCard(description: application["description"]),
             JobDetailsCard(application: application),
             AboutCompanyCard(application: application),
             const Footer()
           ],
         ),
-      ),
+      ) : const Loader(),
     );
   }
 }
 
 class ViewApplicationCover extends StatelessWidget {
   final Map<String, dynamic> application;
+  final bool isApplied;
+  final bool isSaved;
+  final void Function() saveJob;
   
   const ViewApplicationCover({
     super.key,
     required this.application,
+    required this.isApplied,
+    required this.isSaved,
+    required this.saveJob
   });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -64,37 +116,63 @@ class ViewApplicationCover extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(application["title"], style: AppText.textLight.merge(AppText.fontExtraBold).merge(AppText.textTxl)),
+          Text(
+            application["title"], 
+            style: AppText.textLight.merge(AppText.fontExtraBold).merge(AppText.textTxl),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
           const SizedBox(height: 5),
-          Text(application["company"], style: AppText.textLight.merge(AppText.fontSemibold).merge(AppText.textXl)),
+          Text(
+            application["company"], 
+            style: AppText.textLight.merge(AppText.fontSemibold).merge(AppText.textXl),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
           const SizedBox(height: 5),
-          Row(
+          Wrap(
+            spacing: 20,
+            runSpacing: 5,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              const Icon(Icons.location_on, size: 20.0, color: Colors.white),
-              const SizedBox(width: 10),
-              Text(application["location"], style: AppText.textLight.merge(AppText.textMd)),
-              const SizedBox(width: 20),
-              const Icon(Icons.monetization_on, size: 20.0, color: Colors.white),
-              const SizedBox(width: 10),
-              Text(application["salary"], style: AppText.textLight.merge(AppText.textMd)),
+              _iconText(Icons.location_on, application["location"]),
+              _iconText(Icons.monetization_on, application["salary"]),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 20,
+            runSpacing: 5,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _iconText(Icons.work, application["type"]),
+              _iconText(
+                Icons.calendar_month,
+                DateFormat("MMM d, y")
+                    .format(DateTime.parse(application["posted_on"])),
+              ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(Icons.work, size: 20.0, color: Colors.white),
-              const SizedBox(width: 10),
-              Text(application["type"], style: AppText.textLight.merge(AppText.textMd)),
-              const SizedBox(width: 20),
-              const Icon(Icons.calendar_month, size: 20.0, color: Colors.white),
-              const SizedBox(width: 10),
-              Text(DateFormat("MMM d, y").format(DateTime.parse(application["posted_on"])).toString(), style: AppText.textLight.merge(AppText.textMd)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              ElevatedButton(
+              isSaved ? ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.warning,
+                  foregroundColor: AppColor.dark,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  )
+                ),
+                onPressed: () {}, 
+                child: const Row(
+                  children: [
+                    Icon(Icons.bookmark, size: 20.0, color: Colors.black),
+                    SizedBox(width: 5),
+                    Text("Saved")
+                  ],
+                )
+              ) : ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.light,
                   foregroundColor: AppColor.dark,
@@ -102,7 +180,7 @@ class ViewApplicationCover extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   )
                 ),
-                onPressed: () {}, 
+                onPressed: saveJob, 
                 child: const Row(
                   children: [
                     Icon(Icons.bookmark, size: 20.0, color: Colors.black),
@@ -121,18 +199,37 @@ class ViewApplicationCover extends StatelessWidget {
                   )
                 ),
                 onPressed: () {}, 
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(Icons.check_circle, size: 20.0, color: Colors.white),
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5),
                     Text("Applied")
                   ],
                 )
-              ),
+              )
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _iconText(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 20.0, color: Colors.white),
+        const SizedBox(width: 10),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200), // control wrap width
+          child: Text(
+            text,
+            style: AppText.textLight.merge(AppText.textMd),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -159,7 +256,7 @@ class JobDescriptionCard extends StatelessWidget {
               Row( 
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(Icons.file_copy, size: 20),
+                  const Icon(Icons.file_copy, size: 20),
                   const SizedBox(width: 10),
                   Text("Job Description", style: AppText.textLg.merge(AppText.fontSemibold))
                 ]
@@ -196,7 +293,7 @@ class JobDetailsCard extends StatelessWidget {
               Row( 
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(Icons.info, size: 20),
+                  const Icon(Icons.info, size: 20),
                   const SizedBox(width: 10),
                   Text("Job Details", style: AppText.textLg.merge(AppText.fontSemibold))
                 ]
@@ -309,7 +406,7 @@ class AboutCompanyCard extends StatelessWidget {
               Row( 
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(Icons.business, size: 20),
+                  const Icon(Icons.business, size: 20),
                   const SizedBox(width: 10),
                   Text("About the Company", style: AppText.textLg.merge(AppText.fontSemibold))
                 ]
@@ -327,7 +424,7 @@ class AboutCompanyCard extends StatelessWidget {
                     color: AppColor.light,
                     shape: BoxShape.circle,
                   ),
-                  child: Center(child: Icon(Icons.business, size: 50)),
+                  child: const Center(child: Icon(Icons.business, size: 50)),
                 ),
               ),
               const SizedBox(height: 15),
@@ -337,7 +434,7 @@ class AboutCompanyCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.mail, size: 20, color: AppColor.primary),
+                  const Icon(Icons.mail, size: 20, color: AppColor.primary),
                   const SizedBox(width: 5),
                   Text(application["email"], style: AppText.textSm)
                 ],
@@ -346,7 +443,7 @@ class AboutCompanyCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.phone, size: 20, color: AppColor.primary),
+                  const Icon(Icons.phone, size: 20, color: AppColor.primary),
                   const SizedBox(width: 5),
                   Text(application["contact"], style: AppText.textSm)
                 ],
@@ -366,7 +463,7 @@ class AboutCompanyCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.mail, size: 20, color: AppColor.light),
+                      const Icon(Icons.mail, size: 20, color: AppColor.light),
                       const SizedBox(width: 5),
                       Text("Send Message", style: AppText.textSm)
                     ],

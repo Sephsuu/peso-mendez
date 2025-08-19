@@ -1,5 +1,4 @@
 import 'package:app/features/forms/credentials_form.dart';
-import 'package:app/features/forms/personal_information_form.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
@@ -30,11 +29,11 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Column(
           children: [
-            activeForm == 0 ? RegisterForm(onNext: () => _toggleContent(1)) : activeForm == 1 ? const PersonalInformationForm() : const Footer(),
-            const Footer(),
+            RegisterForm(),
+            Footer(),
           ],
         ),
       ),

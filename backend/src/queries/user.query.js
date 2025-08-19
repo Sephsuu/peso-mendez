@@ -77,7 +77,51 @@ export async function registerUser(fullName, email, contactNumber, username, pas
         'active',   
     ]);
 
-    return { userId: result.insertId };
+    return result.insertId;
+}
+
+export async function createPersonalinformation(personalInfo) {
+    const [result] = await pool.query(
+        `INSERT INTO personal_informations (
+            user_id, surname, first_name, middle_name, suffix,
+            religion, present_address, tin, sex, civil_status,
+            disability, employment_status, employment_type, is_ofw, is_former_ofw
+        )
+        VALUES (
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?
+        )`,
+        [
+            personalInfo.userId, personalInfo.surname, personalInfo.firstName, 
+            personalInfo.middleName, personalInfo.suffix, personalInfo.religion,
+            personalInfo.presentAddress, personalInfo.tin, personalInfo.sex,
+            personalInfo.civilStatus, personalInfo.disability, personalInfo.employmentStatus,
+            personalInfo.employmentType, personalInfo.isOfw, personalInfo.isFormerOfw
+        ]
+    );
+    return result;
+}
+
+export async function createJobReference(jobRef) {
+    console.log(jobRef);
+    
+    const [result] = await pool.query(
+        `INSERT INTO job_references (
+            user_id, occupation_type, occupation1, occupation2, occupation3,
+            location_type, location1, location2, location3
+        )
+        VALUES (
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?
+        )`,
+        [
+            jobRef.userId, jobRef.occupationType, jobRef.occupation1,
+            jobRef.occupation2, jobRef.occupation3, jobRef.locationType,
+            jobRef.location1, jobRef.location2, jobRef.location3
+        ]
+    );
+    return result;
 }
 
 export async function deactivateUser(id) {

@@ -343,7 +343,9 @@ class YourApplicationsCard extends HookWidget {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewApplication(onNavigate: (page) => globalNavigateTo?.call(page), application: application)));
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => ViewApplication(application: application)
+                                ));
                               },
                               child: Text("View", style: AppText.textPrimary),
                             ),

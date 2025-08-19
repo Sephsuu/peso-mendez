@@ -35,6 +35,16 @@ router.get('/get-by-employer', async (req, res) => {
     }
 })
 
+router.get('/get-saved-job-by-user-job', async (req, res) => {
+    const { userId, jobId } = req.query;
+    try {
+        const job = await jobQuery.getSavedJobByUserJob(userId, jobId);
+        res.json(job);
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+})
+
 router.post('/create', async (req, res) => {
     try {
         const {
@@ -48,6 +58,16 @@ router.post('/create', async (req, res) => {
             employerId,
         } = req.body;
         const job = await jobQuery.createJob(employerId, title, company, location, type, salary, visibility, description);
+        return res.json(job);
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/save-job', async (req, res) => {
+    const { userId, jobId } = req.query;
+    try {
+        const job = await jobQuery.saveJob(userId, jobId);
         return res.json(job);
     } catch(err) {
         res.status(500).json({ error: err.message });

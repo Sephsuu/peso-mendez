@@ -45,9 +45,9 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const user = await registerUser(fullName, email, contactNumber, username, password, role);
+    const userId = await registerUser(fullName, email, contactNumber, username, password, role);
 
-    res.status(201).json({ message: 'User registered successfully', user });
+    res.status(201).json({ message: 'User registered successfully', userId });
   } catch (err) {
     if (err.message.includes('exists')) {
       return res.status(400).json({ error: err.message });

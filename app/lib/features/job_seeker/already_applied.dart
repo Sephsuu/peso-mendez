@@ -4,18 +4,15 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AlreadyApplied extends HookWidget {
-  final Function(PageType) onNavigate;
   final Map<String, dynamic> job;
   final int userId;
 
   const AlreadyApplied({
     super.key, 
-    required this.onNavigate,
     required this.job,
     required this.userId,
   });
@@ -28,7 +25,7 @@ class AlreadyApplied extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final res = await ApplicationService.getApplicationByJobAndUser(job['id'], userId) ?? {};
+          final res = await ApplicationService.getApplicationByJobAndUser(job['id'], userId);
           application.value = res;
           loading.value = false;
         } catch (e) {

@@ -110,10 +110,26 @@ class AdminActions extends StatelessWidget {
     return Column(
       children: [
         Text("Admin Actions", style: AppText.textXl.merge(AppText.fontSemibold)),
-        const AdminActionButton(color: AppColor.dark, text: "Manage Users", page: ManageUsers()),
-        AdminActionButton(color: AppColor.primary, text: "Post Announcement", page: PostAnnouncement(onNavigate: (page) => globalNavigateTo?.call(page))),
-        AdminActionButton(color: AppColor.warning, text: "Manage Events", page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
-        AdminActionButton(color: AppColor.info, text: "Manage Trainings", page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
+        const AdminActionButton(
+          color: AppColor.dark, 
+          text: "Manage Users", 
+          page: ManageUsers()
+        ),
+        AdminActionButton(
+          color: AppColor.primary, 
+          text: "Post Announcement", 
+          page: PostAnnouncement(onNavigate: (page) => globalNavigateTo?.call(page))
+        ),
+        AdminActionButton(
+          color: AppColor.warning, 
+          text: "Manage Events", 
+          page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))
+        ),
+        AdminActionButton(
+          color: AppColor.info, 
+          text: "Manage Trainings", 
+          page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))
+        ),
       ],
     );
   }
@@ -125,9 +141,21 @@ class PerformanceAndReports extends StatelessWidget {
     return Column(
       children: [
         Text("📊 Performance & Reports", style: AppText.textXl.merge(AppText.fontSemibold)),
-        AdminActionButton(color: AppColor.primary, text: "Users Report", page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
-        AdminActionButton(color: AppColor.info, text: "Employers Report", page: EmployersReport()),
-        AdminActionButton(color: AppColor.success, text: "Job Seekers Report", page: JobSeekersReport(onNavigate: (page) => globalNavigateTo?.call(page))),
+        AdminActionButton(
+          color: AppColor.primary, 
+          text: "Users Report", 
+          page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))
+        ),
+        const AdminActionButton(
+          color: AppColor.info, 
+          text: "Employers Report", page: 
+          EmployersReport()
+        ),
+        AdminActionButton(
+          color: AppColor.success, 
+          text: "Job Seekers Report", 
+          page: JobSeekersReport(onNavigate: (page) => globalNavigateTo?.call(page))
+        ),
       ],
     );
   }

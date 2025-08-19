@@ -23,9 +23,9 @@ class PostAnnouncement extends StatelessWidget {
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
           child: Column(
             children: [
               PostAnnouncementForm()
@@ -42,7 +42,7 @@ class PostAnnouncementForm extends StatefulWidget {
   const PostAnnouncementForm({super.key});
 
   @override
-  _PostAnnouncementFormState createState() => _PostAnnouncementFormState();
+  State<PostAnnouncementForm> createState() => _PostAnnouncementFormState();
 }
 class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
   final _formKey = GlobalKey<FormState>();
@@ -51,7 +51,7 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
   final TextEditingController _content = TextEditingController();
   String? _targetAudience;
 
-  List<String> audiences = ['All', 'Admin', 'Job Seekers', 'Employers'];
+  List<String> audiences = ['All', 'Admin', 'Job Seeker', 'Employer'];
 
   @override
   void dispose() {
@@ -68,17 +68,13 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
       final Map<String, dynamic> announcement = {
         "title": titleVal,
         "content": contentVal,
-        "audience": targetAudienceVal
+        "audience": targetAudienceVal!.toLowerCase().replaceAll(' ', '_')
       };
       try {
         final res = await AnnouncementService.createAnnouncement(announcement);
         if (res.isNotEmpty) {
           Fluttertoast.showToast(
             msg: 'Announcement created sucesssfully',
-            toastLength: Toast.LENGTH_LONG, 
-            gravity: ToastGravity.TOP,
-            backgroundColor: AppColor.light,
-            textColor: AppColor.dark
           );
           if (!mounted) return;
           Navigator.push(
@@ -87,6 +83,7 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
           );
         }
       } catch (e) {
+        if (!mounted) return;
         showAlertError(context, 'Error: $e');
       }
     }

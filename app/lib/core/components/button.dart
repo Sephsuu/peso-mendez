@@ -430,9 +430,7 @@ class SubmitApplicationButton extends HookWidget {
 
   void applyForJob(BuildContext context, Map<String, dynamic> job, int userId) async {
     try {
-      print('Clicked');
-      final data = await ApplicationService.getApplicationByJobAndUser(job['id'], userId) ?? {};
-      print(data);
+      final data = await ApplicationService.getApplicationByJobAndUser(job['id'], userId);
       if (data.isNotEmpty) {
         if (!context.mounted) return;
         onClose!(); // Close modal
@@ -440,7 +438,6 @@ class SubmitApplicationButton extends HookWidget {
           context,
           MaterialPageRoute(
             builder: (context) => AlreadyApplied(
-              onNavigate: (page) => globalNavigateTo?.call(page),
               job: job,
               userId: userId,
             ),

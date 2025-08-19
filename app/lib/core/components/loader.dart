@@ -10,6 +10,13 @@ class Loader extends StatelessWidget {
   const Loader({super.key});
   @override
   Widget build(BuildContext context) {
-    return Container(padding: const EdgeInsets.symmetric(vertical: 40), child: const CircularProgressIndicator(color: AppColor.info));
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 40), 
+        child: const CircularProgressIndicator(
+          color: AppColor.info
+        )
+      )
+    );
   }
 }

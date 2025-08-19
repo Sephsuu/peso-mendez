@@ -90,9 +90,8 @@ class _LoginFormState extends State<LoginForm> {
           final role = user != null ? user['role'] : null;
           if (token != null) {
             await _secureStorage.write(key: 'jwt_token', value: token);
-
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Login successful! Welcome! ${responseData['message']}')),
+              const SnackBar(content: Text('Logged in successfuly!')),
             );
 
             if (role == 'job_seeker') {

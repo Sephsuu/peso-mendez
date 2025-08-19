@@ -22,7 +22,7 @@ export async function createAnnouncement(announcement) {
         [
             announcement.title,
             announcement.content,
-            announcement.target_audience
+            announcement.audience
         ]
     );
     const [result] = await pool.query(
