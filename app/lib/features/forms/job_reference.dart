@@ -19,7 +19,7 @@ class JobReferenceForm extends StatefulWidget {
   });
 
   @override 
-  _JobReferenceFormState createState() => _JobReferenceFormState();
+  State<JobReferenceForm> createState() => _JobReferenceFormState();
 }
 
 class _JobReferenceFormState extends State<JobReferenceForm> {
@@ -63,6 +63,7 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
       try {
         final res = await UserService.createJobReference(jobRef);
         if (res.isNotEmpty) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Job Reference updated successfully! You may now proceed to language profeciency form.'))
           );

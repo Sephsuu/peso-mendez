@@ -56,6 +56,36 @@ router.post('/create-job-ref', async (req, res) => {
 	}
 })
 
+router.post('/create-language-prof', async (req, res) => {
+	const languageProf = req.body;
+	try {
+		const query = await userQuery.createLanguageProfeciency(languageProf);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.post('/create-educ-bg', async (req, res) => {
+	const educBg = req.body;
+	try {
+		const query = await userQuery.createEducationalBackground(educBg);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.post('/create-techvoc-training', async (req, res) => {
+	const techVoc = req.body;
+	try {
+		const query = await userQuery.createTechVocTraining(techVoc);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;
 	try {

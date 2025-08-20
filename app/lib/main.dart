@@ -1,3 +1,6 @@
+import 'package:app/features/forms/educational_background.dart';
+import 'package:app/features/forms/job_reference.dart';
+import 'package:app/features/forms/language_profeciency.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/features/homepage.dart';
@@ -27,7 +30,7 @@ class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
 enum PageType { 
@@ -67,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _getPage() {
     switch (_currentPage) {
       case PageType.home:
-        return Homepage(onNavigate: _navigateTo);
+        return const EducationalBackgroundForm(userId: 30);
       case PageType.register:
         return Register(onNavigate: _navigateTo);
       case PageType.login:

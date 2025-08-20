@@ -33,11 +33,34 @@ class UserService {
   }
 
   static Future<Map<String, dynamic>> createJobReference(Map<String, dynamic> jobRef) async {
-    print(jobRef);
     return await request(
       '$url/create-job-ref',
       method: 'POST',
       body: jobRef
+    );
+  }
+
+  static Future<Map<String, dynamic>> createLanguageProfeciency(Map<String, dynamic> languageProf) async {
+    return await request(
+      '$url/create-language-prof',
+      method: 'POST',
+      body: languageProf
+    );
+  }
+
+  static Future<Map<String, dynamic>> createEducationalBackground(Map<String, dynamic> edugBg) async {
+    return await request(
+      '$url/create-educ-bg',
+      method: 'POST',
+      body: edugBg
+    );
+  }
+
+  static Future<Map<String, dynamic>> createTechVocTraining(Map<String, dynamic> techVoc) async {
+    return await request(
+      '$url/create-techvoc-training',
+      method: 'POST',
+      body: techVoc
     );
   }
 

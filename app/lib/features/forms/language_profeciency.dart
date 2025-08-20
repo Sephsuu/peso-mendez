@@ -1,10 +1,11 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
-import 'package:app/core/components/input.dart';
+import 'package:app/core/components/checkbox.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/forms/educational_background.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -18,52 +19,77 @@ class LanguageProfeciencyForm extends StatefulWidget {
   });
 
   @override 
-  _LanguageProfeciencyFormState createState() => _LanguageProfeciencyFormState();
+  State<LanguageProfeciencyForm> createState() => _LanguageProfeciencyFormState();
 }
 
 class _LanguageProfeciencyFormState extends State<LanguageProfeciencyForm> {
-  bool isChecked = false; 
   final _formKey = GlobalKey<FormState>();
-  final List<String> occupationTypes = ['Part-time', 'Full-time'];
-  final List<String> locationTypes = ['Local', 'Overseas'];
 
-  final TextEditingController _occupation1 = TextEditingController();
-  final TextEditingController _occupation2 = TextEditingController();
-  final TextEditingController _occupation3 = TextEditingController();
-  final TextEditingController _location1 = TextEditingController();
-  final TextEditingController _location2 = TextEditingController();
-  final TextEditingController _location3 = TextEditingController();
-  String? _occupationType;
-  String? _locationType;
+  Map<String, bool> englishProfeciency = {
+    "Read": false, 
+    "Write": false, 
+    "Speak": false, 
+    "Understand": false
+  };
+
+  Map<String, bool> filipinoProfeciency = {
+    "Read": false, 
+    "Write": false, 
+    "Speak": false, 
+    "Understand": false
+  };
+
+  Map<String, bool> mandarinProfeciency = {
+    "Read": false, 
+    "Write": false, 
+    "Speak": false, 
+    "Understand": false
+  };
 
   @override
   void dispose() {
-    _occupation1.dispose();
-    _occupation2.dispose();
-    _occupation3.dispose();
-    _location1.dispose();
-    _location2.dispose();
-    _location3.dispose();
     super.dispose();
   }
 
   Future<void> _nextForm() async {
     if (_formKey.currentState!.validate()) {
-      final Map<String, dynamic> jobRef = {
+      final Map<String, dynamic> englishProf = {
         "userId": widget.userId,
-        "occupationType": _occupationType,
-        "occupation1": _occupation1.text.trim(),
-        "occupation2": _occupation2.text.trim(),
-        "occupation3": _occupation3.text.trim(),
-        "locationType": _locationType,
-        "location1": _location1.text.trim(),
-        "location2": _location2.text.trim(),
-        "location3": _location3.text.trim(),
+        "language": "English",
+        "read": englishProfeciency["Read"],
+        "write": englishProfeciency["Write"],
+        "speak": englishProfeciency["Speak"],
+        "understand": englishProfeciency["Understand"],
+      }; 
+      final Map<String, dynamic> filipinoProf = {
+        "userId": widget.userId,
+        "language": "Filipino",
+        "read": filipinoProfeciency["Read"],
+        "write": filipinoProfeciency["Write"],
+        "speak": filipinoProfeciency["Speak"],
+        "understand": filipinoProfeciency["Understand"],
+      }; 
+      final Map<String, dynamic> mandarinProf = {
+        "userId": widget.userId,
+        "language": "Mandarin",
+        "read": mandarinProfeciency["Read"],
+        "write": mandarinProfeciency["Write"],
+        "speak": mandarinProfeciency["Speak"],
+        "understand": mandarinProfeciency["Understand"],
       }; 
       try {
-        final res = await UserService.createJobReference(jobRef);
-        if (res.isNotEmpty) {
-          
+        final englishRes = await UserService.createLanguageProfeciency(englishProf);
+        final filipinoRes = await UserService.createLanguageProfeciency(filipinoProf);
+        final mandarinRes = await UserService.createLanguageProfeciency(mandarinProf);
+        if (englishRes.isNotEmpty && filipinoRes.isNotEmpty && mandarinRes.isNotEmpty) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Language Profeciency updated successfully! You may now proceed to educational background form.'))
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EducationalBackgroundForm(userId: widget.userId)),
+          );
         }
       } catch (e) {
         if (!mounted) return;
@@ -109,21 +135,49 @@ class _LanguageProfeciencyFormState extends State<LanguageProfeciencyForm> {
                         const SizedBox(height: 5),
                         SizedBox(
                           width: double.infinity,
-                          child: Text('Job Reference', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),
+                          child: Text('Language Profeciency', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),
                         ),
                         const SizedBox(height: 20.0),
-                        CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,  
-                                     
-                          controlAffinity: ListTileControlAffinity.leading, 
-                          title: Text("Read"),
-                          value: isChecked,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isChecked = value ?? false;
-                            });
-                          },
-                        ),
+                        Text('English Language', style: AppText.textLg.merge(AppText.fontSemibold)),
+                        ...englishProfeciency.entries.map((entry) {
+                          return AppCheckbox(
+                            label: entry.key, 
+                            state: entry.value,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                englishProfeciency[entry.key] = newValue ?? false; 
+                              });
+                            },
+                          );
+                        }),
+                        const SizedBox(height: 20.0),
+                        Text('Filipino Language', style: AppText.textLg.merge(AppText.fontSemibold)),
+                        ...filipinoProfeciency.entries.map((entry) {
+                          return AppCheckbox(
+                            label: entry.key, 
+                            state: entry.value,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                filipinoProfeciency[entry.key] = newValue ?? false; 
+                              });
+                            },
+                          );
+                        }),
+                        const SizedBox(height: 20.0),
+                        Text('Mandarin Language', style: AppText.textLg.merge(AppText.fontSemibold)),
+                        ...mandarinProfeciency.entries.map((entry) {
+                          return AppCheckbox(
+                            label: entry.key, 
+                            state: entry.value,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                mandarinProfeciency[entry.key] = newValue ?? false; 
+                              });
+                            },
+                          );
+                        }),
+                        const SizedBox(height: 20.0),
+                
                         RegisterNextButton(registerUser: _nextForm),
                       ],
                     ),
@@ -135,7 +189,5 @@ class _LanguageProfeciencyFormState extends State<LanguageProfeciencyForm> {
         ),
       ),
     );
-    
-    
   }
 }

@@ -83,6 +83,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
       try {
         final res = await UserService.createPersonalInformation(personalInfo);
         if (res.isNotEmpty) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Personal Information updated successfully! You may now proceed to job reference form.'))
           );

@@ -124,6 +124,61 @@ export async function createJobReference(jobRef) {
     return result;
 }
 
+export async function createLanguageProfeciency(languageProf) {
+    console.log(languageProf);
+    
+    const [result] = await pool.query(
+        `INSERT INTO language_profeciencies (
+            user_id, language, \`read\`, \`write\`, speak, understand
+        )
+        VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+            languageProf.userId, languageProf.language, languageProf.read,
+            languageProf.write, languageProf.speak, languageProf.understand,
+        ]
+    );
+    return result;
+}
+
+export async function createEducationalBackground(educBg) {
+    const [result] = await pool.query(
+        `INSERT INTO educational_backgrounds (
+            user_id, elem_year_grad, elem_level_reached, elem_year_last_attended,
+            seco_year_grad, seco_level_reached, seco_year_last_attended, ter_course,
+            ter_year_grad, ter_level_reached, ter_year_last_attended, gs_course,
+            gs_year_grad, gs_level_reached, gs_year_last_attended, is_kto12, shs_strand  
+        )
+        VALUES (
+            ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?
+        )`,
+        [
+            educBg.userId, educBg.elemYearGrad, educBg.elemLevelReached, educBg.elemYearLastAttended,
+            educBg.secoYearGrad, educBg.secoLevelReached, educBg.secoYearLastAttended, educBg.terCourse,
+            educBg.terYearGrad, educBg.terLevelReached, educBg.terYearLastAttended, educBg.gsCourse,
+            educBg.gsYearGrad, educBg.gsLevelReached, educBg.gsYearLastAttended, educBg.isKto12, educBg.shsStrand
+        ]
+    );
+    return result;
+}
+
+
+export async function createTechVocTraining(techVoc) {
+    const [result] = await pool.query(
+        `INSERT INTO tech_voc_trainings (
+            user_id, course, hours_training, institution,
+            skills_acquired, cert_received
+        )
+        VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+            techVoc.userId, techVoc.course, techVoc.hoursTraining,
+            techVoc.institution, techVoc.skillsAcquired, techVoc.certReceived
+        ]
+    );
+    return result;
+}
+
 export async function deactivateUser(id) {
     await pool.query(
         `UPDATE users SET status = "inactive" WHERE id = ?`,

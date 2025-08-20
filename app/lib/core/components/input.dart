@@ -42,11 +42,13 @@ class _RegisterTextFieldPlaceholderRequiredState extends State<RegisterTextField
 class RegisterTextFieldPlaceholder extends StatefulWidget {
   final TextEditingController controller;
   final String? placeholder;
+  final bool enabled;
 
   const RegisterTextFieldPlaceholder({
     super.key,
     required this.controller,
-    this.placeholder, // If you want placeholder optional, remove required
+    this.placeholder, 
+    this.enabled = true,
   });
 
   @override
@@ -56,6 +58,7 @@ class _RegisterTextFieldPlaceholderState extends State<RegisterTextFieldPlacehol
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      enabled: widget.enabled,
       controller: widget.controller,
       decoration: InputDecoration(
         border: const OutlineInputBorder(),
