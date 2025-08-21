@@ -6,6 +6,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
+import 'package:app/features/forms/other_skills.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
@@ -67,7 +68,13 @@ class _WorkExperienceFormState extends State<WorkExperienceForm> {
         final workExpRes3 = await UserService.createWorkExperience(workExp3);
         if (workExpRes1.isNotEmpty && workExpRes2.isNotEmpty && workExpRes3.isNotEmpty) {
           if (!mounted) return;
-          showAlertError(context, 'Created');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Work experience updated successfully! You may now proceed to other skills without certificate form.'))
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OtherSkillsForm(userId: widget.userId)),
+          );
         }
       } catch (e) {
         if (!mounted) return;
@@ -130,7 +137,7 @@ class _WorkExperienceFormState extends State<WorkExperienceForm> {
                         const SizedBox(height: 10.0),
                         const Text('Status'),
                         RegisterTextFieldPlaceholder(controller: _workExp1[4], placeholder: 'e.g. Permanent, Contractual, etc.'),
-
+                        const SizedBox(height: 20.0),
                         Text('Work Experience 2', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _workExp2[0], placeholder: 'Company Name'),
@@ -143,7 +150,7 @@ class _WorkExperienceFormState extends State<WorkExperienceForm> {
                         const SizedBox(height: 10.0),
                         const Text('Status'),
                         RegisterTextFieldPlaceholder(controller: _workExp2[4], placeholder: 'e.g. Permanent, Contractual, etc.'),
-
+                        const SizedBox(height: 20.0),
                         Text('Work Experience 3', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _workExp3[0], placeholder: 'Company Name'),

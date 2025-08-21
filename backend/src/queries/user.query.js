@@ -216,7 +216,16 @@ export async function createWorkExperience(workExp) {
     return result;
 }
 
-
+export async function createOtherSkill(otherSkill) {
+    const [result] = await pool.query(
+        `INSERT INTO other_skills (
+            user_id, skill
+        )
+        VALUES (?, ?)`,
+        [otherSkill.userId, otherSkill.skill]
+    );
+    return result;
+}
 
 export async function deactivateUser(id) {
     await pool.query(

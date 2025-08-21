@@ -116,6 +116,15 @@ router.post('/create-work-exp', async (req, res) => {
 	}
 })
 
+router.post('/create-other-skill', async (req, res) => {
+	const otherSkill = req.body;
+	try {
+		const query = await userQuery.createOtherSkill(otherSkill);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
 
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;

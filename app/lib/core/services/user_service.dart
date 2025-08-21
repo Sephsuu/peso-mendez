@@ -88,6 +88,14 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> createOtherSkill(Map<String, dynamic> otherSkill) async {
+    return await request(
+      '$url/create-other-skill',
+      method: 'POST',
+      body: otherSkill
+    );
+  }
+
   static Future<Map<String, dynamic>> deactivateUser(int id) async {
     return await request(
       '$url/deactivate?id=$id',
