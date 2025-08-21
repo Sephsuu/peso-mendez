@@ -64,6 +64,30 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> createEligibility(Map<String, dynamic> eligibility) async {
+    return await request(
+      '$url/create-eligibility',
+      method: 'POST',
+      body: eligibility
+    );
+  }
+
+  static Future<Map<String, dynamic>> createProfessionalLicense(Map<String, dynamic> prc) async {
+    return await request(
+      '$url/create-prof-license',
+      method: 'POST',
+      body: prc
+    );
+  }
+
+  static Future<Map<String, dynamic>> createWorkExperience(Map<String, dynamic> workExp) async {
+    return await request(
+      '$url/create-work-exp',
+      method: 'POST',
+      body: workExp
+    );
+  }
+
   static Future<Map<String, dynamic>> deactivateUser(int id) async {
     return await request(
       '$url/deactivate?id=$id',

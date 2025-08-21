@@ -179,6 +179,45 @@ export async function createTechVocTraining(techVoc) {
     return result;
 }
 
+export async function createEligibility(eligibility) {
+    const [result] = await pool.query(
+        `INSERT INTO eligibilities (
+            user_id, eligibility, date_taken
+        )
+        VALUES (?, ?, ?)`,
+        [eligibility.userId, eligibility.eligibility, eligibility.dateTaken]
+    );
+    return result;
+}
+
+export async function createProfessionalLicense(prc) {
+    const [result] = await pool.query(
+        `INSERT INTO professional_licenses (
+            user_id, license, valid_until
+        )
+        VALUES (?, ?, ?)`,
+        [prc.userId, prc.license, prc.validUntil]
+    );
+    return result;
+}
+
+export async function createWorkExperience(workExp) {
+    const [result] = await pool.query(
+        `INSERT INTO work_experiences (
+            user_id, company_name, address,
+            position, no_of_month, status 
+        )
+        VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+            workExp.userId, workExp.companyName, workExp.address,
+            workExp.position, workExp.noOfMonth, workExp.status
+        ]
+    );
+    return result;
+}
+
+
+
 export async function deactivateUser(id) {
     await pool.query(
         `UPDATE users SET status = "inactive" WHERE id = ?`,

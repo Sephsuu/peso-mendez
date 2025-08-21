@@ -86,6 +86,37 @@ router.post('/create-techvoc-training', async (req, res) => {
 	}
 })
 
+router.post('/create-eligibility', async (req, res) => {
+	const eligibility = req.body;
+	try {
+		const query = await userQuery.createEligibility(eligibility);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.post('/create-prof-license', async (req, res) => {
+	const prc = req.body;
+	try {
+		const query = await userQuery.createProfessionalLicense(prc);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.post('/create-work-exp', async (req, res) => {
+	const workExp = req.body;
+	try {
+		const query = await userQuery.createWorkExperience(workExp);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;
 	try {

@@ -6,6 +6,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
+import 'package:app/features/forms/work_experience.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
@@ -24,25 +25,17 @@ class EligibilityPRCForm extends StatefulWidget {
 class _EligibilityPRCFormState extends State<EligibilityPRCForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _techVocCourse1 = TextEditingController();
-  final TextEditingController _techVocCourse2 = TextEditingController();
-  final TextEditingController _techVocCourse3 = TextEditingController();
+  final TextEditingController _eligible1 = TextEditingController();
+  final TextEditingController _dateTaken1 = TextEditingController();
+  final TextEditingController _eligible2 = TextEditingController();
+  final TextEditingController _dateTaken2 = TextEditingController();
 
-  final TextEditingController _hrsTraining1 = TextEditingController();
-  final TextEditingController _hrsTraining2 = TextEditingController();
-  final TextEditingController _hrsTraining3 = TextEditingController();
-
-  final TextEditingController _institution1 = TextEditingController();
-  final TextEditingController _institution2 = TextEditingController();
-  final TextEditingController _institution3 = TextEditingController();
-
-  final TextEditingController _skillsAcquired1 = TextEditingController();
-  final TextEditingController _skillsAcquired2 = TextEditingController();
-  final TextEditingController _skillsAcquired3 = TextEditingController();
-
-  final TextEditingController _certReceived1 = TextEditingController();
-  final TextEditingController _certReceived2 = TextEditingController();
-  final TextEditingController _certReceived3 = TextEditingController();
+  final TextEditingController _prc1 = TextEditingController();
+  final TextEditingController _validUntil1 = TextEditingController();
+  final TextEditingController _prc2 = TextEditingController();
+  final TextEditingController _validUntil2 = TextEditingController();
+  
+ 
 
   @override
   void dispose() {
@@ -52,37 +45,40 @@ class _EligibilityPRCFormState extends State<EligibilityPRCForm> {
 
   Future<void> _nextForm() async {
     if (_formKey.currentState!.validate()) {
-      final Map<String, dynamic> techVoc1 = {
+      final Map<String, dynamic> eligibility1 = {
         "userId": widget.userId,
-        "course": _techVocCourse1.text.trim(),
-        "hoursTraining": _hrsTraining1.text.trim(),
-        "institution": _institution1.text.trim(),
-        "skillsAcquired": _skillsAcquired1.text.trim(),
-        "certReceived": _certReceived1.text.trim(),
+        "eligibility": _eligible1.text.trim(),
+        "dateTaken": _dateTaken1.text.trim()
       }; 
-      final Map<String, dynamic> techVoc2 = {
+      final Map<String, dynamic> eligibility2 = {
         "userId": widget.userId,
-        "course": _techVocCourse2.text.trim(),
-        "hoursTraining": _hrsTraining2.text.trim(),
-        "institution": _institution2.text.trim(),
-        "skillsAcquired": _skillsAcquired2.text.trim(),
-        "certReceived": _certReceived2.text.trim(),
+        "eligibility": _eligible2.text.trim(),
+        "dateTaken": _dateTaken2.text.trim()
       }; 
-      final Map<String, dynamic> techVoc3 = {
+      final Map<String, dynamic> license1 = {
         "userId": widget.userId,
-        "course": _techVocCourse3.text.trim(),
-        "hoursTraining": _hrsTraining3.text.trim(),
-        "institution": _institution3.text.trim(),
-        "skillsAcquired": _skillsAcquired3.text.trim(),
-        "certReceived": _certReceived3.text.trim(),
+        "license": _prc1.text.trim(),
+        "validUntil": _validUntil1.text.trim()
+      }; 
+      final Map<String, dynamic> license2 = {
+        "userId": widget.userId,
+        "license": _prc2.text.trim(),
+        "validUntil": _validUntil2.text.trim()
       }; 
       try {
-        final techVocRes1 = await UserService.createTechVocTraining(techVoc1);
-        final techVocRes2 = await UserService.createTechVocTraining(techVoc2);
-        final techVocRes3 = await UserService.createTechVocTraining(techVoc3);
-        if (techVocRes1.isNotEmpty && techVocRes2.isNotEmpty && techVocRes3.isNotEmpty) {
+        final eligibilityRes1 = await UserService.createEligibility(eligibility1);
+        final eligibilityRes2 = await UserService.createEligibility(eligibility2);
+        final prcRes1 = await UserService.createProfessionalLicense(license1);
+        final prcRes2 = await UserService.createProfessionalLicense(license2);
+        if (eligibilityRes1.isNotEmpty && eligibilityRes2.isNotEmpty && prcRes1.isNotEmpty && prcRes2.isNotEmpty) {
           if (!mounted) return;
-          showAlertError(context, 'Created');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Eligibility/Professional License updated successfully! You may now proceed to work experience form.'))
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => WorkExperienceForm(userId: widget.userId)),
+          );
         }
       } catch (e) {
         if (!mounted) return;
@@ -135,30 +131,30 @@ class _EligibilityPRCFormState extends State<EligibilityPRCForm> {
                         const SizedBox(height: 10.0),
                         Text('Eligibility 1 (if any)', style: AppText.textMd),
                         const SizedBox(height: 10.0),
-                        RegisterTextFieldPlaceholder(controller: _techVocCourse1, placeholder: "(Civil Servicce)"),
+                        RegisterTextFieldPlaceholder(controller: _eligible1, placeholder: "(Civil Servicce)"),
                         const SizedBox(height: 5.0),
-                        RegisterTextFieldPlaceholder(controller: _hrsTraining1, placeholder: "Date Taken"),
+                        RegisterTextFieldPlaceholder(controller: _dateTaken1, placeholder: "Date Taken (YYYY-MM-DD)"),
                         const SizedBox(height: 10.0),
                         Text('Eligibility 2 (if any)', style: AppText.textMd),
                         const SizedBox(height: 10.0),
-                        RegisterTextFieldPlaceholder(controller: _techVocCourse1, placeholder: "(Civil Servicce)"),
+                        RegisterTextFieldPlaceholder(controller: _eligible2, placeholder: "(Civil Servicce)"),
                         const SizedBox(height: 5.0),
-                        RegisterTextFieldPlaceholder(controller: _hrsTraining1, placeholder: "Date Taken"),
+                        RegisterTextFieldPlaceholder(controller: _dateTaken2, placeholder: "Date Taken (YYYY-MM-DD)"),
                         const SizedBox(height: 20),
 
                         Text('Professional License (PRC)', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
                         Text('PRC License 1 (if any)', style: AppText.textMd),
                         const SizedBox(height: 10.0),
-                        RegisterTextFieldPlaceholder(controller: _techVocCourse1, placeholder: "PRC License Name"),
+                        RegisterTextFieldPlaceholder(controller: _prc1, placeholder: "PRC License Name"),
                         const SizedBox(height: 5.0),
-                        RegisterTextFieldPlaceholder(controller: _hrsTraining1, placeholder: "Valid Until"),
+                        RegisterTextFieldPlaceholder(controller: _validUntil1, placeholder: "Valid Until (YYYY-MM-DD)"),
                         const SizedBox(height: 10.0),
                         Text('PRC License 2 (if any)', style: AppText.textMd),
                         const SizedBox(height: 10.0),
-                        RegisterTextFieldPlaceholder(controller: _techVocCourse1, placeholder: "PRC License Name"),
+                        RegisterTextFieldPlaceholder(controller: _prc2, placeholder: "PRC License Name"),
                         const SizedBox(height: 5.0),
-                        RegisterTextFieldPlaceholder(controller: _hrsTraining1, placeholder: "Valid Unti"),
+                        RegisterTextFieldPlaceholder(controller: _validUntil2, placeholder: "Valid Unti (YYYY-MM-DD)"),
                         const SizedBox(height: 15.0),
                 
                         RegisterNextButton(registerUser: _nextForm),
