@@ -21,6 +21,53 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 // HOMEPAGE
 
+class AppButton extends StatelessWidget {
+  final String label;
+  final double textSize;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final double borderRadius;
+  final EdgeInsetsGeometry padding;
+  final double visualDensityY;
+  final bool isDisabled;
+  final VoidCallback? onPressed;
+
+  const AppButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.textSize = 14, 
+    this.foregroundColor = AppColor.dark,
+    this.backgroundColor = AppColor.primary,
+    this.borderRadius = 4,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10),
+    this.visualDensityY = 0,
+    this.isDisabled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        visualDensity: VisualDensity(vertical: visualDensityY),
+        padding: padding,
+        foregroundColor: foregroundColor,
+        backgroundColor: backgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius)
+        )
+      ),
+      onPressed: isDisabled ? null : onPressed,
+      child: Text(
+        label, 
+        style: TextStyle(
+          fontSize: textSize
+        )
+      )
+    );
+  }
+}
+
 class HomepageFindButton extends StatelessWidget {
   const HomepageFindButton({super.key});
 

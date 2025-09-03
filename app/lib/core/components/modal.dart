@@ -3,6 +3,56 @@ import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 
+class AppModal extends StatelessWidget {
+  final String title;
+  final String? message;
+  final VoidCallback? onConfirm;
+  final String? confirmLabel;
+  final Color? confirmForeground;
+  final Color?  confirmBackground;
+
+  const AppModal({
+    super.key,
+    required this.title,
+    this.message,
+    this.onConfirm,
+    this.confirmLabel,
+    this.confirmForeground = AppColor.dark,
+    this.confirmBackground = AppColor.light,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Text(title, style: AppText.textMd),
+      content: message != null 
+                ? Text(message ?? '') 
+                : null,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context), // closes modal
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: confirmBackground,
+            foregroundColor: confirmForeground,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          ),
+          onPressed: () {
+            Navigator.pop(context); // close modal
+            if (onConfirm != null) onConfirm!(); // run callback
+          },
+          child: Text(confirmLabel ?? 'Confirm')
+        )
+      ],
+    );
+  }
+}
+
 // VIEW JOB DETAIL (view_job_detal.dart)
 Future<void> showJobDetailModal(BuildContext context, Map<String, dynamic> job, int userId) async {
   showDialog(

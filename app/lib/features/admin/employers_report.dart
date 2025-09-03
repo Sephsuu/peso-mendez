@@ -117,30 +117,46 @@ class EmployersTable extends StatelessWidget {
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('#')),
-          DataColumn(label: Text('Full Name')),
-          DataColumn(label: Text('E-mail Address')),
-          DataColumn(label: Text('Username')),
-          DataColumn(label: Text('Contact')),
-          DataColumn(label: Text('Registered At')),
-        ], 
-        rows: employers.asMap().entries.map((entry) {
-          int index = entry.key;
-          var item = entry.value;
-          return DataRow(
-            cells: [
-              DataCell(Text((index + 1).toString())),
-              DataCell(Text(item["full_name"] ?? 'N/A')),
-              DataCell(Text(item["email"] ?? 'N/A')),
-              DataCell(Text(item["username"] ?? 'N/A')),
-              DataCell(Text(item["contact"] ?? 'N/A')),
-              DataCell(Text(item["created_at"] ?? 'N/A')),
-            ]
-          );
-        }).toList()
-      ),
+      child: DataTableTheme(
+        data: DataTableThemeData(
+          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+          headingTextStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        child: DataTable(
+          headingRowHeight: 40,
+          dataRowMinHeight: 30,
+          dataRowMaxHeight: 40,
+          border: TableBorder.all(
+            color: const Color.fromARGB(255, 191, 191, 191),
+            width: 1,
+          ),
+          columns: const [
+            DataColumn(label: Text('#')),
+            DataColumn(label: Text('Full Name')),
+            DataColumn(label: Text('E-mail Address')),
+            DataColumn(label: Text('Username')),
+            DataColumn(label: Text('Contact')),
+            DataColumn(label: Text('Registered At')),
+          ], 
+          rows: employers.asMap().entries.map((entry) {
+            int index = entry.key;
+            var item = entry.value;
+            return DataRow(
+              cells: [
+                DataCell(Text((index + 1).toString())),
+                DataCell(Text(item["full_name"] ?? 'N/A')),
+                DataCell(Text(item["email"] ?? 'N/A')),
+                DataCell(Text(item["username"] ?? 'N/A')),
+                DataCell(Text(item["contact"] ?? 'N/A')),
+                DataCell(Text(item["created_at"] ?? 'N/A')),
+              ]
+            );
+          }).toList()
+        ),
+      )
     );
   }
 }
