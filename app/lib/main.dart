@@ -70,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _getPage() {
     switch (_currentPage) {
       case PageType.home:
-        return const EducationalBackgroundForm(userId: 30);
+        return Homepage(onNavigate: (page) => globalNavigateTo?.call(page));
       case PageType.register:
         return Register(onNavigate: _navigateTo);
       case PageType.login:

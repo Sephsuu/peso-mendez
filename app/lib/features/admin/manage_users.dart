@@ -115,42 +115,64 @@ class UsersTable extends StatelessWidget {
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('#')),
-          DataColumn(label: Text('Full Name')),
-          DataColumn(label: Text('E-mail Address')),
-          DataColumn(label: Text('Contact Number')),
-          DataColumn(label: Text('Username')),
-          DataColumn(label: Text('Role')),
-          DataColumn(label: Text('Status')),
-          DataColumn(label: Text('Registered At')),
-          DataColumn(label: Text('Actions')),
-        ], 
-        rows: users.asMap().entries.map((entry) {
-          int index = entry.key;     
-          var user = entry.value;
+      child: DataTableTheme(
+        data: DataTableThemeData(
+          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+          headingTextStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        child: DataTable(
+          border: TableBorder.all(
+            color: const Color.fromARGB(255, 191, 191, 191),
+            width: 1,
+          ),
+          columns: const [
+            DataColumn(label: Text('#')),
+            DataColumn(label: Text('Full Name')),
+            DataColumn(label: Text('E-mail Address')),
+            DataColumn(label: Text('Contact Number')),
+            DataColumn(label: Text('Username')),
+            DataColumn(label: Text('Role')),
+            DataColumn(label: Text('Status')),
+            DataColumn(label: Text('Registered At')),
+            DataColumn(label: Text('Actions')),
+          ], 
+          rows: users.asMap().entries.map((entry) {
+            int index = entry.key;     
+            var user = entry.value;
 
-          return DataRow(
-            cells: [
-              DataCell(Text((index + 1).toString())),        
-              DataCell(Text(user["full_name"] ?? 'N/A')),
-              DataCell(Text(user["email"] ?? 'N/A')),
-              DataCell(Text(user["contact"] ?? 'N/A')),
-              DataCell(Text(user["role"] ?? 'N/A')),
-              DataCell(Text(user["status"] ?? 'N/A')),
-              DataCell(Text(user["created_at"] ?? 'N/A')),
-              DataCell(Text(user["id"].toString())),
-              DataCell(
-                GestureDetector(
-                  child: Text('Deactivate', style: AppText.textDanger),
-                  onTap: () => deactivateModal(context, user),
-                )
-              ),
-            ]
-          );
-        }).toList(),
-      ),
+            return DataRow(
+              cells: [
+                DataCell(Text((index + 1).toString())),        
+                DataCell(Text(user["full_name"] ?? 'N/A')),
+                DataCell(Text(user["email"] ?? 'N/A')),
+                DataCell(Text(user["contact"] ?? 'N/A')),
+                DataCell(Text(user["username"] ?? 'N/A')),
+                DataCell(Text(user["role"] ?? 'N/A')),
+                DataCell(Text(user["status"] ?? 'N/A')),
+                DataCell(Text(user["created_at"].toString())),
+                DataCell(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      visualDensity: const VisualDensity(vertical: -3),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      foregroundColor: AppColor.light,
+                      backgroundColor: AppColor.danger,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4)
+                      )
+                    ),
+                    onPressed:() =>  deactivateModal(context, user), 
+                    child: Text('Deactivate', style: AppText.textXs)
+                  ),
+                ),
+              ]
+            );
+          }).toList(),
+        ),
+      )
     );
   }
 }

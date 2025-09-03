@@ -1,7 +1,7 @@
 import 'package:app/core/services/_endpoint.dart';
 
 class UserService {
-  static const String url = "https://x848qg05-3005.asse.devtunnels.ms/users";
+  static const String url = "$BASE_URL/users";
 
   static Future<List<Map<String, dynamic>>> getAllUsers() async {
     return await request(

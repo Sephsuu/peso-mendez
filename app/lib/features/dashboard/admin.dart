@@ -4,6 +4,7 @@ import 'package:app/core/components/card.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
+import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/admin/employers_report.dart';
@@ -35,9 +36,9 @@ class AdminDashboard extends StatelessWidget {
               const SizedBox(height: 15),
               const EmployerVerificationQueue(),
               const SizedBox(height: 15),
-              AdminActions(),
+              const AdminActions(),
               const SizedBox(height: 15),
-              PerformanceAndReports(),
+              const PerformanceAndReports(),
             ],
           ),
         ),
@@ -58,7 +59,10 @@ class AdminSummary extends HookWidget {
         try {
           final res = await UserService.getAllUsers();
           users.value = res;
-        } catch(e) { showAlertError(context, "Error: $e"); }
+        } catch(e) { 
+          if (!context.mounted) return;
+          showAlertError(context, "Error: $e"); 
+        }
         finally { loading.value = false; }
       }
       fetchData();
@@ -78,33 +82,124 @@ class AdminSummary extends HookWidget {
         AdminSummaryCard(color: AppColor.primary, text: "Total Users", count: usersCount.toString()),
         AdminSummaryCard(color: AppColor.info, text: "Employers", count: employersCount.toString()),
         AdminSummaryCard(color: AppColor.success, text: "Job Seekers", count: jobSeekersCount.toString()),
-        AdminSummaryCard(color: AppColor.secondary, text: "Announcements", count: "4"),
-        SizedBox(height: 20),
-        AdminSummaryCard(color: AppColor.warning, text: "Total Users", count: "4"),
-        AdminSummaryCard(color: AppColor.dark, text: "Total Users", count: "4"),
+        const AdminSummaryCard(color: AppColor.secondary, text: "Announcements", count: "4"),
+        const SizedBox(height: 20),
+        const AdminSummaryCard(color: AppColor.warning, text: "Total Users", count: "4"),
+        const AdminSummaryCard(color: AppColor.dark, text: "Total Users", count: "4"),
       ],
     );
   }
 }
 
-class EmployerVerificationQueue extends StatefulWidget {
-  const EmployerVerificationQueue({Key? key}) : super(key: key);
+class EmployerVerificationQueue extends HookWidget {
+  const EmployerVerificationQueue({super.key});
 
   @override
-  _EmployerVerificationQueueState createState() => _EmployerVerificationQueueState();
-}
-class _EmployerVerificationQueueState extends State<EmployerVerificationQueue> {
-  @override
   Widget build(BuildContext context) {
+    final reload = useState(false);
+    final employerVerifications = useState<List<Map<String, dynamic>>>([]);
+
+    void setReload() {
+      reload.value = !reload.value;
+    }
+
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final res = await VerificationService.getVerificationsByRole('employer');
+          employerVerifications.value = res;
+        } catch (e) {
+          if (!context.mounted) return;
+          showAlertError(context, "Error: $e"); 
+        }
+      }
+      fetchData();
+      return;
+    }, [reload.value]);
+
+    Future<void> handleSubmit(id, status) async {
+      try {
+        final res = await VerificationService.updateVerificationStatus(id, status);
+        if (res.isNotEmpty) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Employer verification status updated successfully!'))
+          );
+          setReload();
+        }
+      } catch (e) { 
+        if (!context.mounted) return;
+        showAlertError(context, '$e');
+      }
+    }
+
     return Column(
       children: [
-        Text("🗂 Employer Verification Queue", style: AppText.textXl.merge(AppText.fontSemibold))
+        Text("🗂 Employer Verification Queue", style: AppText.textXl.merge(AppText.fontSemibold)),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('Employer Name')),
+              DataColumn(label: Text('E-mail Address')),
+              DataColumn(label: Text('Status')),
+              DataColumn(label: Text('Actions')),
+            ], 
+            rows: employerVerifications.value.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(item['full_name'])),
+                  DataCell(Text(item['email'])),
+                  DataCell(Text(item['status'])),
+                  DataCell(
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            visualDensity: const VisualDensity(vertical: -3),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            foregroundColor: AppColor.light,
+                            backgroundColor: AppColor.success,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)
+                            )
+                          ),
+                          onPressed: () async {
+                            handleSubmit(item['id'], 'approved');
+                          }, 
+                          child: Text('Approve', style: AppText.textXs)
+                        ),
+                        const SizedBox(width: 5),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            visualDensity: const VisualDensity(vertical: -3),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            foregroundColor: AppColor.light,
+                            backgroundColor: AppColor.danger,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)
+                            )
+                          ),
+                          onPressed: () async {
+                            await handleSubmit(item['id'], 'rejected');
+                          }, 
+                          child: Text('Reject', style: AppText.textXs)
+                        ),
+                      ],
+                    )
+                  )
+                ]
+              );
+            }).toList()
+          ),
+        )
       ],
     );
   }
 }
 
 class AdminActions extends StatelessWidget {
+  const AdminActions({super.key});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -136,6 +231,7 @@ class AdminActions extends StatelessWidget {
 }
 
 class PerformanceAndReports extends StatelessWidget {
+  const PerformanceAndReports({super.key});
   @override
   Widget build(BuildContext context) {
     return Column(

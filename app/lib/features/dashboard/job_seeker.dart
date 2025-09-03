@@ -65,20 +65,20 @@ class JobSeekerDashboard extends HookWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Column(
                 children: [
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   DashboardHeader(fullName: claims.value["full_name"] ?? "..."),
-                  SizedBox(height: 10.0),
-                  ProfileStrengthCard(),
-                  SizedBox(height: 10.0),
-                  NotificationsCard(),
-                  SizedBox(height: 10.0),
-                  GoToMessagesCard(),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
+                  const ProfileStrengthCard(),
+                  const SizedBox(height: 10.0),
+                  const NotificationsCard(),
+                  const SizedBox(height: 10.0),
+                  const GoToMessagesCard(),
+                  const SizedBox(height: 10.0),
                   YourApplicationsCard(applications: applications.value),
-                  SizedBox(height: 15.0),
-                  SuggestedTrainings(),
-                  SizedBox(height: 15.0),
-                  SavedJobsCard(),
+                  const SizedBox(height: 15.0),
+                  const SuggestedTrainings(),
+                  const SizedBox(height: 15.0),
+                  const SavedJobsCard(),
                 ],
               ),
             ),
@@ -115,7 +115,7 @@ class ProfileStrengthCard extends StatefulWidget {
   const ProfileStrengthCard({super.key});
 
   @override
-  _ProfileStrengthCardState createState() => _ProfileStrengthCardState();
+  State<ProfileStrengthCard> createState() => _ProfileStrengthCardState();
 }
 
 class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
@@ -168,7 +168,7 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
               child: Text('To complete your profile, please list your skills, upload your resume.', style: AppText.textMuted.merge(AppText.textXs)),
             ),
             const SizedBox(height: 10.0),
-            EditProfileButton(),
+            const EditProfileButton(),
             const SizedBox(height: 20.0)
           ],
         ),
@@ -181,7 +181,7 @@ class NotificationsCard extends StatefulWidget {
   const NotificationsCard({super.key});
 
   @override
-  _NotificationsCardState createState() => _NotificationsCardState();
+  State<NotificationsCard> createState() => _NotificationsCardState();
 }
 
 class _NotificationsCardState extends State<NotificationsCard> {
@@ -268,7 +268,7 @@ class GoToMessagesCard extends StatelessWidget {
               child: Text('Chat with employers regarding your applications.', style: AppText.textMuted.merge(AppText.textXs)),
             ),
             const SizedBox(height: 10.0),
-            GoToMessagesButton(),
+            const GoToMessagesButton(),
             const SizedBox(height: 20.0)
           ],
         ),
@@ -320,7 +320,7 @@ class YourApplicationsCard extends HookWidget {
                   children: [
                     Text("You haven't applied to any jobs yet.\nStart applying to jobs from the job listings page!", style: AppText.textSuccess),
                     const SizedBox(height: 10.0),
-                    BrowseJobsButton()
+                    const BrowseJobsButton()
                   ],
                 )
               ),
@@ -373,7 +373,7 @@ class SuggestedTrainings extends StatefulWidget {
   const SuggestedTrainings({super.key});
 
   @override
-  _SuggestedTrainingsState createState() => _SuggestedTrainingsState();
+  State<SuggestedTrainings> createState() => _SuggestedTrainingsState();
 }
 
 class _SuggestedTrainingsState extends State<SuggestedTrainings> {
@@ -396,7 +396,7 @@ class SavedJobsCard extends StatefulWidget {
   const SavedJobsCard({super.key});
 
   @override
-  _SavedJobsCardState createState() => _SavedJobsCardState();
+  State<SavedJobsCard> createState() => _SavedJobsCardState();
 }
 
 class _SavedJobsCardState extends State<SavedJobsCard> {
@@ -435,7 +435,7 @@ class _SavedJobsCardState extends State<SavedJobsCard> {
                   children: [
                     Text("You haven't saved any jobs yet.\nSave jobs to review them later!", style: AppText.textSuccess),
                     const SizedBox(height: 10.0),
-                    BrowseJobsButton()
+                    const BrowseJobsButton()
                   ],
                 )
               ),

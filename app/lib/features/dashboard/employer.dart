@@ -7,6 +7,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/job_service.dart';
+import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/employer/view_active_jobs.dart';
@@ -65,6 +66,27 @@ class EmployerDashboard extends HookWidget {
       return null;
     }, [claims.value["id"]]);
 
+    // Function for submitting application for employer
+    Future<void> submitVerification() async {
+      try {
+        final res = await VerificationService.createVerification({
+          'employerId': claims.value['id'],
+          'documents': 'TESTING',
+          'status': 'pending',
+          'role': 'employer'
+        });
+        if (res.isNotEmpty) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Document application successful. Please wait for admin respons.')),
+          );
+        }
+      } catch (e) {
+        if (!context.mounted) return;
+        showAlertError(context, "Failed to fetch user credential please logout and re-login.");
+      }
+    }
+
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -75,7 +97,7 @@ class EmployerDashboard extends HookWidget {
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
               child: Column(
                 children: [
-                  DashboardHeader(),
+                  DashboardHeader(submitVerification: submitVerification),
                   const SizedBox(height: 5),
                   DashboardSummary(claims: claims.value, jobs: jobs.value, applications: applications.value),
                   const SizedBox(height: 10),
@@ -92,7 +114,12 @@ class EmployerDashboard extends HookWidget {
 }
 
 class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({super.key});
+  final VoidCallback submitVerification;
+
+  const DashboardHeader({
+    super.key,
+    required this.submitVerification,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +137,8 @@ class DashboardHeader extends StatelessWidget {
                 children: [
                   const Text('🔒 Account pending verification.', style: TextStyle(color: Color.fromARGB(255, 203, 152, 0))),
                   GestureDetector(
+                    onTap: submitVerification,
                     child: Text('Submit Documents', style: const TextStyle(color: Color.fromARGB(255, 130, 98, 0), decoration: TextDecoration.underline).merge(AppText.fontSemibold)),
-                    onTap: () {
-                      
-                    },
                   )
                 ],
               ),
@@ -164,7 +189,7 @@ class DashboardOtherContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        DashboardOtherContentCard(header: '📢 Post Jobs', paragraph: 'Create new job posts with Lite, Branded, or Premium visibility.', button: PostANewJobButton()),
+        const DashboardOtherContentCard(header: '📢 Post Jobs', paragraph: 'Create new job posts with Lite, Branded, or Premium visibility.', button: PostANewJobButton()),
         const SizedBox(height: 10),
         DashboardOtherContentCard(header: '📄 Manage Applications', paragraph: 'View, filter, and track candidate applications.', button: EmployerContentCardButton(text: 'View Applications', page: ViewApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications))),
         const SizedBox(height: 10),

@@ -42,7 +42,7 @@ export async function getApplicationByJobAndUser(jobId, userId) {
       [jobId, userId]
     )
 
-    return rows[0];
+    return rows[0] ?? [];
 }
 
 export async function getApplicationsByEmployer(employerId) {

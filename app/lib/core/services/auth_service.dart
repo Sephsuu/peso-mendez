@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class AuthService {
   static const _secureStorage = FlutterSecureStorage();
-  static const String url = "https://x848qg05-3005.asse.devtunnels.ms/auth";
+  static const String url = "$BASE_URL/auth";
   
   static Future<bool> isLoggedIn() async {
     final token = await _secureStorage.read(key: 'jwt_token');

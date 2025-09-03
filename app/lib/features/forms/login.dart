@@ -4,6 +4,7 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/services/_endpoint.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
@@ -69,7 +70,7 @@ class _LoginFormState extends State<LoginForm> {
       );
 
       try {
-        final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/auth/login'); // Replace with your backend URL
+        final url = Uri.parse('$BASE_URL/auth/login'); // Replace with your backend URL
 
         final response = await http.post(
           url,
