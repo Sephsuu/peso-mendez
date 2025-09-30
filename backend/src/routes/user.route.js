@@ -36,6 +36,97 @@ router.get('/get-by-role', async (req, res) => {
 	}
 });
 
+router.get('/get-credentials', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserCredentials(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+
+router.get('/get-personal-information', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserPersonalInformation(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-job-reference', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserJobReference(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-language-profeciency', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserLanguageProcefiency(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-educational-background', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserEducationalBackground(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-tech-voc-trainings', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserTechVocTrainings(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-eligibility', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserEligibility(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-work-experience', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserWorkExperience(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-other-skills', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserOtherSkills(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.post('/create-personal-info', async (req, res) => {
 	const personalInfo = req.body;
 	try {
@@ -120,6 +211,16 @@ router.post('/create-other-skill', async (req, res) => {
 	const otherSkill = req.body;
 	try {
 		const query = await userQuery.createOtherSkill(otherSkill);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.patch('/update-credential', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateUserCredential(user);
 		res.json(query);
 	} catch (err) {
 		res.status(500).json({ error: err.message });

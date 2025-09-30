@@ -1,13 +1,13 @@
-import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/user_service.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/language_profeciency.dart';
 import 'package:app/features/forms/login.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class JobReferenceForm extends StatefulWidget {
@@ -64,17 +64,20 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
         final res = await UserService.createJobReference(jobRef);
         if (res.isNotEmpty) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Job Reference updated successfully! You may now proceed to language profeciency form.'))
-          );
-          Navigator.push(
+          AppSnackbar.show(
             context,
-            MaterialPageRoute(builder: (context) => LanguageProfeciencyForm(userId: widget.userId)),
+            message: 'Job Reference updated successfully! You may now proceed to language profeciency form.',
+            backgroundColor: AppColor.success
           );
+          navigateTo(context, LanguageProfeciencyForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
-        showAlertError(context, 'Error: $e');
+        AppSnackbar.show(
+          context,
+          message: '$e',
+          backgroundColor: AppColor.danger
+        );
       }
     }
   }
@@ -104,12 +107,12 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                           child: GestureDetector(
                             child: Text('Skip for now', style: AppText.textPrimary),
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('You can edit your information on your profile when you logged in.')),
+                              AppSnackbar.show(
+                                context,
+                                message: 'You can edit your information on your profile when you logged in.',
+                                backgroundColor: AppColor.primary
                               );
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page),
-                        ),
-                      ));
+                              navigateTo(context, const Login());
                             },
                           ),
                         ),

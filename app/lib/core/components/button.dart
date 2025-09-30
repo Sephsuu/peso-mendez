@@ -1,20 +1,12 @@
-import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/components/navigation.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/features/dashboard/admin.dart';
-import 'package:app/features/dashboard/employer.dart';
-import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/job_seeker/already_applied.dart';
-import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/employer/post_job_form.dart';
-import 'package:app/features/homepage.dart';
-import 'package:app/features/forms/login.dart';
 import 'package:app/features/forms/register.dart';
-import 'package:app/features/job_seeker/view_job_detail.dart';
 import 'package:app/main.dart';
-import 'package:app/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -37,7 +29,7 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.textSize = 14, 
-    this.foregroundColor = AppColor.dark,
+    this.foregroundColor = AppColor.light,
     this.backgroundColor = AppColor.primary,
     this.borderRadius = 4,
     this.padding = const EdgeInsets.symmetric(horizontal: 10),
@@ -89,125 +81,10 @@ class HomepageFindButton extends StatelessWidget {
   }
 }
 
-class HomepageRegisterButton extends StatefulWidget {
-  const HomepageRegisterButton({super.key});
-  @override
-  _HomepageRegisterButtonState createState() => _HomepageRegisterButtonState();
-}
-class _HomepageRegisterButtonState extends State<HomepageRegisterButton> {
-  List<Job>? jobs;
-  bool _loggedIn = false;
-  String? userRole;
-
-  @override
-  void initState() {
-    super.initState();
-    checkLoginStatus();
-    loadUser();
-  }
-
-  void checkLoginStatus() async {
-    final loggedIn = await AuthService.isLoggedIn();
-    setState(() {
-      _loggedIn = loggedIn;
-    });
-  }
-
-  void loadUser() async {
-    final data = await AuthService.getClaims();
-    setState(() {
-      userRole = data['role'] ?? "no role";
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return !_loggedIn ? ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page))));
-      }, 
-      child: const Text('Sign In Now'),
-    ) : ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-        if (userRole == 'employer') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => EmployerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
-        } else if (userRole == 'job_seeker') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => JobSeekerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
-        } else if (userRole == 'admin') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminDashboard()));
-        } else {
-          showAlertError(context, "Session expired. Please re-log in.");
-        }
-      }, 
-      child: const Text('View Profile'),
-    );
-  }
-}
-
-class FeaturedJobsButton extends StatefulWidget {
-  final int jobId;
-  const FeaturedJobsButton({
-    super.key,
-    required this.jobId
-  });
-  @override
-  _FeaturedJobsButtonState createState() => _FeaturedJobsButtonState();
-}
-class _FeaturedJobsButtonState extends State<FeaturedJobsButton> {
-  bool _loggedIn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    checkLoginStatus();
-  }
-
-  void checkLoginStatus() async {
-    final loggedIn = await AuthService.isLoggedIn();
-    setState(() {
-      _loggedIn = loggedIn;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-        if (_loggedIn) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ViewJobDetail(onNavigate: (page) => globalNavigateTo?.call(page), jobId: widget.jobId,)));
-        } else { Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page)))); }
-      }, 
-      child: const Text('View Details'),
-    );
-  }
-}
-
 class SignInOrRegisterButton extends StatefulWidget {
   const SignInOrRegisterButton({super.key});
   @override
-  _SignInOrRegisterButtonState createState() => _SignInOrRegisterButtonState();
+  State<SignInOrRegisterButton> createState() => _SignInOrRegisterButtonState();
 }
 class _SignInOrRegisterButtonState extends State<SignInOrRegisterButton> {
   bool _loggedIn = false;
@@ -236,9 +113,7 @@ class _SignInOrRegisterButtonState extends State<SignInOrRegisterButton> {
           borderRadius: BorderRadius.circular(4)
         )
       ),
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Register(onNavigate: (page) => globalNavigateTo?.call(page))));
-      }, 
+      onPressed: () => navigateTo(context, const Register()),
       child: const Text('Sign In/Register')
     ) : ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -311,78 +186,6 @@ class SignInButton extends StatelessWidget {
 }
 
 // JOB SEEKER DASHBOARD
-
-class EditProfileButton extends StatelessWidget {
-  const EditProfileButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: const VisualDensity(vertical: -2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(onNavigate: (page) => globalNavigateTo?.call(page))));
-      }, 
-      child: Text('Edit Profile', style: AppText.textXs)
-    );
-  }
-}
-
-class GoToMessagesButton extends StatelessWidget {
-  const GoToMessagesButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: const VisualDensity(vertical: -2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-
-      }, 
-      child: Text('Go to Messages', style: AppText.textXs)
-    );
-  }
-}
-
-class BrowseJobsButton extends StatelessWidget {
-  const BrowseJobsButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: const VisualDensity(vertical: -2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page))));
-      }, 
-      child: Text('Browse Jobs', style: AppText.textXs)
-    );
-  }
-}
 
 // VIEW JOB DETAIL (job_seeker/view_job_detail.dart)
 
@@ -614,7 +417,7 @@ class BackToJobListingButton extends StatelessWidget {
         )
       ),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page))));
+        // Navigator.push(context, MaterialPageRoute(builder: (context) => Homepage(onNavigate: (page) => globalNavigateTo?.call(page))));
       }, 
       child: Text('Back to Job Listing', style: AppText.textXs)
     );

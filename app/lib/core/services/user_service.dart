@@ -24,6 +24,69 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> getUserCredential(int id) async {
+    return await request(
+      '$url/get-credentials?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<Map<String, dynamic>> getUserPersonalInformation(int id) async {
+    return await request(
+      '$url/get-personal-information?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<Map<String, dynamic>> getUserJobReference(int id) async {
+    return await request(
+      '$url/get-job-reference?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserLanguageProfeciency(int id) async {
+    return await request(
+      '$url/get-language-profeciency?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<Map<String, dynamic>> getUserEducationalBackground(int id) async {
+    return await request(
+      '$url/get-educational-background?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserTechVocTrainings(int id) async {
+    return await request(
+      '$url/get-tech-voc-trainings?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserEligibility(int id) async {
+    return await request(
+      '$url/get-eligibility?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserWorkExperience(int id) async {
+    return await request(
+      '$url/get-work-experience?id=$id',
+      method: 'GET'
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserOtherSkills(int id) async {
+    return await request(
+      '$url/get-othder-skills?id=$id',
+      method: 'GET'
+    );
+  }
+
   static Future<Map<String, dynamic>> createPersonalInformation(Map<String, dynamic> personalInfo) async {
     return await request(
       '$url/create-personal-info',
@@ -93,6 +156,14 @@ class UserService {
       '$url/create-other-skill',
       method: 'POST',
       body: otherSkill
+    );
+  }
+
+  static Future<Map<String, dynamic>> updateUserCredential(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-credential',
+      method: 'PATCH',
+      body: user
     );
   }
 

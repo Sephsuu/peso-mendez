@@ -81,28 +81,33 @@ class AdminSummaryCard extends StatelessWidget {
   final Color color;
   final String text;
   final String count;
+  final VoidCallback navigateTo;
 
   const AdminSummaryCard({
     super.key,
     required this.color,
     required this.text,
     required this.count,
+    required this.navigateTo,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        color: color,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(text, style: AppText.textMd.merge(AppText.fontSemibold).merge(AppText.textLight)),
-              Text(count, style: AppText.textFxl.merge(AppText.fontSemibold).merge(AppText.textLight))
-            ],
+    return GestureDetector(
+      onTap: navigateTo,
+      child: SizedBox(
+        width: double.infinity,
+        child: Card(
+          color: color,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(text, style: AppText.textMd.merge(AppText.fontSemibold).merge(AppText.textLight)),
+                Text(count, style: AppText.textFxl.merge(AppText.fontSemibold).merge(AppText.textLight))
+              ],
+            ),
           ),
         ),
       ),

@@ -20,6 +20,7 @@ class ManageUsers extends HookWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     final loading = useState(true);
+    final reload = useState(false);
     final find = useState("");
     final users = useState<List<Map<String, dynamic>>>([]);
     final filteredUsers = useState<List<Map<String, dynamic>>>([]);
@@ -27,6 +28,11 @@ class ManageUsers extends HookWidget {
     void setFind(String newVal) {
       find.value = newVal;
     }    
+
+
+    void setReload() {
+      reload.value = !reload.value;
+    }
 
     useEffect(() {
       void fetchData () async {
@@ -38,7 +44,7 @@ class ManageUsers extends HookWidget {
       }
       fetchData();
       return null;
-    }, []);
+    }, [reload.value]);
 
     useEffect(() {
       if (find.value.isEmpty) {
@@ -91,7 +97,8 @@ class ManageUsers extends HookWidget {
             ),
             UsersTable(
               users: filteredUsers.value, 
-              loading: loading.value
+              loading: loading.value,
+              setReload: setReload,
             ),
           ],
         ),
@@ -103,11 +110,13 @@ class ManageUsers extends HookWidget {
 class UsersTable extends StatelessWidget {
   final List<Map<String, dynamic>> users;
   final bool loading;
+  final VoidCallback setReload;
 
   const UsersTable({
     super.key,
     required this.users,
     required this.loading,
+    required this.setReload,
   });
   
   @override
@@ -128,7 +137,7 @@ class UsersTable extends StatelessWidget {
               duration: Duration(seconds: 2),
             ),
           );
-          Navigator.of(context).pop();
+          setReload();
         }
         if (!context.mounted) return;
       } catch (e) { showAlertError(context, "Error $e"); }

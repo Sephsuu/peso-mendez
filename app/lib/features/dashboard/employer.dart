@@ -18,21 +18,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class EmployerDashboard extends HookWidget {
-  final Function(PageType) onNavigate;
-
-  const EmployerDashboard({super.key, required this.onNavigate });
+  const EmployerDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
     final claims = useState<Map<String, dynamic>>({});
-    final refresh = useState<bool>(false);
+    // final refresh = useState<bool>(false);
     final jobs = useState<List<Map<String, dynamic>>>([]);
     final applications = useState<List<Map<String, dynamic>>>([]);
 
-    Future<void> setRefresh() async {
-      refresh.value = !refresh.value;
-      // await Future.delayed(const Duration(milliseconds: 300));
-    }
+    // Future<void> setRefresh() async {
+    //   refresh.value = !refresh.value;
+    //   // await Future.delayed(const Duration(milliseconds: 300));
+    // }
 
     // Fetch use token and define claims of logged user
     useEffect(() {
@@ -167,9 +165,23 @@ class DashboardSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        DashboardSummaryCard(header: '💼 Active Jobs', count: jobs.length.toString(), color: AppColor.success, onTap: ViewActiveJobs(onNavigate: (page) => globalNavigateTo?.call(page), jobs: jobs,)),
-        DashboardSummaryCard(header: '👥 Applications', count: applications.length.toString(), color: AppColor.primary, onTap: ViewApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications)),
-        DashboardSummaryCard(header: '📊 Trends', count: 'Coming soon...', color: AppColor.info, onTap: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))),
+        DashboardSummaryCard(
+          header: '💼 Active Jobs', 
+          count: jobs.length.toString(), 
+          color: AppColor.success, 
+          onTap: ViewActiveJobs(onNavigate: (page) => globalNavigateTo?.call(page), jobs: jobs,)
+        ),
+        DashboardSummaryCard(
+          header: '👥 Applications', 
+          count: applications.length.toString(), 
+          color: AppColor.primary, 
+          onTap: ViewApplications(applications: applications)
+        ),
+        const DashboardSummaryCard(
+          header: '📊 Trends', 
+          count: 'Coming soon...', 
+          color: AppColor.info, 
+          onTap: Homepage()),
       ],
     );
   }
@@ -189,17 +201,41 @@ class DashboardOtherContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const DashboardOtherContentCard(header: '📢 Post Jobs', paragraph: 'Create new job posts with Lite, Branded, or Premium visibility.', button: PostANewJobButton()),
+        const DashboardOtherContentCard(
+          header: '📢 Post Jobs', 
+          paragraph: 'Create new job posts with Lite, Branded, or Premium visibility.', 
+          button: PostANewJobButton()
+        ),
         const SizedBox(height: 10),
-        DashboardOtherContentCard(header: '📄 Manage Applications', paragraph: 'View, filter, and track candidate applications.', button: EmployerContentCardButton(text: 'View Applications', page: ViewApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications))),
+        DashboardOtherContentCard(
+          header: '📄 Manage Applications', 
+          paragraph: 'View, filter, and track candidate applications.', 
+          button: EmployerContentCardButton(text: 'View Applications', 
+          page: ViewApplications(applications: applications))
+        ),
         const SizedBox(height: 10),
-        DashboardOtherContentCard(header: '💬 Communication', paragraph: 'Message applicants directly and receive email notifications', button: EmployerContentCardButton(text: 'Open Messages', page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page)))),
+        const DashboardOtherContentCard(
+          header: '💬 Communication', 
+          paragraph: 'Message applicants directly and receive email notifications', 
+          button: EmployerContentCardButton(text: 'Open Messages', page: Homepage())
+        ),
         const SizedBox(height: 10),
-        DashboardOtherContentCard(header: '🤝 PESO Assistance', paragraph: 'Request help for job fairs or shortlisting.', button: EmployerContentCardButton(text: 'Request Help', page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page)))),
+        const DashboardOtherContentCard(
+          header: '🤝 PESO Assistance', 
+          paragraph: 'Request help for job fairs or shortlisting.', 
+          button: EmployerContentCardButton(text: 'Request Help', page: Homepage())),
         const SizedBox(height: 10),
-        DashboardOtherContentCard(header: '🔔 Recent Notifications', paragraph: 'No notifications yet.', button: EmployerContentCardButton(text: 'View Norifications', page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page)))),
+        const DashboardOtherContentCard(
+          header: '🔔 Recent Notifications', 
+          paragraph: 'No notifications yet.', 
+          button: EmployerContentCardButton(text: 'View Norifications', page: Homepage())
+        ),
         const SizedBox(height: 10),
-        DashboardOtherContentCard(header: '⚖️ Compliance', paragraph: 'View templates and stay updated with labor laws.', button: EmployerContentCardButton(text: 'Go to Compliance Section', page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page)))),
+        const DashboardOtherContentCard(
+          header: '⚖️ Compliance', 
+          paragraph: 'View templates and stay updated with labor laws.', 
+          button: EmployerContentCardButton(text: 'Go to Compliance Section', page: Homepage())
+        ),
       ],
     );
   }

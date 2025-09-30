@@ -1,14 +1,16 @@
 import 'package:app/core/components/alert.dart';
+import 'package:app/core/components/button.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
+import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class EmployersReport extends HookWidget {
-  
   const EmployersReport({
     super.key,
   });
@@ -17,19 +19,31 @@ class EmployersReport extends HookWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     final loading = useState(true);
+    final reload = useState(false);
     final find = useState('');
+    final activeTab = useState('All Employers');
+    final initialEmployers = useState<List<Map<String, dynamic>>>([]);
     final employers = useState<List<Map<String, dynamic>>>([]); 
     final filteredEmployers = useState<List<Map<String, dynamic>>>([]); 
+    final verifiedIds = useState<List<dynamic>>([]);
 
     void setFind(String newVal) {
       find.value = newVal;
     }    
 
+    void setActiveTab(String tab) {
+      activeTab.value = tab;
+    }
+
     useEffect(() {
       void fetchData() async {
         try {
           final res = await UserService.getUserByRole("employer");
-          employers.value = res;
+          final verificationRes = await VerificationService.getVerificationsByRole('employer');
+          initialEmployers.value = res;
+          verifiedIds.value = verificationRes
+          .map((v) => v['employer_id'])
+          .toList();
           loading.value = false;
         } catch (e) { 
           if (!context.mounted) return;
@@ -38,7 +52,16 @@ class EmployersReport extends HookWidget {
       }
       fetchData();
       return null;
-    }, []);
+    }, [reload.value]);
+
+    useEffect(() {
+      if (activeTab.value == 'All Employers') { 
+        employers.value = initialEmployers.value.where((user) => !verifiedIds.value.contains(user['id'])).toList(); 
+      } else { 
+        employers.value = initialEmployers.value.where((user) => verifiedIds.value.contains(user['id'])).toList(); 
+      }
+      return;
+    }, [activeTab.value, initialEmployers.value]);
 
     useEffect(() {
       if (find.value.isEmpty) {
@@ -70,6 +93,27 @@ class EmployersReport extends HookWidget {
                     Navigator.of(context).pop();
                   },
                 ),
+              ],
+            ),
+            Row( 
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AppButton(
+                  label: 'All Employers', 
+                  onPressed: () => setActiveTab('All Employers'),
+                  visualDensityY: -3,
+                  backgroundColor: activeTab.value == 'All Employers' ? AppColor.primary : Colors.grey,
+                  foregroundColor: AppColor.light,
+                  borderRadius: 0,
+                ),
+                AppButton(
+                  label: 'Pending Employers', 
+                  onPressed: () => setActiveTab('Pending Employers'),
+                  visualDensityY: -3,
+                  backgroundColor: activeTab.value == 'Pending Employers' ? AppColor.primary : Colors.grey,
+                  foregroundColor: AppColor.light,
+                  borderRadius: 0,
+                )
               ],
             ),
             SizedBox(
@@ -112,7 +156,7 @@ class EmployersTable extends StatelessWidget {
   Widget build(BuildContext context) {
 
     if (loading) {
-      return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
+      return const Loader();
     }
 
     return SingleChildScrollView(

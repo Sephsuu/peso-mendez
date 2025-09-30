@@ -44,7 +44,7 @@ void deactivateModal(BuildContext context, Map<String, dynamic> user) {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                 ),
                 onPressed: deactivateUser, 
-                child: Text("Yes, I'm sure.")
+                child: const Text("Yes, I'm sure.")
               )
             ],
           )

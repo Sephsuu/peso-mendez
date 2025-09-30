@@ -79,13 +79,29 @@ class AdminSummary extends HookWidget {
     
     return Column(
       children: [
-        AdminSummaryCard(color: AppColor.primary, text: "Total Users", count: usersCount.toString()),
-        AdminSummaryCard(color: AppColor.info, text: "Employers", count: employersCount.toString()),
-        AdminSummaryCard(color: AppColor.success, text: "Job Seekers", count: jobSeekersCount.toString()),
-        const AdminSummaryCard(color: AppColor.secondary, text: "Announcements", count: "4"),
+        AdminSummaryCard(
+          color: AppColor.primary, 
+          text: "Total Users", count: usersCount.toString(),
+          navigateTo: () => navigateTo(context, const ManageUsers()),
+        ),
+        AdminSummaryCard(
+          color: AppColor.info, 
+          text: "Employers", count: employersCount.toString(),
+          navigateTo: () => navigateTo(context, const EmployersReport()),
+        ),
+        AdminSummaryCard(
+          color: AppColor.success, 
+          text: "Job Seekers", count: jobSeekersCount.toString(),
+          navigateTo: () => navigateTo(context, const JobSeekersReport()),
+        ),
+        AdminSummaryCard(
+          color: AppColor.secondary, 
+          text: "Announcements", count: "4",
+          navigateTo: () => navigateTo(context, const EmployersReport()),
+        ),
         const SizedBox(height: 20),
-        const AdminSummaryCard(color: AppColor.warning, text: "Total Users", count: "4"),
-        const AdminSummaryCard(color: AppColor.dark, text: "Total Users", count: "4"),
+        // const AdminSummaryCard(color: AppColor.warning, text: "Total Users", count: "4"),
+        // const AdminSummaryCard(color: AppColor.dark, text: "Total Users", count: "4"),
       ],
     );
   }
@@ -215,15 +231,15 @@ class AdminActions extends StatelessWidget {
           text: "Post Announcement", 
           page: PostAnnouncement(onNavigate: (page) => globalNavigateTo?.call(page))
         ),
-        AdminActionButton(
+        const AdminActionButton(
           color: AppColor.warning, 
           text: "Manage Events", 
-          page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))
+          page: Homepage()
         ),
-        AdminActionButton(
+        const AdminActionButton(
           color: AppColor.info, 
           text: "Manage Trainings", 
-          page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))
+          page: Homepage()
         ),
       ],
     );
@@ -237,20 +253,20 @@ class PerformanceAndReports extends StatelessWidget {
     return Column(
       children: [
         Text("📊 Performance & Reports", style: AppText.textXl.merge(AppText.fontSemibold)),
-        AdminActionButton(
+        const AdminActionButton(
           color: AppColor.primary, 
           text: "Users Report", 
-          page: Homepage(onNavigate: (page) => globalNavigateTo?.call(page))
+          page: Homepage()
         ),
         const AdminActionButton(
           color: AppColor.info, 
           text: "Employers Report", page: 
           EmployersReport()
         ),
-        AdminActionButton(
+        const AdminActionButton(
           color: AppColor.success, 
           text: "Job Seekers Report", 
-          page: JobSeekersReport(onNavigate: (page) => globalNavigateTo?.call(page))
+          page: JobSeekersReport()
         ),
       ],
     );

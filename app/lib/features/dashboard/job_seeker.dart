@@ -8,8 +8,9 @@ import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/features/forms/register.dart';
+import 'package:app/features/homepage.dart';
 import 'package:app/features/job_seeker/all_applications.dart';
+import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/job_seeker/view_application.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +18,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 
 class JobSeekerDashboard extends HookWidget {
-  final Function(PageType) onNavigate;
-
-  const JobSeekerDashboard({super.key, required this.onNavigate});
+  const JobSeekerDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +167,13 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
               child: Text('To complete your profile, please list your skills, upload your resume.', style: AppText.textMuted.merge(AppText.textXs)),
             ),
             const SizedBox(height: 10.0),
-            const EditProfileButton(),
+            AppButton(
+              label: 'Edit Profile', 
+              onPressed: () => navigateTo(context, const EditProfile()),
+              foregroundColor: AppColor.light,
+              textSize: 12,
+              visualDensityY: -2,
+            ),
             const SizedBox(height: 20.0)
           ],
         ),
@@ -211,14 +216,7 @@ class _NotificationsCardState extends State<NotificationsCard> {
                     const Text('Notifications'),
                     GestureDetector(
                       child: Text('Sea All', style: AppText.textXs.merge(AppText.textPrimary)),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Register(onNavigate: (page) => globalNavigateTo?.call(page))
-                          ),
-                        );
-                      },
+                      onTap: () {},
                     )
                   ],
                 ),
@@ -268,7 +266,13 @@ class GoToMessagesCard extends StatelessWidget {
               child: Text('Chat with employers regarding your applications.', style: AppText.textMuted.merge(AppText.textXs)),
             ),
             const SizedBox(height: 10.0),
-            const GoToMessagesButton(),
+            AppButton(
+              label: 'Go To Messages', 
+              onPressed: () => {},
+              foregroundColor: AppColor.light,
+              textSize: 12,
+              visualDensityY: -2,
+            ),
             const SizedBox(height: 20.0)
           ],
         ),
@@ -303,7 +307,7 @@ class YourApplicationsCard extends HookWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AllApplications(onNavigate: (page) => globalNavigateTo?.call(page), applications: applications)
+                      builder: (context) => AllApplications(applications: applications)
                     ),
                   );
                 },
@@ -320,48 +324,72 @@ class YourApplicationsCard extends HookWidget {
                   children: [
                     Text("You haven't applied to any jobs yet.\nStart applying to jobs from the job listings page!", style: AppText.textSuccess),
                     const SizedBox(height: 10.0),
-                    const BrowseJobsButton()
+                    AppButton(
+                      label: 'Browse Jobs', 
+                      onPressed: () => navigateTo(context, const Homepage()),
+                      foregroundColor: AppColor.light,
+                      textSize: 12,
+                      visualDensityY: -2,
+                    ),
                   ],
                 )
               ),
             )
           : SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Job Title')),
-                  DataColumn(label: Text('Status')),
-                  DataColumn(label: Text('Actions')),
-                ],
-                rows: applications.take(5).map((application) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(application['title'] ?? 'N/A')),
-                      DataCell(Text(application['applicationStatus'] ?? 'N/A')),
-                      DataCell(
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => ViewApplication(application: application)
-                                ));
-                              },
-                              child: Text("View", style: AppText.textPrimary),
-                            ),
-                            const SizedBox(width: 10), 
-                            GestureDetector(
-                              onTap: null,
-                              child: Text("Message", style: AppText.textSuccess),
-                            ),
-                          ],
-                        )
-                      ),
-
-                    ],
-                  );
-                }).toList()
-              ),
+              child: DataTableTheme(
+                data: DataTableThemeData(
+                  headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+                  headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                child: DataTable(
+                  headingRowHeight: 40,
+                  dataRowMinHeight: 30,
+                  dataRowMaxHeight: 40,
+                  border: TableBorder.all(
+                    color: const Color.fromARGB(255, 191, 191, 191),
+                    width: 1,
+                  ),
+                  columns: const [
+                    DataColumn(label: Text('Job Title')),
+                    DataColumn(label: Text('Status')),
+                    DataColumn(label: Text('Actions')),
+                  ],
+                  rows: applications.take(5).map((application) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(application['title'] ?? 'N/A')),
+                        DataCell(Text(application['applicationStatus'] ?? 'N/A')),
+                        DataCell(
+                          Row(
+                            children: [
+                              AppButton(
+                                label: 'View', 
+                                onPressed: () => navigateTo(context, ViewApplication(application: application)),
+                                foregroundColor: AppColor.light,
+                                visualDensityY: -3,
+                                textSize: 12,
+                              ),
+                              const SizedBox(width: 10), 
+                              AppButton(
+                                label: 'Message', 
+                                onPressed: () {},
+                                backgroundColor: AppColor.success,
+                                foregroundColor: AppColor.light,
+                                visualDensityY: -3,
+                                textSize: 12,
+                              )
+                            ],
+                          )
+                        ),
+                      ],
+                    );
+                  }).toList()
+                ),
+              )
             )
         ],
       )
@@ -413,14 +441,7 @@ class _SavedJobsCardState extends State<SavedJobsCard> {
               Text('Saved Jobs', style: AppText.textLg.merge(AppText.fontSemibold)),
               GestureDetector(
                 child: Text('Sea All', style: AppText.textXs.merge(AppText.textPrimary)),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Register(onNavigate: (page) => globalNavigateTo?.call(page))
-                    ),
-                  );
-                },
+                onTap: () {},
               )
             ],
           ),
@@ -435,7 +456,13 @@ class _SavedJobsCardState extends State<SavedJobsCard> {
                   children: [
                     Text("You haven't saved any jobs yet.\nSave jobs to review them later!", style: AppText.textSuccess),
                     const SizedBox(height: 10.0),
-                    const BrowseJobsButton()
+                    AppButton(
+                      label: 'Browse Jobs', 
+                      onPressed: () => navigateTo(context, const Homepage()),
+                      foregroundColor: AppColor.light,
+                      textSize: 12,
+                      visualDensityY: -2,
+                    ),
                   ],
                 )
               ),

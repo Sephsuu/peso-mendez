@@ -4,7 +4,7 @@ export async function getVerifications(role) {
     let rows;
     if (role == 'employer') {
         rows = await pool.query(
-            `SELECT v.id, v.status, u.full_name, u.email
+            `SELECT v.id, v.employer_id, v.status, u.full_name, u.email
             FROM employer_verification v
             JOIN users u ON u.id = v.employer_id
             WHERE v.status = ?`,

@@ -1,14 +1,14 @@
-import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/user_service.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/job_reference.dart';
 import 'package:app/features/forms/login.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 
@@ -21,7 +21,7 @@ class PersonalInformationForm extends StatefulWidget {
   });
 
   @override 
-  _PersonalInformationFormState createState() => _PersonalInformationFormState();
+  State<PersonalInformationForm> createState() => _PersonalInformationFormState();
 }
 
 class _PersonalInformationFormState extends State<PersonalInformationForm> {
@@ -84,17 +84,20 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
         final res = await UserService.createPersonalInformation(personalInfo);
         if (res.isNotEmpty) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Personal Information updated successfully! You may now proceed to job reference form.'))
-          );
-          Navigator.push(
+          AppSnackbar.show(
             context,
-            MaterialPageRoute(builder: (context) => JobReferenceForm(userId: widget.userId)),
+            message: 'Personal Information updated successfully! You may now proceed to job reference form.',
+            backgroundColor: AppColor.success
           );
+          navigateTo(context, JobReferenceForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
-        showAlertError(context, 'Error: $e');
+        AppSnackbar.show(
+          context,
+          message: 'Error $e',
+          backgroundColor: AppColor.danger
+        );
       }
     }
   }
@@ -124,12 +127,12 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                           child: GestureDetector(
                             child: Text('Skip for now', style: AppText.textPrimary),
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('You can edit your information on your profile when you logged in.')),
+                              AppSnackbar.show(
+                                context,
+                                message: 'You can edit your information on your profile when you logged in.',
+                                backgroundColor: AppColor.primary
                               );
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page),
-                        ),
-                      ));
+                              navigateTo(context, const Login());
                             },
                           ),
                         ),

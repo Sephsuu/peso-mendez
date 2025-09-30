@@ -46,6 +46,78 @@ export async function getUserByEmailOrUsername(emailOrUsername) {
     return rows[0]; 
 }
 
+export async function getUserCredentials(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM users WHERE id = ?`,
+        [id]
+    );
+    return rows[0];
+} 
+
+export async function getUserPersonalInformation(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM personal_informations WHERE user_id = ?`,
+        [id]
+    );
+    return rows[0];
+} 
+
+export async function getUserJobReference(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM job_references WHERE user_id = ?`,
+        [id]
+    );
+    return rows[0];
+} 
+
+export async function getUserLanguageProcefiency(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM language_profeciencies WHERE user_id = ?`,
+        [id]
+    );
+    return rows;
+} 
+
+export async function getUserEducationalBackground(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM educational_backgrounds WHERE user_id = ?`,
+        [id]
+    );
+    return rows[0];
+} 
+
+export async function getUserTechVocTrainings(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM tech_voc_trainings WHERE user_id = ?`,
+        [id]
+    );
+    return rows;
+} 
+
+export async function getUserEligibility(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM professional_licenses WHERE user_id = ?`,
+        [id]
+    );
+    return rows;
+} 
+
+export async function getUserWorkExperience(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM work_experiences WHERE user_id = ?`,
+        [id]
+    );
+    return rows;
+} 
+
+export async function getUserOtherSkills(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM other_skills WHERE user_id = ?`,
+        [id]
+    );
+    return rows;
+} 
+
 export async function registerUser(fullName, email, contactNumber, username, password, role) {
     const checkQuery = `
         SELECT 1 FROM users WHERE email = ? OR username = ? LIMIT 1
@@ -224,6 +296,16 @@ export async function createOtherSkill(otherSkill) {
         VALUES (?, ?)`,
         [otherSkill.userId, otherSkill.skill]
     );
+    return result;
+}
+
+export async function updateUserCredential(user) {
+    const [result] = await  pool.query(
+        `UPDATE users 
+        SET full_name = ?, username = ?, contact = ?
+        WHERE id = ?`,
+        [user.fullName, user.username, user.contact, user.id]
+    ) ;
     return result;
 }
 

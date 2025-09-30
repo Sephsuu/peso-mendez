@@ -1,4 +1,5 @@
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:flutter/material.dart';
 
@@ -7,18 +8,18 @@ import 'package:app/core/theme/typography.dart';
 
 class HomepageDropdownSelect extends StatefulWidget {
   final List<String> items;
-  final String initialValue;
+  final String type;
   final ValueChanged<String> onChanged;
 
   const HomepageDropdownSelect({
     super.key,
     required this.items,
-    required this.initialValue,
+    required this.type,
     required this.onChanged,
   });
 
   @override
-  _HomepageDropdownSelectState createState() => _HomepageDropdownSelectState();
+  State<HomepageDropdownSelect> createState() => _HomepageDropdownSelectState();
 }
 class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
   @override
@@ -31,8 +32,8 @@ class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
         borderRadius: BorderRadius.circular(4),
       ),
       child: DropdownButton(
-        value: widget.initialValue,
-        hint: const Text('Job Type'),
+        value: widget.type,
+        // hint: const Text('Job Type'),
         items: widget.items.map((String value) {
           return DropdownMenuItem<String>(
             value: value,
@@ -90,7 +91,7 @@ class _RegisterDrowdownSelectRequiredState extends State<RegisterDrowdownSelectR
           borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
         ),
       ),
-      value: selectedValue,
+      initialValue: selectedValue,
       items: widget.items.map((gender) {
         return DropdownMenuItem<String>(
           value: gender,
@@ -151,7 +152,7 @@ class _RegisterDrowdownSelectState extends State<RegisterDrowdownSelect> {
           borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
         ),
       ),
-      value: selectedValue,
+      initialValue: selectedValue,
       items: widget.items.map((gender) {
         return DropdownMenuItem<String>(
           value: gender,
@@ -213,7 +214,7 @@ class _AppDropdownSelectState extends State<AppDropdownSelect> {
               borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
             ),
           ),
-          value: selectedValue,
+          initialValue: selectedValue,
           items: widget.items.map((item) {
             return DropdownMenuItem<String>(
               value: item,
@@ -261,7 +262,7 @@ class ViewApplicationDropdownSelect extends StatelessWidget {
           borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
         ),
       ),
-      value: initialValue,
+      initialValue: initialValue,
       items: items.map((item) {
         return DropdownMenuItem<String>(
           value: item,
@@ -304,10 +305,22 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
   
   void _updateApplicationStatus(status) async {
     try {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Status successfully updated")));
-      await ApplicationService.updateApplicationStatus(widget.applicationId, status);
+      final res = await ApplicationService.updateApplicationStatus(widget.applicationId, status);
+      if (res.isNotEmpty) {
+        if (!mounted) return;
+        AppSnackbar.show(
+          context, 
+          message: 'STatus updated successfully!',
+          backgroundColor: AppColor.success
+        );
+      }
     } catch (e) {
-      return;
+      if (!mounted) return;
+      AppSnackbar.show(
+        context, 
+        message: '$e',
+        backgroundColor: AppColor.danger
+      );
     }
   }
 

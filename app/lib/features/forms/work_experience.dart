@@ -1,13 +1,13 @@
-import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/user_service.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/forms/other_skills.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class WorkExperienceForm extends StatefulWidget {
@@ -68,17 +68,20 @@ class _WorkExperienceFormState extends State<WorkExperienceForm> {
         final workExpRes3 = await UserService.createWorkExperience(workExp3);
         if (workExpRes1.isNotEmpty && workExpRes2.isNotEmpty && workExpRes3.isNotEmpty) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Work experience updated successfully! You may now proceed to other skills without certificate form.'))
+          AppSnackbar.show(
+            context, 
+            message: 'Work experience updated successfully! You may now proceed to other skills without certificate form.',
+            backgroundColor: AppColor.success
           );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => OtherSkillsForm(userId: widget.userId)),
-          );
+          navigateTo(context, OtherSkillsForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
-        showAlertError(context, 'Error: $e');
+        AppSnackbar.show(
+          context, 
+          message: '$e',
+          backgroundColor: AppColor.danger
+        );
       }
     }
   }
@@ -108,12 +111,12 @@ class _WorkExperienceFormState extends State<WorkExperienceForm> {
                           child: GestureDetector(
                             child: Text('Skip for now', style: AppText.textPrimary),
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('You can edit your information on your profile when you logged in.')),
+                              AppSnackbar.show(
+                                context, 
+                                message: 'You can edit your information on your profile when you logged in.',
+                                backgroundColor: AppColor.primary
                               );
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page),
-                        ),
-                      ));
+                              navigateTo(context, const Login());
                             },
                           ),
                         ),

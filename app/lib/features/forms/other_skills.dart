@@ -7,7 +7,6 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class OtherSkillsForm extends StatefulWidget {
@@ -85,9 +84,7 @@ class _OtherSkillsFormState extends State<OtherSkillsForm> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('You can edit your information on your profile when you logged in.')),
                               );
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page),
-                        ),
-                      ));
+                              navigateTo(context, const Login());
                             },
                           ),
                         ),

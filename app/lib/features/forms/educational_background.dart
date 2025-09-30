@@ -1,13 +1,13 @@
-import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/user_service.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/forms/techvoc_training.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class EducationalBackgroundForm extends StatefulWidget {
@@ -83,17 +83,20 @@ class _EducationalBackgroundState extends State<EducationalBackgroundForm> {
         final res = await UserService.createEducationalBackground(educBg);
         if (res.isNotEmpty) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Educational Background updated successfully! You may now proceed to tech-voc training form.'))
+          AppSnackbar.show(
+            context, 
+            message: 'Educational Background updated successfully! You may now proceed to tech-voc training form.',
+            backgroundColor: AppColor.success
           );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => TechVocForm(userId: widget.userId)),
-          );
+          navigateTo(context, TechVocForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
-        showAlertError(context, 'Error: $e');
+        AppSnackbar.show(
+          context, 
+          message: '$e',
+          backgroundColor: AppColor.danger
+        );
       }
     }
   }
@@ -123,12 +126,12 @@ class _EducationalBackgroundState extends State<EducationalBackgroundForm> {
                           child: GestureDetector(
                             child: Text('Skip for now', style: AppText.textPrimary),
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('You can edit your information on your profile when you logged in.')),
+                              AppSnackbar.show(
+                                context, 
+                                message: 'You can edit your information on your profile when you logged in.',
+                                backgroundColor: AppColor.primary
                               );
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page),
-                        ),
-                      ));
+                              navigateTo(context, const Login());
                             },
                           ),
                         ),

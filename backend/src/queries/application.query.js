@@ -32,7 +32,7 @@ export async function getApplicationsByUser(userId) {
         WHERE a.job_seeker_id = ?`,
         [userId]
     );
-    
+
     return rows;
 }
 
@@ -42,7 +42,7 @@ export async function getApplicationByJobAndUser(jobId, userId) {
       [jobId, userId]
     )
 
-    return rows[0] ?? [];
+    return rows[0] ?? {};
 }
 
 export async function getApplicationsByEmployer(employerId) {
@@ -58,7 +58,7 @@ export async function getApplicationsByEmployer(employerId) {
 }
 
 export async function updateApplicationStatus(applicationId, status) {
-    const rows = pool.query(
+    const [rows] = await pool.query(
         "UPDATE applications SET status = ? WHERE id = ?",
         [status, applicationId]
     );

@@ -1,12 +1,22 @@
+import 'package:app/core/components/navigation.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/_endpoint.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/features/forms/login.dart';
-import 'package:app/main.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 
 class AuthService {
   static const _secureStorage = FlutterSecureStorage();
   static const String url = "$BASE_URL/auth";
+
+  static Future<Map<String, dynamic>> register(Map<String, dynamic> credentials) async {
+    return await request(
+      '$url/register',
+      method: 'POST',
+      body: credentials
+    );
+  }
   
   static Future<bool> isLoggedIn() async {
     final token = await _secureStorage.read(key: 'jwt_token');
@@ -26,14 +36,12 @@ class AuthService {
   static Future<void> logout(BuildContext context) async {
     await _secureStorage.delete(key: 'jwt_token');
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Successfully logged out.')),
-    );
-    Navigator.pushAndRemoveUntil(
+    AppSnackbar.show(
       context,
-      MaterialPageRoute(builder: (_) => Login(onNavigate: (page) => globalNavigateTo?.call(page))),
-      (_) => false,
+      message: 'Sucessfully logged out.',
+      backgroundColor: AppColor.success
     );
+    navigateTo(context, const Login());
   }
 
   

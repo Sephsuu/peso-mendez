@@ -1,11 +1,14 @@
 import 'package:app/core/components/alert.dart';
-import 'package:app/main.dart';
+import 'package:app/core/components/modal.dart';
+import 'package:app/core/services/auth_service.dart';
+import 'package:app/features/dashboard/admin.dart';
+import 'package:app/features/dashboard/employer.dart';
+import 'package:app/features/dashboard/job_seeker.dart';
+import 'package:app/features/forms/login.dart';
+import 'package:app/features/job_seeker/view_job_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-
 import 'package:app/core/services/job_service.dart';
-
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/footer.dart';
@@ -18,14 +21,14 @@ import 'package:app/core/theme/colors.dart';
 
 
 class Homepage extends HookWidget {
-  final Function(PageType) onNavigate;
-
-  const Homepage({super.key,  required this.onNavigate });
+  const Homepage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = useState(false);
+    final role = useState('');
     final find = useState("");
-    final type = useState("");
+    final type = useState("All Jobs");
     final jobs = useState<List<Map<String, dynamic>>>([]);
     final filteredJobs = useState<List<Map<String, dynamic>>>([]);
 
@@ -41,7 +44,9 @@ class Homepage extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
+          final loggedRes = await AuthService.isLoggedIn();
           final data = await JobService.getAllJobs();
+          isLoggedIn.value = loggedRes;
           jobs.value = data;
         } catch (e) {
           if (!context.mounted) return;
@@ -52,6 +57,17 @@ class Homepage extends HookWidget {
       return null;
     }, []);
 
+    useEffect(() {
+      void fetchClaims() async {
+        if (isLoggedIn.value) {
+          final userRes = await AuthService.getClaims();
+          role.value = userRes['role'] ?? 'no role';
+        }
+      }
+      fetchClaims();
+      return;
+    }, [isLoggedIn.value]);
+    
     // Filter all jobs depending on find search
     useEffect(() {
       if (find.value.isEmpty) {
@@ -67,13 +83,13 @@ class Homepage extends HookWidget {
 
     // Filter jobs depending on type
     useEffect(() {
-      if (type.value == "Full-time") {
+      if (type.value == "Full-Time") {
         filteredJobs.value = jobs.value.where((job) {
-          return job["type"] == "Full-time";
+          return job["type"] == "Full-Time";
         }).toList();
-      } else if (type.value == "Part-time") {
+      } else if (type.value == "Part-Time") {
         filteredJobs.value = jobs.value.where((job) {
-          return job["type"] == "Part-time";
+          return job["type"] == "Part-Time";
         }).toList();
       } else {
         filteredJobs.value = jobs.value;
@@ -91,7 +107,13 @@ class Homepage extends HookWidget {
             children: [
               Align(
                 alignment: Alignment.topCenter,
-                child: HomepageJumbotron(setFind: setFind, setType: setType),
+                child: HomepageJumbotron(
+                  setFind: setFind, 
+                  type: type.value,
+                  setType: setType,
+                  isLoggedIn: isLoggedIn.value,
+                  role: role.value,
+                ),
               ),
               const SizedBox(height: 10.0),
               Text('Featured Local Jobs', style: AppText.textXl.merge(AppText.fontBold)),
@@ -99,7 +121,10 @@ class Homepage extends HookWidget {
               SizedBox(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                  child: FeaturedJobs(jobs: filteredJobs.value)
+                  child: FeaturedJobs(
+                    jobs: filteredJobs.value,
+                    isLoggedIn: isLoggedIn.value,
+                  )
                 ),
               ),
               const Footer()
@@ -114,17 +139,23 @@ class Homepage extends HookWidget {
 class HomepageJumbotron extends StatelessWidget {
   final ValueChanged<String> setFind;
   final ValueChanged<String> setType;
-  final List<String> jobTypes = ['All Jobs', 'Full-time', 'Part-time'];
+  final bool isLoggedIn;
+  final String type;
+  final String role;
 
-  HomepageJumbotron({
+  const HomepageJumbotron({
     super.key, 
     required this.setFind,
-    required this.setType
+    required this.type,
+    required this.setType,
+    required this.isLoggedIn,
+    required this.role,
   });
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    final List<String> jobTypes = ['All Jobs', 'Full-Time', 'Part-Time'];
 
     return Container(
       color: const Color.fromARGB(255, 228, 233, 255),
@@ -139,7 +170,7 @@ class HomepageJumbotron extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           SizedBox(
-            width: screenWidth * 0.5,
+            width: screenWidth * 0.8,
             child: TextField(
               style: AppText.textXs,
               decoration: InputDecoration(
@@ -156,7 +187,7 @@ class HomepageJumbotron extends StatelessWidget {
           ),
           const SizedBox(height: 10,),
           SizedBox(
-            width: screenWidth * 0.5,
+            width: screenWidth * 0.8,
             child: TextField(
               style: AppText.textXs,
               enabled: false,
@@ -172,16 +203,28 @@ class HomepageJumbotron extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              HomepageDropdownSelect(items: jobTypes, initialValue: "All Jobs", onChanged: setType),
-              const SizedBox(width: 10),
-              const HomepageFindButton(),
-            ],
+          HomepageDropdownSelect(
+            items: jobTypes, 
+            type: type, 
+            onChanged: setType
           ),
           const SizedBox(height: 12),
-          const HomepageRegisterButton()
+          AppButton(
+            label: isLoggedIn ? 'View Profile' : 'Sign In Now', 
+            foregroundColor: AppColor.light,
+            visualDensityY: -2,
+            onPressed: isLoggedIn ? (
+              () => role == 'employer' ? (
+                navigateTo(context, const EmployerDashboard())) 
+                : role == 'job_seeker' ? (
+                  navigateTo(context, const JobSeekerDashboard())) 
+                : role == 'admin' ? (navigateTo(context, const AdminDashboard())) 
+                : AppModal(
+                  title: 'Session expired. Please re-log in.',
+                  onConfirm: () => navigateTo(context, const Login()),
+                )
+            ) : () => navigateTo(context, const Login())
+          )
         ],
       ),
     );
@@ -190,10 +233,12 @@ class HomepageJumbotron extends StatelessWidget {
 
 class FeaturedJobs extends StatelessWidget {
   final List<Map<String, dynamic>> jobs;
+  final bool isLoggedIn;
 
   const FeaturedJobs({
     super.key,
-    required this.jobs
+    required this.jobs,
+    required this.isLoggedIn,
   });
 
   @override
@@ -228,7 +273,12 @@ class FeaturedJobs extends StatelessWidget {
                 const SizedBox(height: 8.0),
                 Text("💰 ${job["salary"]} • ${job["company"]}", style: AppText.textPrimary.merge(const TextStyle(fontSize: 13)).merge(AppText.fontSemibold)),
                 const SizedBox(height: 15.0),
-                FeaturedJobsButton(jobId: job["id"]),
+                AppButton(
+                  label: 'View Details', 
+                  onPressed: isLoggedIn ? () => navigateTo(context, ViewJobDetail(jobId: job["id"])) : () =>  navigateTo(context, const Login()),
+                  foregroundColor: AppColor.light,
+                  visualDensityY: -1,
+                )
               ],
             ),
           )

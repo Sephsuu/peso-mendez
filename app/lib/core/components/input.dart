@@ -1,5 +1,64 @@
+import 'package:app/core/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/typography.dart';
+
+class AppInputField extends StatelessWidget {
+  final String label;
+  final String? hint;
+  final String? initialValue;
+  final TextEditingController? controller;
+  final bool obscureText;
+  final TextInputType keyboardType;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final bool? isEnabled;
+
+  const AppInputField({
+    super.key,
+    required this.label,
+    this.hint,
+    this.controller,
+    this.obscureText = false,
+    this.keyboardType = TextInputType.text,
+    this.validator,
+    this.onChanged,
+    this.initialValue,
+    this.isEnabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      initialValue: controller == null ? initialValue : null, 
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      validator: validator,
+      onChanged: onChanged,
+      enabled: isEnabled,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: AppColor.light,
+        isDense: true,
+        visualDensity: const VisualDensity(vertical: -4),
+        labelText: label,
+        hintText: hint,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.blue, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+      ),
+    );
+  }
+}
+
 
 class RegisterTextFieldPlaceholderRequired extends StatefulWidget {
   final TextEditingController controller;

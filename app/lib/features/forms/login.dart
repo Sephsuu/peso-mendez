@@ -4,22 +4,21 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/_endpoint.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/forms/register.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 // import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Login extends StatelessWidget  {
-  final Function(PageType) onNavigate;
-
-  const Login({super.key, required this.onNavigate});
+  const Login({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,7 @@ class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
 
   @override 
-  _LoginFormState createState() => _LoginFormState();
+  State<LoginForm> createState() => _LoginFormState();
 }
 
 class _LoginFormState extends State<LoginForm> {
@@ -64,9 +63,10 @@ class _LoginFormState extends State<LoginForm> {
     if (_formKey.currentState!.validate()) {
       final emailOrUsernameValue = _emailOrUsername.text.trim();
       final passwordValue = _password.text;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verifying credentials...'))
+      AppSnackbar.show(
+        context, 
+        message: 'Verifying Credentials. Please wait.',
+        backgroundColor: AppColor.primary
       );
 
       try {
@@ -91,24 +91,19 @@ class _LoginFormState extends State<LoginForm> {
           final role = user != null ? user['role'] : null;
           if (token != null) {
             await _secureStorage.write(key: 'jwt_token', value: token);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Logged in successfuly!')),
+            if (!mounted) return;
+            AppSnackbar.show(
+              context, 
+              message: 'Sucessfully logged in!',
+              backgroundColor: AppColor.success
             );
 
             if (role == 'job_seeker') {
               if (!mounted) return;
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => JobSeekerDashboard(
-                  onNavigate: (page) => globalNavigateTo?.call(page),
-                ),
-              ));
+              navigateTo(context, const JobSeekerDashboard());
             } else if (role == 'employer') {
               if (!mounted) return;
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => EmployerDashboard(
-                  onNavigate: (page) => globalNavigateTo?.call(page),
-                ),
-              ));
+              navigateTo(context, const EmployerDashboard());
             } else if (role == 'admin') {
               if (!mounted) return;
               Navigator.push(context, MaterialPageRoute(
@@ -117,15 +112,19 @@ class _LoginFormState extends State<LoginForm> {
             }
           } else {
             if (!mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Login failed: Token missing in response')),
+            AppSnackbar.show(
+              context, 
+              message: 'Token missing in response.',
+              backgroundColor: AppColor.danger
             );
           }
         } else {
           final errorData = jsonDecode(response.body);
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login failed: ${errorData['message']}')),
+          AppSnackbar.show(
+            context, 
+            message: '${errorData["message"]}.',
+            backgroundColor: AppColor.danger
           );
         }
       } catch (e) {
@@ -199,26 +198,29 @@ class _LoginFormState extends State<LoginForm> {
                   },
                 ),
                 const SizedBox(height: 20.0),
-                SignInButton(onPressed: _submitForm),
-                const SizedBox(height: 8.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an account?"),
-                    const SizedBox(width: 5.0),
-                    GestureDetector(
-                      child: Text('Register Now', style: AppText.textPrimary),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Register(onNavigate: (page) => globalNavigateTo?.call(page)),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                SizedBox(
+                  width: double.infinity,
+                  child: AppButton(
+                    label: 'Sign In', 
+                    foregroundColor: AppColor.light,
+                    onPressed: () => _submitForm(),
+                    visualDensityY: -2,
+                  ),
                 ),
+                const SizedBox(height: 8.0),
+                Center(
+                  child: Wrap(
+                    alignment: WrapAlignment.center, // keeps children centered
+                    children: [
+                      const Text("Don't have an account?"),
+                      const SizedBox(width: 5.0),
+                      GestureDetector(
+                        child: Text('Register Now', style: AppText.textPrimary),
+                        onTap: () => navigateTo(context, const Register()),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),

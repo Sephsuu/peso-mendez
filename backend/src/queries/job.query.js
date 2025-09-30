@@ -21,6 +21,18 @@ export async function getJobsByEmployer(employerId) {
     return rows;
 }
 
+export async function getAllSavedJobsByUserJob(userId) {
+    const [rows] = await pool.query(
+        `SELECT j.title, j.status 
+        FROM saved_jobs s 
+        JOIN jobs j ON j.id = s.job_id
+        `,
+        [userId]
+    );
+
+    return rows[0] ?? {};
+}
+
 export async function getSavedJobByUserJob(userId, jobId) {
     const [rows] = await pool.query(
         `SELECT * FROM saved_jobs WHERE user_id = ? AND job_id = ?`,
@@ -30,7 +42,9 @@ export async function getSavedJobByUserJob(userId, jobId) {
     return rows[0] ?? {};
 }
 
-export async function createJob(title, company, location, salary, type, description, employerId, visibility) {
+export async function createJob(job) {
+    console.log(job);
+    
     const insertQuery = `
         INSERT INTO jobs
         (title, company, location, salary, type, description, employer_id, visibility)
@@ -38,7 +52,9 @@ export async function createJob(title, company, location, salary, type, descript
     `;
 
     const [result] =  await pool.query(insertQuery, [
-        title, company, location, salary, type, description, employerId, visibility
+        job.title, job.company, job.location, 
+        job.salary, job.type, job.description, 
+        job.employerId, job.visibility
     ]);
 
     return result;
@@ -63,6 +79,10 @@ export async function updateJob(jobId, title, company, location, type, salary, v
 
 export async function deleteJob(jobId) {
     const [rows] = await pool.query(
+        `SELECT * FROM jobs WHERE id = ?`,
+        [jobId]
+    );
+    await pool.query(
         "DELETE FROM jobs WHERE id = ?",
         [jobId]
     );

@@ -50,7 +50,7 @@ router.post('/create', async (req, res) => {
   }
 });
 
-router.put('/update-status', async (req, res) => {
+router.patch('/update-status', async (req, res) => {
   const { id, status } = req.query;
   try {
     const application = await applicationQuery.updateApplicationStatus(id, status);

@@ -3,16 +3,13 @@ import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ViewApplications extends HookWidget {
-  final Function(PageType) onNavigate;
   final List<Map<String, dynamic>> applications;
 
   const ViewApplications({super.key, 
-    required this.onNavigate,
     required this.applications,
   });
 

@@ -1,25 +1,26 @@
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
+import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/main.dart';
+import 'package:app/features/job_seeker/already_applied.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ViewJobDetail extends StatelessWidget {
-  final Function(PageType) onNavigate;
   final int jobId;
 
   const ViewJobDetail({
     super.key,
     required this.jobId,
-    required this.onNavigate
   });
 
   @override
@@ -66,7 +67,6 @@ class ViewJobDetailCard extends HookWidget {
           userId.value = fetchedUser['id'];
           loading.value = false;
         } catch (e) {
-          print('ERROR 1');
           throw Exception(e);
         }
       }
@@ -241,10 +241,48 @@ class ViewJobDetailButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void applyJob() async {
+      final isApplied = await ApplicationService.getApplicationByJobAndUser(job["id"], userId);
+      if (isApplied.isEmpty) {
+        final applySuccess = await ApplicationService.createApplication(job["id"], userId);
+        if (applySuccess.isNotEmpty) {
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context, 
+            message: 'Successfully applied for job ${job["title"]}',
+            backgroundColor: AppColor.success
+          );
+        }
+      } else  {
+        if (!context.mounted) return;
+        navigateTo(context, AlreadyApplied(job: job, userId: userId));
+      }
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ViewJobApplyJobButton(job: job, userId: userId),
+        AppButton(
+          label: "Apply", 
+          foregroundColor: AppColor.light,
+          visualDensityY: -2,
+          onPressed: () {
+            showDialog(
+              context: context, 
+              builder: (context) {
+                return AppModal(
+                  title: 'Apply for ${job["title"]} at ${job["location"]}',
+                  titleStyle: AppText.fontSemibold.merge(AppText.textLg),
+                  message: 'You\'re about to apply for: ${job["title"]} at ${job["location"]}. Your information will be shared with the employer.',
+                  confirmLabel: "Apply",
+                  confirmBackground: AppColor.primary,
+                  confirmForeground: AppColor.light,
+                  onConfirm: applyJob,
+                );
+              }
+            );
+          }
+        ),
         const SizedBox(width: 10),
         ViewJobSendMessageButton(),
         const SizedBox(width: 10),

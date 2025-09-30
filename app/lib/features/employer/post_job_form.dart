@@ -1,17 +1,17 @@
-import 'dart:convert';
-
+import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/auth_service.dart';
+import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class PostNewJob extends StatelessWidget {
   final Function(PageType) onNavigate;
@@ -45,7 +45,7 @@ class PostNewJobForm extends StatefulWidget {
   const PostNewJobForm({super.key});
 
   @override
-  _PostNewJobFormState createState() => _PostNewJobFormState();
+  State<PostNewJobForm> createState() => _PostNewJobFormState();
 }
 
 class _PostNewJobFormState extends State<PostNewJobForm>  {
@@ -87,6 +87,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
   }
 
   Future<void> _submitForm() async {
+    loadUser();
     if (_formKey.currentState!.validate()) {
       final jobTitleValue = _jobTitle.text.trim();
       final companyValue = _company.text.trim();
@@ -97,40 +98,31 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
       final visibilityValue = _visibility;
 
       try {
-        final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/jobs/create');
+        final res = await JobService.createJob({
+          "title": jobTitleValue,
+          "company": companyValue,
+          "location": locationValue,
+          "salary": salaryValue,
+          "type": jobTypeValue,
+          "description": descriptionValue,
+          "employerId": employerId,
+          "visibility": visibilityValue
+        });
 
-        final response = await http.post(
-          url,
-          headers: { 'Content-Type': 'application/json' },
-          body: jsonEncode({
-            "title": jobTitleValue,
-            "company": companyValue,
-            "location": locationValue,
-            "salary": salaryValue,
-            "type": jobTypeValue,
-            "description": descriptionValue,
-            "employerId": employerId,
-            "visibility": visibilityValue
-          }),
-        );
-
-        if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (res.isNotEmpty) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Job successfully added.')),
+          AppSnackbar.show(
+            context,
+            message: 'Job $jobTitleValue created successfully!',
+            backgroundColor: AppColor.success
           );
-
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => EmployerDashboard(
-                onNavigate: (page) => globalNavigateTo?.call(page),
-              ),
-            ),
-          );
+          navigateTo(context, const EmployerDashboard());
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+        if (!mounted) return;
+        AppSnackbar.show(
+          context, 
+          message: '$e'
         );
       }
     }
@@ -163,30 +155,20 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           const SizedBox(height: 20),
           Row(
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: AppColor.light,
-                  backgroundColor: AppColor.success,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)
-                  )
-                ),
-                onPressed: _submitForm, 
-                child: const Text("🚀 Post Job")
+              AppButton(
+                label: '🚀 Post Job', 
+                onPressed: () => _submitForm(),
+                backgroundColor: AppColor.success,
+                visualDensityY: -2,
               ),
               const SizedBox(width: 15),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: AppColor.light,
-                  backgroundColor: AppColor.secondary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)
-                  )
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                }, 
-                child: const Text("Cancel")
+              AppButton(
+                label: 'Cancel', 
+                onPressed: () => {
+                  Navigator.of(context).pop()
+                },
+                backgroundColor: AppColor.secondary,
+                visualDensityY: -2,
               ),
             ],
           )

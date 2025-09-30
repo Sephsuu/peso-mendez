@@ -56,6 +56,18 @@ Future<dynamic> request(
           res = await http.patch(url, headers: headers); // No body
         }
         break;
+      case 'DELETE':
+        print('Method: DELETE'); 
+        if (body != null) {
+          res = await http.put(
+            url,
+            headers: headers,
+            body: jsonEncode(body),
+          );
+        } else {
+          res = await http.put(url, headers: headers); // No body
+        }
+        break;
       default:
         print('Method: GET');
         res = await http.get(url, headers: headers);
@@ -81,3 +93,4 @@ Future<dynamic> request(
     throw Exception('Request failed: $e');
   }
 }
+

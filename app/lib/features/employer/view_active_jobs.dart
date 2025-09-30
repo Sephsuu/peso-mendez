@@ -1,15 +1,16 @@
-import 'package:app/core/components/alert.dart';
+import 'package:app/core/components/badge.dart';
+import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/employer/edit_job.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class ViewActiveJobs extends HookWidget {
@@ -24,8 +25,13 @@ class ViewActiveJobs extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reload = useState(false);
     final search = useState("");
     final filteredJobs = useState<List<Map<String, dynamic>>>([]);
+
+    void setReload() {
+      reload.value = !reload.value;
+    }
 
     void setSearch(String newVal) {
       search.value = newVal;
@@ -43,18 +49,6 @@ class ViewActiveJobs extends HookWidget {
       return null;
     }, [search.value]);
 
-    Future<void> handleDelete(int jobId) async {
-      try {
-        await JobService.deleteJob(jobId);
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Job successfully deleted")));
-        Navigator.push(context, MaterialPageRoute(builder: (context) => EmployerDashboard(onNavigate: (page) => globalNavigateTo?.call(page))));
-      } catch (e) {
-        if (!context.mounted) return;
-        showAlertError(context, "Failed to update job, please try again");
-      }
-    }
-
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -66,7 +60,10 @@ class ViewActiveJobs extends HookWidget {
             const SizedBox(height: 20),
             ViewActiveJobsFilter(setSearch: setSearch),
             const SizedBox(height: 20),
-            ViewActiveJobsTable(jobs: filteredJobs.value, handleDelete: handleDelete),
+            ViewActiveJobsTable(
+              jobs: filteredJobs.value,
+              setReload: setReload,
+            ),
             const SizedBox(height: 300),
             const Footer()
           ],
@@ -126,59 +123,121 @@ class ViewActiveJobsFilter extends StatelessWidget {
 
 class ViewActiveJobsTable extends StatelessWidget {
   final List<Map<String, dynamic>> jobs;
-  final Future<void> Function(int) handleDelete;
+  final VoidCallback setReload;
 
   const ViewActiveJobsTable({
     super.key,
     required this.jobs,
-    required this.handleDelete,
+    required this.setReload,
   });
 
   @override
   Widget build(BuildContext context) {
+
+    void handleDelete(int id) async {
+      try {
+        final res = await JobService.deleteJob(id);
+        if (res.isNotEmpty) {
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context, 
+            message: 'Job deleted sucessfully!'
+          );
+          setReload();
+        }
+      } catch (e) {
+        if (!context.mounted) return;
+        AppSnackbar.show(
+          context, 
+          message: 'Error $e'
+        );
+      }
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Title')),
-          DataColumn(label: Text('Company')),
-          DataColumn(label: Text('Location')),
-          DataColumn(label: Text('Type')),
-          DataColumn(label: Text('Salary')),
-          DataColumn(label: Text('Visibility')),
-          DataColumn(label: Text('Date Posted')),
-          DataColumn(label: Text('Actions')),
-        ],
-        rows: jobs.map((job) {
-          return DataRow(
-            cells: [
-              DataCell(Text(job['title'] ?? 'N/A')),
-              DataCell(Text(job['company']?.toString() ?? 'N/A')),
-              DataCell(Text(job['location'] ?? 'N/A')),
-              DataCell(Text(job['type'] ?? 'N/A')),
-              DataCell(Text(job['salary'] ?? 'N/A')),
-              DataCell(Text(job['posted_on'] ?? 'N/A')),
-              DataCell(Text(job['visibility'] ?? 'N/A')),
-              DataCell(
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditJob(onNavigate: (page) => globalNavigateTo?.call(page), job: job)));
-                      },
-                      child: Text("Update", style: AppText.textSuccess),
-                    ),
-                    const SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () => showAlertDelete(context, "Are you sure to delete job?", job["id"], handleDelete),
-                      child: Text("Delete", style: AppText.textDanger),
-                    ),
-                  ],
-                )
-              ),
-            ],
-          );
-        }).toList()
+      child: DataTableTheme(
+        data: DataTableThemeData(
+          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+          headingTextStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ), 
+        child: DataTable(
+          headingRowHeight: 40,
+          dataRowMinHeight: 30,
+          dataRowMaxHeight: 40,
+          border: TableBorder.all(
+            color: const Color.fromARGB(255, 191, 191, 191),
+            width: 1,
+          ),
+          columns: const [
+            DataColumn(label: Text('Title')),
+            DataColumn(label: Text('Company')),
+            DataColumn(label: Text('Location')),
+            DataColumn(label: Text('Type')),
+            DataColumn(label: Text('Salary')),
+            DataColumn(label: Text('Visibility')),
+            DataColumn(label: Text('Date Posted')),
+            DataColumn(label: Text('Actions')),
+          ],
+          rows: jobs.map((job) {
+            return DataRow(
+              cells: [
+                DataCell(Text(job['title'] ?? 'N/A')),
+                DataCell(Text(job['company']?.toString() ?? 'N/A')),
+                DataCell(Text(job['location'] ?? 'N/A')),
+                DataCell(Text(job['type'] ?? 'N/A')),
+                DataCell(Text(job['salary'] ?? 'N/A')),
+                DataCell(
+                  AppBadge(
+                    text: job["visibility"],
+                    color: job["visibility"] == 'Lite' ? const Color.fromARGB(255, 52, 32, 0) : job["visibility"] == 'Branded' ? const Color.fromARGB(255, 150, 150, 150) : const Color.fromARGB(255, 156, 101, 0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                  )
+                ),
+                DataCell(Text(job['posted_on'] ?? 'N/A')),
+                DataCell(
+                  Row(
+                    children: [
+                      AppButton(
+                        label: 'Update', 
+                        onPressed: () => navigateTo(context, EditJob(job: job)),
+                        backgroundColor: AppColor.success,
+                        visualDensityY: -3,
+                        textSize: 12,
+                      ),
+                      const SizedBox(width: 10),
+                      AppButton(
+                        label: 'Delete', 
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AppModal(
+                                title: 'Are you sure to delete job: ${job["title"]}',
+                                titleStyle: AppText.fontSemibold.merge(AppText.textLg),
+                                message: 'Warning: This action is irreversible.',
+                                confirmLabel: "Confirm",
+                                confirmBackground: AppColor.danger,
+                                confirmForeground: AppColor.light,
+                                onConfirm: () => handleDelete(job["id"]),
+                              );
+                            }
+                          );
+                        },
+                        backgroundColor: AppColor.danger,
+                        visualDensityY: -3,
+                        textSize: 12,
+                      ),
+                    ],
+                  )
+                ),
+              ],
+            );
+          }).toList()
+        ),
       ),
     );
   }

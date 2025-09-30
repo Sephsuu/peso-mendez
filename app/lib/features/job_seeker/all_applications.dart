@@ -1,16 +1,13 @@
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class AllApplications extends StatelessWidget {
-  final Function(PageType) onNavigate;
   final List<Map<String, dynamic>> applications;
 
   const AllApplications({
     super.key,
-     required this.onNavigate,
      required this.applications,
   });
 

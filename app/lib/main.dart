@@ -1,6 +1,3 @@
-import 'package:app/features/forms/educational_background.dart';
-import 'package:app/features/forms/job_reference.dart';
-import 'package:app/features/forms/language_profeciency.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/features/homepage.dart';
@@ -70,17 +67,17 @@ class _MainScreenState extends State<MainScreen> {
   Widget _getPage() {
     switch (_currentPage) {
       case PageType.home:
-        return Homepage(onNavigate: (page) => globalNavigateTo?.call(page));
+        return const Homepage();
       case PageType.register:
-        return Register(onNavigate: _navigateTo);
+        return const Register();
       case PageType.login:
-        return Register(onNavigate: _navigateTo);
+        return const Register();
       case PageType.jobSeekerDashboard:
-        return Register(onNavigate: _navigateTo);
+        return const Register();
       case PageType.jobSeekerEditProfile:
-        return Register(onNavigate: _navigateTo);
+        return const Register();
       case PageType.employerDashboard:
-        return Register(onNavigate: _navigateTo);
+        return const Register();
     }
   }
 

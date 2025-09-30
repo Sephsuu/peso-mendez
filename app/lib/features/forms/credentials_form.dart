@@ -1,11 +1,11 @@
-import 'dart:convert';
-
+import 'package:app/core/components/navigation.dart';
+import 'package:app/core/components/snackbar.dart';
+import 'package:app/core/services/auth_service.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/forms/personal_information_form.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:app/core/components/button.dart';
 
 
@@ -13,7 +13,7 @@ class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
 
   @override 
-  _RegisterFormState createState() => _RegisterFormState();
+  State<RegisterForm> createState() => _RegisterFormState();
 }
 
 class _RegisterFormState extends State<RegisterForm> {
@@ -48,48 +48,37 @@ class _RegisterFormState extends State<RegisterForm> {
       final usernameValue = _username.text.trim();
       final passwordValue = _password.text.trim();
       final roleValue = _role;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please wait. We are registering your credentials.'))
+      AppSnackbar.show(
+        context, 
+        message: 'Please wait. We are registering your credentials.',
+        backgroundColor: AppColor.primary
       );
 
       try {
-        final url = Uri.parse('https://x848qg05-3005.asse.devtunnels.ms/auth/register');
-
-        final res = await http.post(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode({
+        final res = await AuthService.register({
             'fullName': fullNameValue,
             'email': emailValue,
             'contactNumber': contactValue,
             'username': usernameValue,
             'password': passwordValue,
             'role': roleValue
-          })
-        );
+        });
 
-        final Map<String, dynamic> response = jsonDecode(res.body);
-
-        if (res.statusCode == 201) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('You are successfully registered. Please fill up the following forms.'))
+        if (res.isNotEmpty) {
+          if (!mounted) return;
+          AppSnackbar.show(
+            context, 
+            message: 'You are successfully registered. Please fill up the following forms.',
+            backgroundColor: AppColor.success
           );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PersonalInformationForm(userId: response["userId"])),
-          );
-        } else {
-          final errorData = jsonDecode(res.body);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${errorData['error']}')),
-          );
-        }
+          navigateTo(context, PersonalInformationForm(userId: res["userId"]));
+        } 
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+        if (!mounted) return;
+        AppSnackbar.show(
+          context, 
+          message: 'Error $e',
+          backgroundColor: AppColor.danger
         );
       }
     }
@@ -267,13 +256,8 @@ class _RegisterFormState extends State<RegisterForm> {
                     const SizedBox(width: 5.0),
                     GestureDetector(
                       child: Text('Sign in', style: AppText.textPrimary),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Login(onNavigate: (page) => globalNavigateTo?.call(page)),
-                          ),
-                        );
+                      onTap: () => {
+                        navigateTo(context, const Login())
                       },
                     ),
                   ],

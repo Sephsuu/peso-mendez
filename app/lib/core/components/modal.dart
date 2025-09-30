@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 
 class AppModal extends StatelessWidget {
   final String title;
-  final String? message;
+  final Object? message;
   final VoidCallback? onConfirm;
   final String? confirmLabel;
   final Color? confirmForeground;
   final Color?  confirmBackground;
+  final TextStyle? titleStyle;
+  final EdgeInsets? insetPadding;
 
   const AppModal({
     super.key,
@@ -19,18 +21,28 @@ class AppModal extends StatelessWidget {
     this.confirmLabel,
     this.confirmForeground = AppColor.dark,
     this.confirmBackground = AppColor.light,
+    this.titleStyle,
+    this.insetPadding,
   });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      insetPadding: insetPadding ?? const EdgeInsets.all(10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      title: Text(title, style: AppText.textMd),
-      content: message != null 
-                ? Text(message ?? '') 
-                : null,
+      title: Text(title, style: AppText.textMd.merge(titleStyle)),
+      content: SizedBox(
+        width: double.maxFinite, // take full width
+        child: message == null
+            ? null
+            : (message is String
+                ? Text(message as String)
+                : message is Widget
+                    ? message as Widget
+                    : Text(message.toString())),
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context), // closes modal
