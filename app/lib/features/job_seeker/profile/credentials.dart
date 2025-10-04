@@ -5,6 +5,7 @@ import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/utils.dart';
+import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
@@ -39,9 +40,10 @@ class Credentials extends HookWidget {
           if (!context.mounted) return;
           AppSnackbar.show(
             context, 
-            message: 'Credential updated successfully!',
+            message: 'Credential updated successfully! Please re-login.',
             backgroundColor: AppColor.success
           );
+          await AuthService.logout(context);
         }
       } catch (e) { 
         if (!context.mounted) return;
@@ -66,6 +68,8 @@ class Credentials extends HookWidget {
       } fetchData();
       return null;
     }, [claims['id']]);
+
+    if (loading.value) return const Loader();
 
     useEffect(() {
       if (open) {
@@ -138,7 +142,6 @@ class Credentials extends HookWidget {
       return null;
     }, [open]);
 
-    if (loading.value) return const Loader();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

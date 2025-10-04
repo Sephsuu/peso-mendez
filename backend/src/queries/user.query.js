@@ -96,6 +96,14 @@ export async function getUserTechVocTrainings(id) {
 
 export async function getUserEligibility(id) {
     const [rows] = await pool.query(
+        `SELECT * FROM eligibilities WHERE user_id = ?`,
+        [id]
+    );
+    return rows;
+} 
+
+export async function getUserProfessionalLicense(id) {
+    const [rows] = await pool.query(
         `SELECT * FROM professional_licenses WHERE user_id = ?`,
         [id]
     );
@@ -155,18 +163,18 @@ export async function registerUser(fullName, email, contactNumber, username, pas
 export async function createPersonalinformation(personalInfo) {
     const [result] = await pool.query(
         `INSERT INTO personal_informations (
-            user_id, surname, first_name, middle_name, suffix,
+            user_id, surname, first_name, middle_name, date_of_birth, suffix,
             religion, present_address, tin, sex, civil_status,
             disability, employment_status, employment_type, is_ofw, is_former_ofw
         )
         VALUES (
             ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?
         )`,
         [
             personalInfo.userId, personalInfo.surname, personalInfo.firstName, 
-            personalInfo.middleName, personalInfo.suffix, personalInfo.religion,
+            personalInfo.middleName, personalInfo.dateOfBirth, personalInfo.suffix, personalInfo.religion,
             personalInfo.presentAddress, personalInfo.tin, personalInfo.sex,
             personalInfo.civilStatus, personalInfo.disability, personalInfo.employmentStatus,
             personalInfo.employmentType, personalInfo.isOfw, personalInfo.isFormerOfw
@@ -308,6 +316,27 @@ export async function updateUserCredential(user) {
     ) ;
     return result;
 }
+
+export async function updatePersonalInformation(personalInfo) {
+  const [result] = await pool.query(
+    `UPDATE personal_informations
+     SET
+       surname = ?, first_name = ?, middle_name = ?, date_of_birth = ?,
+       suffix = ?, religion = ?, present_address = ?, tin = ?,
+       sex = ?, civil_status = ?, disability = ?, employment_status = ?,
+       employment_type = ?, is_ofw = ?, is_former_ofw = ?, updated_at = NOW()
+     WHERE user_id = ?`,
+    [
+      personalInfo.surname, personalInfo.firstName, personalInfo.middleName, personalInfo.dateOfBirth,
+      personalInfo.suffix, personalInfo.religion, personalInfo.presentAddress,  personalInfo.tin,
+      personalInfo.sex, personalInfo.civilStatus, personalInfo.disability, personalInfo.employmentStatus,
+      personalInfo.employmentType, personalInfo.isOfw, personalInfo.isFormerOfw, personalInfo.userId, // WHERE condition
+    ]
+  );
+
+  return result;
+}
+
 
 export async function deactivateUser(id) {
     await pool.query(

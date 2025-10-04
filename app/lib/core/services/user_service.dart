@@ -73,6 +73,13 @@ class UserService {
     );
   }
 
+  static Future<List<Map<String, dynamic>>> getUserProfLicense(int id) async {
+    return await request(
+      '$url/get-prof-license?id=$id',
+      method: 'GET'
+    );
+  }
+
   static Future<List<Map<String, dynamic>>> getUserWorkExperience(int id) async {
     return await request(
       '$url/get-work-experience?id=$id',
@@ -82,7 +89,7 @@ class UserService {
 
   static Future<List<Map<String, dynamic>>> getUserOtherSkills(int id) async {
     return await request(
-      '$url/get-othder-skills?id=$id',
+      '$url/get-other-skills?id=$id',
       method: 'GET'
     );
   }
@@ -162,6 +169,14 @@ class UserService {
   static Future<Map<String, dynamic>> updateUserCredential(Map<String, dynamic> user) async {
     return await request(
       '$url/update-credential',
+      method: 'PATCH',
+      body: user
+    );
+  }
+
+  static Future<Map<String, dynamic>> updateUserPersonalInformation(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-personal-info',
       method: 'PATCH',
       body: user
     );

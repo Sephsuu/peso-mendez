@@ -107,6 +107,16 @@ router.get('/get-eligibility', async (req, res) => {
 	}
 })
 
+router.get('/get-prof-license', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserProfessionalLicense(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.get('/get-work-experience', async (req, res) => {
 	const { id } = req.query;
 	try {
@@ -221,6 +231,16 @@ router.patch('/update-credential', async (req, res) => {
 	const user = req.body;
 	try {
 		const query = await userQuery.updateUserCredential(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.patch('/update-personal-info', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updatePersonalInformation(user);
 		res.json(query);
 	} catch (err) {
 		res.status(500).json({ error: err.message });

@@ -12,6 +12,7 @@ class AppInputField extends StatelessWidget {
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final bool? isEnabled;
+  final int? maxLine;
 
   const AppInputField({
     super.key,
@@ -24,11 +25,13 @@ class AppInputField extends StatelessWidget {
     this.onChanged,
     this.initialValue,
     this.isEnabled = true,
+    this.maxLine,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      maxLines: maxLine ?? 1,
       controller: controller,
       initialValue: controller == null ? initialValue : null, 
       obscureText: obscureText,

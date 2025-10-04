@@ -11,6 +11,7 @@ import 'package:app/features/forms/job_reference.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
+import 'package:intl/intl.dart';
 
 class PersonalInformationForm extends StatefulWidget {
   final int userId;
@@ -28,7 +29,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   final _formKey = GlobalKey<FormState>();
   final List<String> genders = ['Male', 'Female', 'Other'];
   final List<String> civilStatus = ['Single', 'Married', 'Widowed'];
-  final List<String> disabilities = ['Visual', 'Hearing', 'Speech', 'Physical', 'Mental', 'Others'];
+  final List<String> disabilities = ['N/A', 'Visual', 'Hearing', 'Speech', 'Physical', 'Mental', 'Others'];
   final List<String> employmentStatus = ['Employed', 'Unemployed'];
   final List<String> employedTypes = ['Wage employed', 'Self-employed'];
   final List<String> unemployedTypes = ['New/Fresh Graduate', 'Finished Contract', 'Resigned', 'Retired', 'Laid off due to calamity', 'Terminated'];
@@ -48,6 +49,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   String? _employmentType;
   String? _isOfw;
   String? _isFormerOfw;
+  DateTime? _selectedDate; 
 
   @override
   void dispose() {
@@ -63,6 +65,9 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
 
   Future<void> _nextForm() async {
     if (_formKey.currentState!.validate()) {
+      final formattedDate = _selectedDate != null
+      ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+      : null;
       final Map<String, dynamic> personalInfo = {
         "userId": widget.userId,
         "surname": _surname.text.trim(),
@@ -78,7 +83,8 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
         "employmentStatus": _employmentStatus,
         "employmentType": _employmentType,
         "isOfw": _isOfw,
-        "isFormerOfw": _isFormerOfw 
+        "isFormerOfw": _isFormerOfw,
+        "dateOfBirth": formattedDate,
       }; 
       try {
         final res = await UserService.createPersonalInformation(personalInfo);
@@ -160,7 +166,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                             border: OutlineInputBorder(),
                             suffixIcon: Icon(Icons.event_note),
                             enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
+                              borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193)),
                             ),
                           ),
                           mode: DateTimeFieldPickerMode.date,
@@ -170,7 +176,10 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                             return null;
                           },
                           onChanged: (DateTime? value) {
-                            print('Selected date: $value');
+                            setState(() {
+                              _selectedDate = value; // 👈 save selected date
+                            });
+                            print('Selected date: $_selectedDate');
                           },
                         ),
                         const SizedBox(height: 15.0),

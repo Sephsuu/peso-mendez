@@ -6,6 +6,71 @@ import 'package:flutter/material.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 
+class AppSelect<T> extends StatelessWidget {
+  final List<T> items;
+  final T? value;
+  final String? placeholder;
+  final String Function(T)? getLabel;
+  final void Function(T?) onChanged;
+  final bool isDense;
+  final double borderRadius;
+  final EdgeInsetsGeometry contentPadding;
+  final Color borderColor;
+  final Color fillColor;
+
+  const AppSelect({
+    super.key,
+    required this.items,
+    required this.onChanged,
+    this.value,
+    this.placeholder,
+    this.getLabel,
+    this.isDense = true,
+    this.borderRadius = 8.0,
+    this.contentPadding =
+        const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+    this.borderColor = const Color.fromARGB(178, 29, 0, 83), // Violet (Material purple 700)
+    this.fillColor = Colors.white,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      isExpanded: true,
+      isDense: isDense,
+      dropdownColor: fillColor,
+      decoration: InputDecoration(
+        isDense: isDense,
+        filled: true,
+        fillColor: fillColor,
+        labelText: placeholder,
+        contentPadding: contentPadding,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor, width: 1.4),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor, width: 1.8),
+        ),
+      ),
+      items: items.map((item) {
+        final label = getLabel != null ? getLabel!(item) : item.toString();
+        return DropdownMenuItem<T>(
+          value: item,
+          child: Text(label),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+}
+
 class HomepageDropdownSelect extends StatefulWidget {
   final List<String> items;
   final String type;

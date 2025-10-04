@@ -143,7 +143,7 @@ class _TechVocFormState extends State<TechVocForm> {
                         const SizedBox(height: 20.0),
                         Text('Traning 1', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
-                        RegisterTextFieldPlaceholder(controller: _techVocCourse1, placeholder: "Technical/Vocational Cource"),
+                        RegisterTextFieldPlaceholder(controller: _techVocCourse1, placeholder: "Technical/Vocational Course"),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _hrsTraining1, placeholder: "Hrs. of Training"),
                         const SizedBox(height: 10.0),
@@ -158,7 +158,7 @@ class _TechVocFormState extends State<TechVocForm> {
 
                         Text('Traning 2', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
-                        RegisterTextFieldPlaceholder(controller: _techVocCourse2, placeholder: "Technical/Vocational Cource"),
+                        RegisterTextFieldPlaceholder(controller: _techVocCourse2, placeholder: "Technical/Vocational Course"),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _hrsTraining2, placeholder: "Hrs. of Training"),
                         const SizedBox(height: 10.0),
@@ -173,7 +173,7 @@ class _TechVocFormState extends State<TechVocForm> {
 
                         Text('Traning 3', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
-                        RegisterTextFieldPlaceholder(controller: _techVocCourse3, placeholder: "Technical/Vocational Cource"),
+                        RegisterTextFieldPlaceholder(controller: _techVocCourse3, placeholder: "Technical/Vocational Course"),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _hrsTraining3, placeholder: "Hrs. of Training"),
                         const SizedBox(height: 10.0),

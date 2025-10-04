@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 class AppCheckbox extends StatelessWidget {
   final String label;
   final bool state;
-  final ValueChanged<bool?> onChanged;
+  final ValueChanged<bool?>? onChanged;
   final TextStyle? textStyle; 
 
   const AppCheckbox({
     super.key,
     required this.label,
     required this.state,
-    required this.onChanged,
+    this.onChanged,
     this.textStyle,
   });
 
