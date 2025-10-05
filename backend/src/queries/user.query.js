@@ -337,6 +337,27 @@ export async function updatePersonalInformation(personalInfo) {
   return result;
 }
 
+export async function updateJobReference(jobRef) {
+    console.log(jobRef);
+    
+    const [result] = await pool.query(
+        `UPDATE job_references
+        SET
+            occupation_type = ?, occupation1 = ?, occupation2 = ?,
+            occupation3 = ?, location_type = ?, location1 = ?,
+            location2 = ?, location3 = ?
+        WHERE
+            user_id = ?`,
+        [
+            jobRef.occupation_type, jobRef.occupation1, jobRef.occupation2,
+            jobRef.occupation3, jobRef.location_type, jobRef.location1,
+            jobRef.location2, jobRef.location3, jobRef.user_id
+        ]
+    );
+    return result;
+}
+
+
 
 export async function deactivateUser(id) {
     await pool.query(

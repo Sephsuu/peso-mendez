@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:app/core/components/button.dart';
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/user_service.dart';
@@ -27,12 +31,7 @@ class JobReference extends HookWidget {
 
     void handleSubmit() async {
       try {
-        final res = await UserService.updateUserCredential({
-          'id': user.value['id'],
-          'fullName': user.value['full_name'],
-          'username': user.value['username'],
-          'contact': user.value['contact']
-        });
+        final res = await UserService.updateUserJobReference(user.value);
         if (res.isNotEmpty) {
           if (!context.mounted) return;
           AppSnackbar.show(
@@ -67,6 +66,127 @@ class JobReference extends HookWidget {
 
 
     if (loading.value) return const Loader();
+
+    useEffect(() {
+      if (open) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (context) => AppModal(
+              title: 'Edit Job Reference',
+              titleStyle: AppText.fontBold,
+              confirmBackground: AppColor.success,
+              confirmForeground: AppColor.light,
+              onConfirm: () => handleSubmit(),
+              message: SizedBox(
+                height: 300,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      AppSelect(
+                        placeholder: 'Occupation Type',
+                        items: const ['Part-time', 'Full-time'],
+                        value: user.value['occupation_type'], 
+                        onChanged: (val) => {
+                          user.value = {
+                            ...user.value,
+                            'occupation_type': val
+                          }
+                        }
+                      ),
+                      const SizedBox(height: 12),
+                      AppInputField(
+                        label: 'Occupation 1',
+                        initialValue: user.value['occupation1'],
+                        onChanged: (value) {
+                          user.value = {
+                            ...user.value,
+                            'occupation1': value
+                          };
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AppInputField(
+                        label: 'Occupation 2',
+                        initialValue: user.value['occupation2'],
+                        onChanged: (value) {
+                          user.value = {
+                            ...user.value,
+                            'occupation2': value
+                          };
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AppInputField(
+                        label: 'Occupation 3',
+                        initialValue: user.value['occupation3'],
+                        onChanged: (value) {
+                          user.value = {
+                            ...user.value,
+                            'occupation3': value
+                          };
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AppSelect(
+                        placeholder: 'Location Type',
+                        items: const ['Local', 'Overseas'],
+                        value: user.value['location_type'], 
+                        onChanged: (val) => {
+                          user.value = {
+                            ...user.value,
+                            'location_type': val
+                          }
+                        }
+                      ),
+                      const SizedBox(height: 12),
+                      AppInputField(
+                        label: 'Location 1',
+                        initialValue: user.value['location1'],
+                        onChanged: (value) {
+                          user.value = {
+                            ...user.value,
+                            'location1': value
+                          };
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AppInputField(
+                        label: 'Location 2',
+                        initialValue: user.value['location2'],
+                        onChanged: (value) {
+                          user.value = {
+                            ...user.value,
+                            'location2': value
+                          };
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AppInputField(
+                        label: 'Location 3',
+                        initialValue: user.value['location3'],
+                        onChanged: (value) {
+                          user.value = {
+                            ...user.value,
+                            'location3': value
+                          };
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+                ),
+              )
+            ),
+          ).then((_) => setOpen()); // close after dialog dismissed
+        });
+      }
+      return null;
+    }, [open]);
+
+    useEffect(() {
+      print(user.value);
+    }, [user.value]);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

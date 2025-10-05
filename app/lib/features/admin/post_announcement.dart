@@ -1,8 +1,10 @@
 import 'package:app/core/components/alert.dart';
+import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/announcement_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
@@ -73,10 +75,12 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
       try {
         final res = await AnnouncementService.createAnnouncement(announcement);
         if (res.isNotEmpty) {
-          Fluttertoast.showToast(
-            msg: 'Announcement created sucesssfully',
-          );
           if (!mounted) return;
+          AppSnackbar.show(
+            context, 
+            message: 'Announcement uploaded successfully',
+            backgroundColor: AppColor.success
+          );
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AdminDashboard()),
@@ -84,7 +88,11 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
         }
       } catch (e) {
         if (!mounted) return;
-        showAlertError(context, 'Error: $e');
+        AppSnackbar.show(
+          context, 
+          message: '$e',
+          backgroundColor: AppColor.danger
+        );
       }
     }
   }
@@ -122,36 +130,24 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
               }); 
             }
           ),
+          const SizedBox(height: 15),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primary,
-                  foregroundColor: AppColor.light,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)
-                  ),
-                  visualDensity: const VisualDensity(vertical: -1),
-                ),
-                onPressed: _submitForm, 
-                child: Text('Post Announcement', style: AppText.textXs)
+              const SizedBox(width: 5),
+              AppButton(
+                label: 'Post', 
+                onPressed: () => _submitForm(),
+                visualDensityY: -2,
+                backgroundColor: AppColor.success,
               ),
               const SizedBox(width: 5),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.secondary,
-                  foregroundColor: AppColor.light,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  visualDensity: const VisualDensity(vertical: -1),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('Back to Dashboard', style: AppText.textXs,)
-              ),
+              AppButton(
+                label: 'Back',
+                onPressed: () => Navigator.pop(context),
+                visualDensityY: -2,
+                backgroundColor: AppColor.secondary,
+              )
             ],
           )
         ],

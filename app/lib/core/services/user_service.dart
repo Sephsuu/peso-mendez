@@ -182,6 +182,14 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> updateUserJobReference(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-job-ref',
+      method: 'PATCH',
+      body: user
+    );
+  }
+
   static Future<Map<String, dynamic>> deactivateUser(int id) async {
     return await request(
       '$url/deactivate?id=$id',

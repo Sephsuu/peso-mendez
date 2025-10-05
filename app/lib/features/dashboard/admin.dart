@@ -12,6 +12,7 @@ import 'package:app/features/admin/job_seekers_report.dart';
 import 'package:app/features/admin/manage_users.dart';
 import 'package:app/features/admin/post_announcement.dart';
 import 'package:app/features/homepage.dart';
+import 'package:app/features/shared/announcements.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -97,7 +98,7 @@ class AdminSummary extends HookWidget {
         AdminSummaryCard(
           color: AppColor.secondary, 
           text: "Announcements", count: "4",
-          navigateTo: () => navigateTo(context, const EmployersReport()),
+          navigateTo: () => navigateTo(context, const Announcements()),
         ),
         const SizedBox(height: 20),
         // const AdminSummaryCard(color: AppColor.warning, text: "Total Users", count: "4"),

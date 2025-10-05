@@ -247,6 +247,16 @@ router.patch('/update-personal-info', async (req, res) => {
 	}
 })
 
+router.patch('/update-job-ref', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateJobReference(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;
 	try {
