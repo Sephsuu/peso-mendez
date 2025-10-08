@@ -1,11 +1,11 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/modal.dart';
-import 'package:app/core/services/auth_service.dart';
+import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/forms/login.dart';
-import 'package:app/features/job_seeker/view_job_detail.dart';
+import 'package:app/features/job_seeker/view_job.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:app/core/services/job_service.dart';
@@ -25,8 +25,8 @@ class Homepage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final claims = useClaimsHook(context);
     final isLoggedIn = useState(false);
-    final role = useState('');
     final find = useState("");
     final type = useState("All Jobs");
     final jobs = useState<List<Map<String, dynamic>>>([]);
@@ -44,9 +44,7 @@ class Homepage extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final loggedRes = await AuthService.isLoggedIn();
           final data = await JobService.getAllJobs();
-          isLoggedIn.value = loggedRes;
           jobs.value = data;
         } catch (e) {
           if (!context.mounted) return;
@@ -56,17 +54,6 @@ class Homepage extends HookWidget {
       fetchData();
       return null;
     }, []);
-
-    useEffect(() {
-      void fetchClaims() async {
-        if (isLoggedIn.value) {
-          final userRes = await AuthService.getClaims();
-          role.value = userRes['role'] ?? 'no role';
-        }
-      }
-      fetchClaims();
-      return;
-    }, [isLoggedIn.value]);
     
     // Filter all jobs depending on find search
     useEffect(() {
@@ -108,11 +95,10 @@ class Homepage extends HookWidget {
               Align(
                 alignment: Alignment.topCenter,
                 child: HomepageJumbotron(
+                  claims: claims,
                   setFind: setFind, 
                   type: type.value,
                   setType: setType,
-                  isLoggedIn: isLoggedIn.value,
-                  role: role.value,
                 ),
               ),
               const SizedBox(height: 10.0),
@@ -122,6 +108,7 @@ class Homepage extends HookWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                   child: FeaturedJobs(
+                    claims: claims,
                     jobs: filteredJobs.value,
                     isLoggedIn: isLoggedIn.value,
                   )
@@ -137,19 +124,17 @@ class Homepage extends HookWidget {
 }
 
 class HomepageJumbotron extends StatelessWidget {
+  final Map<String, dynamic> claims;
   final ValueChanged<String> setFind;
   final ValueChanged<String> setType;
-  final bool isLoggedIn;
   final String type;
-  final String role;
 
   const HomepageJumbotron({
     super.key, 
+    required this.claims,
     required this.setFind,
     required this.type,
     required this.setType,
-    required this.isLoggedIn,
-    required this.role,
   });
 
   @override
@@ -210,15 +195,15 @@ class HomepageJumbotron extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           AppButton(
-            label: isLoggedIn ? 'View Profile' : 'Sign In Now', 
+            label: claims.isNotEmpty ? 'View Profile' : 'Sign In Now', 
             foregroundColor: AppColor.light,
             visualDensityY: -2,
-            onPressed: isLoggedIn ? (
-              () => role == 'employer' ? (
+            onPressed: claims.isNotEmpty ? (
+              () => claims['role'] == 'employer' ? (
                 navigateTo(context, const EmployerDashboard())) 
-                : role == 'job_seeker' ? (
+                : claims['role'] == 'job_seeker' ? (
                   navigateTo(context, const JobSeekerDashboard())) 
-                : role == 'admin' ? (navigateTo(context, const AdminDashboard())) 
+                : claims['role'] == 'admin' ? (navigateTo(context, const AdminDashboard())) 
                 : AppModal(
                   title: 'Session expired. Please re-log in.',
                   onConfirm: () => navigateTo(context, const Login()),
@@ -232,11 +217,13 @@ class HomepageJumbotron extends StatelessWidget {
 }
 
 class FeaturedJobs extends StatelessWidget {
+  final Map<String, dynamic> claims;
   final List<Map<String, dynamic>> jobs;
   final bool isLoggedIn;
 
   const FeaturedJobs({
     super.key,
+    required this.claims,
     required this.jobs,
     required this.isLoggedIn,
   });
@@ -275,7 +262,22 @@ class FeaturedJobs extends StatelessWidget {
                 const SizedBox(height: 15.0),
                 AppButton(
                   label: 'View Details', 
-                  onPressed: isLoggedIn ? () => navigateTo(context, ViewJobDetail(jobId: job["id"])) : () =>  navigateTo(context, const Login()),
+                  onPressed: isLoggedIn ? 
+                    () => navigateTo(context, ViewJob(jobId: job['id'])) 
+                  : claims['role'] == 'employer' ? 
+                    () => showDialog(
+                      context: context, 
+                      builder: (context) {
+                        return AppModal(
+                          title: 'You cannot apply for this job because you\' an emplyer at PESO Mendez',
+                          titleStyle: AppText.fontSemibold.merge(AppText.textLg),
+                          confirmLabel: "I understand.",
+                          confirmBackground: AppColor.primary,
+                          confirmForeground: AppColor.light,
+                        );
+                      }
+                    )
+                  : () =>  navigateTo(context, const Login()),
                   foregroundColor: AppColor.light,
                   visualDensityY: -1,
                 )

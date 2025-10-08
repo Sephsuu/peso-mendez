@@ -67,6 +67,77 @@ class LanguageProfeciency extends HookWidget {
 
 
     if (loading.value) return const Loader();
+
+    useEffect(() {
+      if (open) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (context) => AppModal(
+              title: 'Edit Language Profeciency',
+              titleStyle: AppText.fontBold,
+              confirmBackground: AppColor.success,
+              confirmForeground: AppColor.light,
+              onConfirm: () => handleSubmit(),
+              message: SizedBox(
+                height: 300,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ...user.value.asMap().entries.map((entry) {
+                        final index = entry.key;   
+                        final item = entry.value;  
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${item['language']} Language', style: AppText.fontBold.merge(AppText.textMd)),
+                            const SizedBox(height: 12),
+                            AppCheckbox(
+                              label: 'Read', 
+                              state: item['read'] == 1 ? true : false,
+                              onChanged: (bool? newValue) {
+                                // print('Before ${item['read']}');
+                                // print('Before $newValue');
+                                // print(item['read'][]);
+                                // item['read'][index] = item['read'] == 1 ? 0 : 1;
+                                // print('After ${item['read']}');
+                                // print('After $newValue');
+                              },
+                            ),
+                            AppCheckbox(
+                              label: 'Write', 
+                              state: item['write']  == 1, // ✅ check boolean
+                              onChanged: (bool? newValue) {
+                                item['read'] == 1;
+                              },
+                            ),
+
+                            AppCheckbox(
+                              label: 'Speak', 
+                              state: item['speak'] == 1,
+                              onChanged: (bool? newValue) {
+                                item['speak'] == 1;
+                              },
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              )
+            ),
+          ).then((_) => setOpen()); // close after dialog dismissed
+        });
+      }
+      return null;
+    }, [open, user.value]);
+
+    useEffect(() {
+      print(user.value);
+    }, [user.value[0]]);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

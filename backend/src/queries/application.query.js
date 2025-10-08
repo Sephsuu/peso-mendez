@@ -64,3 +64,12 @@ export async function updateApplicationStatus(applicationId, status) {
     );
     return rows;
 }
+
+export async function deleteApplicationByJobAndUser(jobId, userId) {
+    const result = await pool.query(
+        `DELETE FROM applications WHERE job_seeker_id = ? AND job_id = ?`, 
+        [userId, jobId],
+    )
+
+    return result[0];
+}

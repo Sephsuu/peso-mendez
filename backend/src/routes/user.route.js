@@ -257,6 +257,46 @@ router.patch('/update-job-ref', async (req, res) => {
 	}
 })
 
+router.patch('/update-techvoc-training', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateTechVocTraining(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.patch('/update-eligibility', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateEligibility(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.patch('/update-prof-license', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateProfessionalLicense(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.patch('/update-work-exp', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateWorkExperience(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;
 	try {

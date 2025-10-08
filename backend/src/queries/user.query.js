@@ -345,7 +345,7 @@ export async function updateJobReference(jobRef) {
         SET
             occupation_type = ?, occupation1 = ?, occupation2 = ?,
             occupation3 = ?, location_type = ?, location1 = ?,
-            location2 = ?, location3 = ?
+            location2 = ?, location3 = ?, updated_at = NOW()
         WHERE
             user_id = ?`,
         [
@@ -357,6 +357,58 @@ export async function updateJobReference(jobRef) {
     return result;
 }
 
+export async function updateTechVocTraining(techVoc) {
+  const [result] = await pool.query(
+    `UPDATE tech_voc_trainings 
+     SET 
+        course = ?, hours_training = ?, institution = ?, 
+        skills_acquired = ?, cert_received = ?, updated_at = NOW()
+     WHERE id = ?`,
+    [
+      techVoc.course, techVoc.hours_training, techVoc.institution, 
+      techVoc.skills_acquired, techVoc.cert_received, techVoc.id
+    ]
+  );
+
+  return result;
+}
+
+export async function updateEligibility(eligibility) {
+  const [result] = await pool.query(
+    `UPDATE eligibilities
+     SET 
+        eligibility = ?, date_taken = ?, updated_at = NOW()
+     WHERE id = ?`,
+    [eligibility.eligibility, eligibility.date_taken, eligibility.id]
+  );
+  return result;
+}
+
+export async function updateProfessionalLicense(prc) {
+  const [result] = await pool.query(
+    `UPDATE professional_licenses 
+     SET 
+        license = ?, valid_until = ?, updated_at = NOW()
+     WHERE id = ?`,
+    [prc.license, prc.valid_until, prc.id]
+  );
+  return result;
+}
+
+export async function updateWorkExperience(workExp) {
+  const [result] = await pool.query(
+    `UPDATE work_experiences
+     SET 
+        company_name = ?, address = ?, position = ?, 
+        no_of_month = ?, status = ?, updated_at = NOW()
+     WHERE id = ?`,
+    [
+      workExp.company_name, workExp.address, workExp.position, 
+      workExp.no_of_month, workExp.status,workExp.id
+    ]
+  );
+  return result;
+}
 
 
 export async function deactivateUser(id) {

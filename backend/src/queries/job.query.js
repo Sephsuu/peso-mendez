@@ -1,13 +1,15 @@
 import pool from "../../db.js";
 
 export async function getJobs() {
-    const [rows] = await pool.query('SELECT * FROM jobs ORDER BY posted_on DESC');
+    const [rows] = await pool.query('SELECT * FROM jobs WHERE status = "active" ORDER BY posted_on DESC');
     return rows;
 }
 
 export async function getJobById(id) {
     const [rows] = await pool.query(
-        'SELECT * FROM jobs WHERE id = ?',
+        `SELECT *, j.id as id FROM jobs j 
+        JOIN users u ON j.employer_id = u.id
+        WHERE j.id = ?`,
         [id]
     )
     return rows[0];
@@ -21,16 +23,15 @@ export async function getJobsByEmployer(employerId) {
     return rows;
 }
 
-export async function getAllSavedJobsByUserJob(userId) {
+export async function getAllSavedJobsByUser(userId) {
     const [rows] = await pool.query(
-        `SELECT j.title, j.status 
-        FROM saved_jobs s 
-        JOIN jobs j ON j.id = s.job_id
-        `,
+        `SELECT *, j.id as id FROM
+        jobs j JOIN saved_jobs s ON j.id = s.job_id
+        WHERE s.user_id = ?`,
         [userId]
     );
 
-    return rows[0] ?? {};
+    return rows ?? {};
 }
 
 export async function getSavedJobByUserJob(userId, jobId) {

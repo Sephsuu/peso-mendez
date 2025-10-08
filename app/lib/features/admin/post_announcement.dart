@@ -1,4 +1,3 @@
-import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
@@ -11,7 +10,6 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/admin.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class PostAnnouncement extends StatelessWidget {
   final Function(PageType) onNavigate;

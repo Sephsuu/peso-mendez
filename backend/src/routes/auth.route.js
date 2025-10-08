@@ -24,11 +24,12 @@ router.post('/login', async (req, res) => {
 
     const payload = { id: user.id, full_name: user.full_name, role: user.role };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2400s' })
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3d' })
   
     res.json({
       token,
       message: `Welcome ${user.full_name}`,
+      status: user.status,
       user: {
         id: user.id,
         full_name: user.full_name,

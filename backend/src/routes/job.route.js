@@ -36,9 +36,9 @@ router.get('/get-by-employer', async (req, res) => {
 })
 
 router.get('/get-all-saved-jobs-by-user', async (req, res) => {
-    const { userId } = req.query;
+    const { id } = req.query;
     try {
-        const query = await jobQuery.getAllSavedJobsByUserJob(userId);
+        const query = await jobQuery.getAllSavedJobsByUser(id);
         return res.json(query);
     } catch (err) {
         return res.status(500).json({ error: err.message });

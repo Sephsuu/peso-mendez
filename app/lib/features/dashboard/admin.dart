@@ -232,16 +232,16 @@ class AdminActions extends StatelessWidget {
           text: "Post Announcement", 
           page: PostAnnouncement(onNavigate: (page) => globalNavigateTo?.call(page))
         ),
-        const AdminActionButton(
-          color: AppColor.warning, 
-          text: "Manage Events", 
-          page: Homepage()
-        ),
-        const AdminActionButton(
-          color: AppColor.info, 
-          text: "Manage Trainings", 
-          page: Homepage()
-        ),
+        // const AdminActionButton(
+        //   color: AppColor.warning, 
+        //   text: "Manage Events", 
+        //   page: Homepage()
+        // ),
+        // const AdminActionButton(
+        //   color: AppColor.info, 
+        //   text: "Manage Trainings", 
+        //   page: Homepage()
+        // ),
       ],
     );
   }

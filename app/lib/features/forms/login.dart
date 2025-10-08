@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
@@ -89,6 +90,23 @@ class _LoginFormState extends State<LoginForm> {
           final token = responseData['token'];
           final user = responseData['user'];
           final role = user != null ? user['role'] : null;
+          if (responseData['status'] == 'inactive') {
+            if (!mounted) return;
+            showDialog(
+              context: context, 
+              builder: (context) {
+                return AppModal(
+                  title: 'Account is currently deactivated.',
+                  message: 'Try to contact PESO Mendez administrator to recover your account.',
+                  titleStyle: AppText.fontSemibold.merge(AppText.textLg),
+                  confirmLabel: "I understand.",
+                  confirmBackground: AppColor.primary,
+                  confirmForeground: AppColor.light,
+                );
+              }
+            );
+            return;
+          }
           if (token != null) {
             await _secureStorage.write(key: 'jwt_token', value: token);
             if (!mounted) return;

@@ -190,6 +190,38 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> updateUserTechVocTraining(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-techvoc-training',
+      method: 'PATCH',
+      body: user
+    );
+  }
+
+  static Future<Map<String, dynamic>> updateUserEligibility(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-eligibility',
+      method: 'PATCH',
+      body: user
+    );
+  }
+
+  static Future<Map<String, dynamic>> updateUserProfessionalLicense(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-prof-license',
+      method: 'PATCH',
+      body: user
+    );
+  }
+
+  static Future<Map<String, dynamic>> updateUserWorkExperience(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-work-exp',
+      method: 'PATCH',
+      body: user
+    );
+  }
+
   static Future<Map<String, dynamic>> deactivateUser(int id) async {
     return await request(
       '$url/deactivate?id=$id',

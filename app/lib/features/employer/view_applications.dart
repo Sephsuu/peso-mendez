@@ -155,30 +155,46 @@ class ViewApplicationsTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Applicant')),
-          DataColumn(label: Text('Job Title')),
-          DataColumn(label: Text('Job Location')),
-          DataColumn(label: Text('Status')),
-          DataColumn(label: Text('Applied On')),
-          DataColumn(label: Text('Resume')),
-          DataColumn(label: Text('Action')),
-        ],
-        rows: applications.map((application) {
-          return DataRow(
-            cells: [
-              DataCell(Text(application['full_name'] ?? 'N/A')),
-              DataCell(Text(application['title']?.toString() ?? 'N/A')),
-              DataCell(Text(application['location'] ?? 'N/A')),
-              DataCell(ViewApplicationUpdateStatus(initialValue: application["status"], applicationId: application["id"],)),
-              DataCell(Text(application['applied_on'] ?? 'N/A')),
-              DataCell(Text(application['resume'] ?? 'No Resume')),
-              DataCell(Text(application['action'] ?? 'N/A')),
-            ],
-          );
-        }).toList()
-      ),
+      child: DataTableTheme(
+        data: DataTableThemeData(
+          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+          headingTextStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        child: DataTable(
+          headingRowHeight: 40,
+          dataRowMinHeight: 30,
+          dataRowMaxHeight: 40,
+          border: TableBorder.all(
+            color: const Color.fromARGB(255, 191, 191, 191),
+            width: 1,
+          ),
+          columns: const [
+            DataColumn(label: Text('Applicant')),
+            DataColumn(label: Text('Job Title')),
+            DataColumn(label: Text('Job Location')),
+            DataColumn(label: Text('Status')),
+            DataColumn(label: Text('Applied On')),
+            DataColumn(label: Text('Resume')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: applications.map((application) {
+            return DataRow(
+              cells: [
+                DataCell(Text(application['full_name'] ?? 'N/A')),
+                DataCell(Text(application['title']?.toString() ?? 'N/A')),
+                DataCell(Text(application['location'] ?? 'N/A')),
+                DataCell(ViewApplicationUpdateStatus(initialValue: application["status"], applicationId: application["id"],)),
+                DataCell(Text(application['applied_on'] ?? 'N/A')),
+                DataCell(Text(application['resume'] ?? 'No Resume')),
+                DataCell(Text(application['action'] ?? 'N/A')),
+              ],
+            );
+          }).toList()
+        )
+      )
     );
   }
 }

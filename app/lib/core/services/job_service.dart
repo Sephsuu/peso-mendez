@@ -24,6 +24,13 @@ class JobService {
     );
   }
 
+  static Future<List<Map<String, dynamic>>> getSavedJobsByUser(int id) async {
+    return await request(
+      '$url/get-all-saved-jobs-by-user?id=$id',
+      method: 'GET'
+    );
+  }
+
   static Future<Map<String, dynamic>> getSavedJobByUserJob(int userId, int jobId) async {
     return await request(
       '$url/get-saved-job-by-user-job?userId=$userId&jobId=$jobId',

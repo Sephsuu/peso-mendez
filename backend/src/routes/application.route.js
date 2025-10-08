@@ -60,4 +60,17 @@ router.patch('/update-status', async (req, res) => {
   }
 })
 
+router.delete('/delete-by-job-user', async (req, res) => {
+  const { jobId, userId } = req.query;
+  try {
+    const application = await applicationQuery.deleteApplicationByJobAndUser(jobId, userId);
+    if (!application) {
+      res.status(404).json({ message: `No app with id ${userId}` })
+    }
+    res.json(application);
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

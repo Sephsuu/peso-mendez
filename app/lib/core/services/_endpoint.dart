@@ -59,13 +59,13 @@ Future<dynamic> request(
       case 'DELETE':
         print('Method: DELETE'); 
         if (body != null) {
-          res = await http.put(
+          res = await http.delete(
             url,
             headers: headers,
             body: jsonEncode(body),
           );
         } else {
-          res = await http.put(url, headers: headers); // No body
+          res = await http.delete(url, headers: headers); // No body
         }
         break;
       default:

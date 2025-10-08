@@ -66,12 +66,21 @@ class _RegisterFormState extends State<RegisterForm> {
 
         if (res.isNotEmpty) {
           if (!mounted) return;
-          AppSnackbar.show(
-            context, 
-            message: 'You are successfully registered. Please fill up the following forms.',
-            backgroundColor: AppColor.success
-          );
-          navigateTo(context, PersonalInformationForm(userId: res["userId"]));
+          if (roleValue == 'employer') {
+            AppSnackbar.show(
+              context, 
+              message: 'You are successfully registered. Please login to your account using your credentials.',
+              backgroundColor: AppColor.success
+            );
+            navigateTo(context, const Login());
+          } else { 
+            AppSnackbar.show(
+              context, 
+              message: 'You are successfully registered. Please fill up the following forms.',
+              backgroundColor: AppColor.success
+            );
+            navigateTo(context, PersonalInformationForm(userId: res["userId"])); 
+          }
         } 
       } catch (e) {
         if (!mounted) return;

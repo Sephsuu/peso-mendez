@@ -4,15 +4,16 @@ import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/services/application_service.dart';
-import 'package:app/core/services/auth_service.dart';
+import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/homepage.dart';
 import 'package:app/features/job_seeker/all_applications.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/job_seeker/view_application.dart';
-import 'package:app/main.dart';
+import 'package:app/features/job_seeker/view_job.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -22,29 +23,18 @@ class JobSeekerDashboard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final claims = useState<Map<String, dynamic>>({});
+    final claims = useClaimsHook(context);
     final applications = useState<List<Map<String, dynamic>>>([]);
-
-    useEffect(() {
-      void fetchData() async {
-        try {
-          final data = await AuthService.getClaims();
-          claims.value = data;
-        } catch (e) {
-          if (!context.mounted) return;
-          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
-        }
-      }
-      fetchData();
-      return null;
-    }, []);
+    final savedJobs = useState<List<Map<String, dynamic>>>([]);
 
     // Fetch applications done by the user
     useEffect(() {
       void fetchData() async {
         try {
-          final data = await ApplicationService.getApplicationsByUser(claims.value["id"]);
+          final data = await ApplicationService.getApplicationsByUser(claims["id"]);
+          final savedJobRes = await JobService.getSavedJobsByUser(claims['id']);
           applications.value = data;
+          savedJobs.value = savedJobRes;
         } catch (e) {
           if (!context.mounted) return;
           showAlertError(context, "Failed to fetch applications. Please try again.");
@@ -52,7 +42,7 @@ class JobSeekerDashboard extends HookWidget {
       }
       fetchData();
       return null;
-    }, [claims.value["id"]]);
+    }, [claims]);
 
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
@@ -65,7 +55,7 @@ class JobSeekerDashboard extends HookWidget {
                 child: Column(
                 children: [
                   const SizedBox(height: 10.0),
-                  DashboardHeader(fullName: claims.value["full_name"] ?? "..."),
+                  DashboardHeader(fullName: claims["full_name"] ?? "..."),
                   const SizedBox(height: 10.0),
                   const ProfileStrengthCard(),
                   const SizedBox(height: 10.0),
@@ -77,7 +67,7 @@ class JobSeekerDashboard extends HookWidget {
                   const SizedBox(height: 15.0),
                   const SuggestedTrainings(),
                   const SizedBox(height: 15.0),
-                  const SavedJobsCard(),
+                  SavedJobsCard(savedJobs: savedJobs.value),
                 ],
               ),
             ),
@@ -290,9 +280,6 @@ class YourApplicationsCard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (applications.isEmpty) {
-      return const Loader();
-    }
     return SizedBox(
       width: double.infinity,
       child: Column(
@@ -420,14 +407,13 @@ class _SuggestedTrainingsState extends State<SuggestedTrainings> {
   }
 }
 
-class SavedJobsCard extends StatefulWidget {
-  const SavedJobsCard({super.key});
 
-  @override
-  State<SavedJobsCard> createState() => _SavedJobsCardState();
-}
-
-class _SavedJobsCardState extends State<SavedJobsCard> {
+class SavedJobsCard extends StatelessWidget {
+  final List<Map<String, dynamic>> savedJobs; 
+  const SavedJobsCard({
+    super.key,
+    required this.savedJobs,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -446,28 +432,85 @@ class _SavedJobsCardState extends State<SavedJobsCard> {
             ],
           ),
           const SizedBox(height: 5.0),
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              color: const Color.fromARGB(255, 211, 255, 235),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  children: [
-                    Text("You haven't saved any jobs yet.\nSave jobs to review them later!", style: AppText.textSuccess),
-                    const SizedBox(height: 10.0),
-                    AppButton(
-                      label: 'Browse Jobs', 
-                      onPressed: () => navigateTo(context, const Homepage()),
-                      foregroundColor: AppColor.light,
-                      textSize: 12,
-                      visualDensityY: -2,
-                    ),
-                  ],
-                )
+          savedJobs.isEmpty ?
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                color: const Color.fromARGB(255, 211, 255, 235),
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    children: [
+                      Text("You haven't saved any jobs yet.\nSave jobs to review them later!", style: AppText.textSuccess),
+                      const SizedBox(height: 10.0),
+                      AppButton(
+                        label: 'Browse Jobs', 
+                        onPressed: () => navigateTo(context, const Homepage()),
+                        foregroundColor: AppColor.light,
+                        textSize: 12,
+                        visualDensityY: -2,
+                      ),
+                    ],
+                  )
+                ),
               ),
-            ),
-          )
+            )
+          : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTableTheme(
+                data: DataTableThemeData(
+                  headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+                  headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                child: DataTable(
+                  headingRowHeight: 40,
+                  dataRowMinHeight: 30,
+                  dataRowMaxHeight: 40,
+                  border: TableBorder.all(
+                    color: const Color.fromARGB(255, 191, 191, 191),
+                    width: 1,
+                  ),
+                  columns: const [
+                    DataColumn(label: Text('Job Title')),
+                    DataColumn(label: Text('Salary')),
+                    DataColumn(label: Text('Actions')),
+                  ],
+                  rows: savedJobs.take(5).map((item) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(item['title'] ?? 'N/A')),
+                        DataCell(Text(item['salary'] ?? 'N/A')),
+                        DataCell(
+                          Row(
+                            children: [
+                              AppButton(
+                                label: 'View', 
+                                onPressed: () => navigateTo(context, ViewJob(jobId: item['id'])),
+                                foregroundColor: AppColor.light,
+                                visualDensityY: -3,
+                                textSize: 12,
+                              ),
+                              const SizedBox(width: 10), 
+                              AppButton(
+                                label: 'Message', 
+                                onPressed: () {},
+                                backgroundColor: AppColor.success,
+                                foregroundColor: AppColor.light,
+                                visualDensityY: -3,
+                                textSize: 12,
+                              )
+                            ],
+                          )
+                        ),
+                      ],
+                    );
+                  }).toList()
+                ),
+              )
+            )
         ],
       )
     );

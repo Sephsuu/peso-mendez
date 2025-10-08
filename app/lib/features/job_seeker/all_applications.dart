@@ -17,10 +17,10 @@ class AllApplications extends StatelessWidget {
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         child: Column(
           children: [
-            AllApplicationsHeader(),
+            const AllApplicationsHeader(),
             const SizedBox(height: 20),
             AllApplicationsTable(applications: applications)
           ],
@@ -31,6 +31,8 @@ class AllApplications extends StatelessWidget {
 }
 
 class AllApplicationsHeader extends StatelessWidget {
+  const AllApplicationsHeader({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -59,44 +61,60 @@ class AllApplicationsTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Title')),
-          DataColumn(label: Text('Company')),
-          DataColumn(label: Text('Location')),
-          DataColumn(label: Text('Salary')),
-          DataColumn(label: Text('Employer')),
-          DataColumn(label: Text('Actions')),
-        ],
-        rows: applications.map((job) {
-          return DataRow(
-            cells: [
-              DataCell(Text(job['title'] ?? 'N/A')),
-              DataCell(Text(job['company']?.toString() ?? 'N/A')),
-              DataCell(Text(job['location'] ?? 'N/A')),
-              DataCell(Text(job['salary'] ?? 'N/A')),
-              DataCell(Text(job['full_name'] ?? 'N/A')),
-              DataCell(
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        null;
-                      },
-                      child: Text("View", style: AppText.textPrimary),
-                    ),
-                    const SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () => null,
-                      child: Text("Message", style: AppText.textSuccess),
-                    ),
-                  ],
-                )
-              ),
-            ],
-          );
-        }).toList()
-      ),
+      child: DataTableTheme(
+        data: DataTableThemeData(
+          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+          headingTextStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        child: DataTable(
+          headingRowHeight: 40,
+          dataRowMinHeight: 30,
+          dataRowMaxHeight: 40,
+          border: TableBorder.all(
+            color: const Color.fromARGB(255, 191, 191, 191),
+            width: 1,
+          ),
+          columns: const [
+            DataColumn(label: Text('Title')),
+            DataColumn(label: Text('Company')),
+            DataColumn(label: Text('Location')),
+            DataColumn(label: Text('Salary')),
+            DataColumn(label: Text('Employer')),
+            DataColumn(label: Text('Actions')),
+          ],
+          rows: applications.map((job) {
+            return DataRow(
+              cells: [
+                DataCell(Text(job['title'] ?? 'N/A')),
+                DataCell(Text(job['company']?.toString() ?? 'N/A')),
+                DataCell(Text(job['location'] ?? 'N/A')),
+                DataCell(Text(job['salary'] ?? 'N/A')),
+                DataCell(Text(job['full_name'] ?? 'N/A')),
+                DataCell(
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          null;
+                        },
+                        child: Text("View", style: AppText.textPrimary),
+                      ),
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () => null,
+                        child: Text("Message", style: AppText.textSuccess),
+                      ),
+                    ],
+                  )
+                ),
+              ],
+            );
+          }).toList()
+        ),
+      )
     );
   }
 }
