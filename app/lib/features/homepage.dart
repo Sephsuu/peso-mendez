@@ -26,7 +26,6 @@ class Homepage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
-    final isLoggedIn = useState(false);
     final find = useState("");
     final type = useState("All Jobs");
     final jobs = useState<List<Map<String, dynamic>>>([]);
@@ -110,7 +109,6 @@ class Homepage extends HookWidget {
                   child: FeaturedJobs(
                     claims: claims,
                     jobs: filteredJobs.value,
-                    isLoggedIn: isLoggedIn.value,
                   )
                 ),
               ),
@@ -219,13 +217,11 @@ class HomepageJumbotron extends StatelessWidget {
 class FeaturedJobs extends StatelessWidget {
   final Map<String, dynamic> claims;
   final List<Map<String, dynamic>> jobs;
-  final bool isLoggedIn;
 
   const FeaturedJobs({
     super.key,
     required this.claims,
     required this.jobs,
-    required this.isLoggedIn,
   });
 
   @override
@@ -262,7 +258,7 @@ class FeaturedJobs extends StatelessWidget {
                 const SizedBox(height: 15.0),
                 AppButton(
                   label: 'View Details', 
-                  onPressed: isLoggedIn ? 
+                  onPressed: claims['role'] == 'job_seeker' ? 
                     () => navigateTo(context, ViewJob(jobId: job['id'])) 
                   : claims['role'] == 'employer' ? 
                     () => showDialog(
