@@ -21,7 +21,7 @@ class EmployersReport extends HookWidget {
     final loading = useState(true);
     final reload = useState(false);
     final find = useState('');
-    final activeTab = useState('All Employers');
+    final activeTab = useState('Verified Employers');
     final initialEmployers = useState<List<Map<String, dynamic>>>([]);
     final employers = useState<List<Map<String, dynamic>>>([]); 
     final filteredEmployers = useState<List<Map<String, dynamic>>>([]); 
@@ -55,7 +55,7 @@ class EmployersReport extends HookWidget {
     }, [reload.value]);
 
     useEffect(() {
-      if (activeTab.value == 'All Employers') { 
+      if (activeTab.value == 'Verified Employers') { 
         employers.value = initialEmployers.value.where((user) => !verifiedIds.value.contains(user['id'])).toList(); 
       } else { 
         employers.value = initialEmployers.value.where((user) => verifiedIds.value.contains(user['id'])).toList(); 
@@ -95,26 +95,29 @@ class EmployersReport extends HookWidget {
                 ),
               ],
             ),
-            Row( 
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AppButton(
-                  label: 'All Employers', 
-                  onPressed: () => setActiveTab('All Employers'),
-                  visualDensityY: -3,
-                  backgroundColor: activeTab.value == 'All Employers' ? AppColor.primary : Colors.grey,
-                  foregroundColor: AppColor.light,
-                  borderRadius: 0,
-                ),
-                AppButton(
-                  label: 'Pending Employers', 
-                  onPressed: () => setActiveTab('Pending Employers'),
-                  visualDensityY: -3,
-                  backgroundColor: activeTab.value == 'Pending Employers' ? AppColor.primary : Colors.grey,
-                  foregroundColor: AppColor.light,
-                  borderRadius: 0,
-                )
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row( 
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppButton(
+                    label: 'Verified Employers', 
+                    onPressed: () => setActiveTab('Verified Employers'),
+                    visualDensityY: -3,
+                    backgroundColor: activeTab.value == 'Verified Employers' ? AppColor.primary : Colors.grey,
+                    foregroundColor: AppColor.light,
+                    borderRadius: 0,
+                  ),
+                  AppButton(
+                    label: 'Pending Employers', 
+                    onPressed: () => setActiveTab('Pending Employers'),
+                    visualDensityY: -3,
+                    backgroundColor: activeTab.value == 'Pending Employers' ? AppColor.primary : Colors.grey,
+                    foregroundColor: AppColor.light,
+                    borderRadius: 0,
+                  )
+                ],
+              ),
             ),
             SizedBox(
               width: screenWidth * 0.9,
