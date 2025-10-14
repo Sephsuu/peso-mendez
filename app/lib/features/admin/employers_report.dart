@@ -3,7 +3,7 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
-import 'package:app/core/services/user_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
@@ -25,7 +25,6 @@ class EmployersReport extends HookWidget {
     final initialEmployers = useState<List<Map<String, dynamic>>>([]);
     final employers = useState<List<Map<String, dynamic>>>([]); 
     final filteredEmployers = useState<List<Map<String, dynamic>>>([]); 
-    final verifiedIds = useState<List<dynamic>>([]);
 
     void setFind(String newVal) {
       find.value = newVal;
@@ -38,12 +37,8 @@ class EmployersReport extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final res = await UserService.getUserByRole("employer");
           final verificationRes = await VerificationService.getVerificationsByRole('employer');
-          initialEmployers.value = res;
-          verifiedIds.value = verificationRes
-          .map((v) => v['employer_id'])
-          .toList();
+          initialEmployers.value = verificationRes;
           loading.value = false;
         } catch (e) { 
           if (!context.mounted) return;
@@ -56,9 +51,9 @@ class EmployersReport extends HookWidget {
 
     useEffect(() {
       if (activeTab.value == 'Verified Employers') { 
-        employers.value = initialEmployers.value.where((user) => !verifiedIds.value.contains(user['id'])).toList(); 
+        employers.value = initialEmployers.value.where((user) => user['status'] == 'approved').toList(); 
       } else { 
-        employers.value = initialEmployers.value.where((user) => verifiedIds.value.contains(user['id'])).toList(); 
+        employers.value = initialEmployers.value.where((user) => user['status'] == 'pending').toList();
       }
       return;
     }, [activeTab.value, initialEmployers.value]);
@@ -187,6 +182,7 @@ class EmployersTable extends StatelessWidget {
             DataColumn(label: Text('Username')),
             DataColumn(label: Text('Contact')),
             DataColumn(label: Text('Registered At')),
+            DataColumn(label: Text('Documents')),
           ], 
           rows: employers.asMap().entries.map((entry) {
             int index = entry.key;
@@ -199,6 +195,46 @@ class EmployersTable extends StatelessWidget {
                 DataCell(Text(item["username"] ?? 'N/A')),
                 DataCell(Text(item["contact"] ?? 'N/A')),
                 DataCell(Text(item["created_at"] ?? 'N/A')),
+                DataCell(
+                  item["documents"] != null && item["documents"].toString().isNotEmpty
+                      ? GestureDetector(
+                          onTap: () async {
+                            // Construct the full file URL
+                            final String filePath = item["documents"];
+                            final String fullUrl = filePath.startsWith("http")
+                                ? filePath
+                                : "http://localhost:3005/$filePath";
+
+                            final Uri uri = Uri.parse(fullUrl);
+
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication, // opens in browser or PDF viewer
+                              );
+                            } else {
+                              if (context.mounted) {
+                                showAlertError(context, "Unable to open document.");
+                              }
+                            }
+                          },
+                          child: const Text(
+                            'View Document',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        )
+                      : const Row(
+                          children: [
+                            Icon(Icons.folder_off, color: Colors.grey, size: 20),
+                            SizedBox(width: 5),
+                            Text('No Document', style: TextStyle(color: Colors.grey)),
+                          ],
+                        ),
+                ),
+
               ]
             );
           }).toList()

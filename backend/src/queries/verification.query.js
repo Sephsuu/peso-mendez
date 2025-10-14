@@ -4,11 +4,11 @@ export async function getVerifications(role) {
     let rows;
     if (role == 'employer') {
         rows = await pool.query(
-            `SELECT v.id, v.employer_id, v.status, u.full_name, u.email
+            `SELECT 
+            v.id, v.employer_id, v.status, v.documents,
+            u.full_name, u.email, u.username, u.contact, u.created_at
             FROM employer_verification v
-            JOIN users u ON u.id = v.employer_id
-            WHERE v.status = ?`,
-            ['pending']
+            JOIN users u ON u.id = v.employer_id`
         )
     } else {
         rows = await pool.query(

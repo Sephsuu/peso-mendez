@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
@@ -14,7 +13,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 
 class EmpployerUploadDocument extends HookWidget {
   const EmpployerUploadDocument({super.key});
@@ -24,7 +22,9 @@ class EmpployerUploadDocument extends HookWidget {
     final claims = useClaimsHook(context);
     final filename = useState('Upload your documents');
     final pickedFile = useState<File?>(null);
+    final isUploading = useState(false);
 
+    /// 🔹 Pick file
     Future<void> pickFile(BuildContext context) async {
       try {
         final result = await FilePicker.platform.pickFiles();
@@ -32,7 +32,7 @@ class EmpployerUploadDocument extends HookWidget {
         if (result != null && result.files.single.path != null) {
           final file = File(result.files.single.path!);
           pickedFile.value = file;
-          filename.value = path.basename(file.path); 
+          filename.value = path.basename(file.path);
         } else {
           if (!context.mounted) return;
           AppSnackbar.show(
@@ -51,41 +51,57 @@ class EmpployerUploadDocument extends HookWidget {
       }
     }
 
-    Future<File?> saveFile(BuildContext context, File file) async {
-      try {
-        final originalName = path.basename(file.path);
-        final extension = path.extension(originalName);
-        final baseName = path.basenameWithoutExtension(originalName);
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final uniqueFileName = '${baseName}_$timestamp$extension';
-
-        final dir = await getApplicationDocumentsDirectory();
-        final savePath = path.join(dir.path, 'employer-documents');
-        await Directory(savePath).create(recursive: true);
-
-        final savedFile = await file.copy(path.join(savePath, uniqueFileName));
-        await VerificationService.createVerification({
-          "employerId": claims['id'],
-          "documents": savedFile.path,
-          "status": 'pending'
-        });
-
-        if (!context.mounted) return null;
+    /// 🔹 Upload file and save verification
+    Future<void> submitVerification(BuildContext context) async {
+      if (pickedFile.value == null) {
         AppSnackbar.show(
           context,
-          message: 'Documents submitted successfully. Please wait for admin approval',
-          backgroundColor: AppColor.success,
-        );
-        navigateTo(context, const EmployerDashboard());
-        return savedFile;
-      } catch (e) {
-        if (!context.mounted) return null;
-        AppSnackbar.show(
-          context,
-          message: 'Error saving file: $e',
+          message: 'Please select a file first.',
           backgroundColor: AppColor.danger,
         );
-        return null;
+        return;
+      }
+
+      try {
+        isUploading.value = true;
+
+        // Step 1: Upload the file to backend
+        final uploadedPath = await VerificationService.uploadEmployerDocuments(pickedFile.value!);
+        if (!context.mounted) return;
+        if (uploadedPath == null) {
+          AppSnackbar.show(
+            context,
+            message: 'File upload failed. Please try again.',
+            backgroundColor: AppColor.danger,
+          );
+          return;
+        }
+
+        // Step 2: Save verification record in database
+        await VerificationService.createVerification({
+          "employerId": claims['id'],
+          "documents": uploadedPath, // ✅ backend file path
+          "status": "pending",
+        });
+
+        if (!context.mounted) return;
+        AppSnackbar.show(
+          context,
+          message:
+              'Documents uploaded successfully. Please wait for admin approval.',
+          backgroundColor: AppColor.success,
+        );
+
+        navigateTo(context, const EmployerDashboard());
+      } catch (e) {
+        if (!context.mounted) return;
+        AppSnackbar.show(
+          context,
+          message: 'Error uploading: $e',
+          backgroundColor: AppColor.danger,
+        );
+      } finally {
+        isUploading.value = false;
       }
     }
 
@@ -105,7 +121,7 @@ class EmpployerUploadDocument extends HookWidget {
             children: [
               GestureDetector(
                 onTap: () async {
-                  await pickFile(context); // pick file first
+                  await pickFile(context);
                 },
                 child: Card(
                   child: Padding(
@@ -120,8 +136,7 @@ class EmpployerUploadDocument extends HookWidget {
                             Expanded(
                               child: Text(
                                 filename.value,
-                                style:
-                                    AppText.fontBold.merge(AppText.textMd),
+                                style: AppText.fontBold.merge(AppText.textMd),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             )
@@ -141,29 +156,22 @@ class EmpployerUploadDocument extends HookWidget {
               SizedBox(
                 width: double.infinity,
                 child: AppButton(
-                  label: 'Continue',
+                  label: isUploading.value ? 'Uploading...' : 'Continue',
                   visualDensityY: -2,
                   onPressed: () {
                     showDialog(
-                      context: context, 
+                      context: context,
                       builder: (context) {
                         return AppModal(
                           title: 'Upload selected document?',
                           confirmBackground: AppColor.primary,
                           confirmForeground: AppColor.light,
                           onConfirm: () async {
-                            if (pickedFile.value == null) {
-                              AppSnackbar.show(
-                                context,
-                                message: 'Please select a document first.',
-                                backgroundColor: AppColor.danger,
-                              );
-                              return;
-                            }
-                            await saveFile(context, pickedFile.value!);
+                            Navigator.pop(context);
+                            await submitVerification(context);
                           },
                         );
-                      }
+                      },
                     );
                   },
                 ),
