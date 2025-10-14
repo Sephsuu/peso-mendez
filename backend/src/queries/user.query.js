@@ -22,28 +22,30 @@ export async function getUserByRole(role) {
     return rows;
 }
 
-export async function getUsersCount(table) {
-    let query = 'SELECT COUNT(*) AS count FROM users';
-    let params = [];
-
-    if (table === "employer") {
-        query += ' WHERE role = ?';
-        params.push('employer');
-    } else if (table === "job_seeker") {
-        query += ' WHERE role = ?';
-        params.push('job_seeker');
-    }
-
-    const [rows] = await pool.query(query, params);
-    return { count: rows[0]?.count || 0 };
-}
-
 export async function getUserByEmailOrUsername(emailOrUsername) {
     const [rows] = await pool.query(
         'SELECT * FROM users WHERE email = ? OR username = ? LIMIT 1',
         [emailOrUsername, emailOrUsername]
     );
     return rows[0]; 
+}
+
+export async function getUserProfileStrength(id) {
+    const tables = ["personal_informations", "job_references", "language_profeciencies", "educational_backgrounds", "tech_voc_trainings", "eligibilities", "professional_licenses", "work_experiences", "other_skills"];
+    let strength = 0;
+
+    for (const table of tables) {
+        const [rows] = await pool.query(
+            `SELECT COUNT(*) AS count FROM \`${table}\` WHERE user_id = ?`,
+            [id]
+        );
+
+        if (rows[0].count > 0) {
+            strength++;
+        }
+    }
+
+    return strength / tables.length;
 }
 
 export async function getUserCredentials(id) {

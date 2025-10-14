@@ -1,12 +1,12 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
-import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/job_service.dart';
+import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/homepage.dart';
@@ -26,6 +26,7 @@ class JobSeekerDashboard extends HookWidget {
     final claims = useClaimsHook(context);
     final applications = useState<List<Map<String, dynamic>>>([]);
     final savedJobs = useState<List<Map<String, dynamic>>>([]);
+    final profileStrength = useState<double>(0);
 
     // Fetch applications done by the user
     useEffect(() {
@@ -33,8 +34,10 @@ class JobSeekerDashboard extends HookWidget {
         try {
           final data = await ApplicationService.getApplicationsByUser(claims["id"]);
           final savedJobRes = await JobService.getSavedJobsByUser(claims['id']);
+          final profileStrengthRes = await UserService.getUserProfileStrength(claims['id']);
           applications.value = data;
           savedJobs.value = savedJobRes;
+          profileStrength.value = profileStrengthRes;
         } catch (e) {
           if (!context.mounted) return;
           showAlertError(context, "Failed to fetch applications. Please try again.");
@@ -57,7 +60,7 @@ class JobSeekerDashboard extends HookWidget {
                   const SizedBox(height: 10.0),
                   DashboardHeader(fullName: claims["full_name"] ?? "..."),
                   const SizedBox(height: 10.0),
-                  const ProfileStrengthCard(),
+                  ProfileStrengthCard(profileStrength: profileStrength.value),
                   const SizedBox(height: 10.0),
                   const NotificationsCard(),
                   const SizedBox(height: 10.0),
@@ -100,15 +103,13 @@ class DashboardHeader extends StatelessWidget {
   }
 }
 
-class ProfileStrengthCard extends StatefulWidget {
-  const ProfileStrengthCard({super.key});
+class ProfileStrengthCard extends StatelessWidget {
+  final double profileStrength;
 
-  @override
-  State<ProfileStrengthCard> createState() => _ProfileStrengthCardState();
-}
-
-class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
-  double progress = 1;
+  const ProfileStrengthCard({
+    super.key,
+    required this.profileStrength,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +134,7 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Profile Strength'),
-                    Text("${progress * 100}%")
+                    Text("${profileStrength * 100}%")
                   ],
                 ),
               ),
@@ -144,7 +145,7 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4), // your desired radius
                 child: LinearProgressIndicator(
-                  value: progress,
+                  value: profileStrength,
                   backgroundColor: Colors.grey[300],
                   color: AppColor.primary,
                   minHeight: 18,

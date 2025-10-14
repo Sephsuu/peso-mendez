@@ -3,6 +3,7 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/card.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/services/announcement_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -11,7 +12,6 @@ import 'package:app/features/admin/employers_report.dart';
 import 'package:app/features/admin/job_seekers_report.dart';
 import 'package:app/features/admin/manage_users.dart';
 import 'package:app/features/admin/post_announcement.dart';
-import 'package:app/features/homepage.dart';
 import 'package:app/features/shared/announcements.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -54,12 +54,15 @@ class AdminSummary extends HookWidget {
   Widget build(BuildContext context) {
     final loading = useState(true);
     final users = useState<List<Map<String, dynamic>>>([]);
+    final announcements = useState<List<Map<String, dynamic>>>([]);
 
     useEffect(() {
       void fetchData() async {
         try {
           final res = await UserService.getAllUsers();
+          final announcementRes = await AnnouncementService.getAllAnnouncements();
           users.value = res;
+          announcements.value = announcementRes;
         } catch(e) { 
           if (!context.mounted) return;
           showAlertError(context, "Error: $e"); 
@@ -73,6 +76,7 @@ class AdminSummary extends HookWidget {
     final usersCount = users.value.length;
     final employersCount = users.value.where((i) => i["role"] == "employer").length;
     final jobSeekersCount = users.value.where((i) => i["role"] == "employer").length;
+    final announcementsCount = announcements.value.length;
 
     if (loading.value) {
       return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
@@ -97,7 +101,7 @@ class AdminSummary extends HookWidget {
         ),
         AdminSummaryCard(
           color: AppColor.secondary, 
-          text: "Announcements", count: "4",
+          text: "Announcements", count: announcementsCount.toString(),
           navigateTo: () => navigateTo(context, const Announcements()),
         ),
         const SizedBox(height: 20),
@@ -257,7 +261,7 @@ class PerformanceAndReports extends StatelessWidget {
         const AdminActionButton(
           color: AppColor.primary, 
           text: "Users Report", 
-          page: Homepage()
+          page: ManageUsers()
         ),
         const AdminActionButton(
           color: AppColor.info, 

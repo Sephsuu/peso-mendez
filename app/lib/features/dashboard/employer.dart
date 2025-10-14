@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/card.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';
@@ -14,8 +17,11 @@ import 'package:app/features/employer/view_active_jobs.dart';
 import 'package:app/features/employer/view_applications.dart';
 import 'package:app/features/homepage.dart';
 import 'package:app/main.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class EmployerDashboard extends HookWidget {
   const EmployerDashboard({super.key});
@@ -119,6 +125,38 @@ class DashboardHeader extends StatelessWidget {
     required this.submitVerification,
   });
 
+  Future<void> _pickAndSaveFile(BuildContext context) async {
+    try {
+      // Step 1: Pick a file
+      final result = await FilePicker.platform.pickFiles();
+
+      if (result != null && result.files.single.path != null) {
+        final pickedFile = File(result.files.single.path!);
+        final fileName = path.basename(pickedFile.path);
+
+        // Step 2: Get safe storage directory
+        final dir = await getApplicationDocumentsDirectory();
+        final savePath = path.join(dir.path, 'uploads'); // optional subfolder
+        await Directory(savePath).create(recursive: true);
+
+        // Step 3: Copy the file
+        final savedFile = await pickedFile.copy('$savePath/$fileName');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('✅ File saved to: ${savedFile.path}')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No file selected')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -135,7 +173,16 @@ class DashboardHeader extends StatelessWidget {
                 children: [
                   const Text('🔒 Account pending verification.', style: TextStyle(color: Color.fromARGB(255, 203, 152, 0))),
                   GestureDetector(
-                    onTap: submitVerification,
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) { 
+                        return AppModal(
+                          title: 'Submit your documents',
+                          message: 'Submit documents to prove eligibility as an employer',
+                          onConfirm: () => _pickAndSaveFile(context),
+                        );
+                      }
+                    ),
                     child: Text('Submit Documents', style: const TextStyle(color: Color.fromARGB(255, 130, 98, 0), decoration: TextDecoration.underline).merge(AppText.fontSemibold)),
                   )
                 ],

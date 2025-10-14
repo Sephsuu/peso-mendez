@@ -22,6 +22,16 @@ router.get('/get-by-id', async (req, res) => {
     }
 });
 
+router.get('/get-by-audience', async (req, res) => {
+    const { role } = req.query;
+    try {
+        const query = await announcementQuery.getAnnouncementsByRole(role);
+        res.json(query)
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.post('/create', async (req, res) => {
     const announcement = req.body;
     try {

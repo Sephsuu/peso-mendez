@@ -36,6 +36,16 @@ router.get('/get-by-role', async (req, res) => {
 	}
 });
 
+router.get('/get-profile-strength', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getUserProfileStrength(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.get('/get-credentials', async (req, res) => {
 	const { id } = req.query;
 	try {

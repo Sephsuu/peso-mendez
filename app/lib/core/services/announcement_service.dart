@@ -17,4 +17,11 @@ class AnnouncementService {
       body: announcement
     );
   }
+
+  static Future<List<Map<String, dynamic>>> getAnnouncementsByRole(String role) async {
+    return await request(
+      '$url/get-by-audience?role=$role',
+      method: 'GET'
+    );
+  }
 }

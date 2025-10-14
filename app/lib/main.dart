@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'package:app/features/homepage.dart';
 import 'package:app/features/forms/register.dart';
 
-void main() {
+Future<void> main() async {
+  // 🩵 This must come BEFORE runApp
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
@@ -17,8 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MainScreen()
-    
+      home: const MainScreen(),
     );
   }
 }
@@ -30,7 +31,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-enum PageType { 
+enum PageType {
   home,
   register,
   login,
@@ -55,12 +56,12 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    globalNavigateTo = _navigateTo; // assign the local function to global variable
+    globalNavigateTo = _navigateTo;
   }
 
   @override
   void dispose() {
-    globalNavigateTo = null; // clean up when widget disposed
+    globalNavigateTo = null;
     super.dispose();
   }
 
@@ -69,13 +70,9 @@ class _MainScreenState extends State<MainScreen> {
       case PageType.home:
         return const Homepage();
       case PageType.register:
-        return const Register();
       case PageType.login:
-        return const Register();
       case PageType.jobSeekerDashboard:
-        return const Register();
       case PageType.jobSeekerEditProfile:
-        return const Register();
       case PageType.employerDashboard:
         return const Register();
     }

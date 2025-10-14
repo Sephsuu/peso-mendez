@@ -2,7 +2,7 @@ import pool from "../../db.js";
 
 export async function getAllAnnouncements() {
     const [rows] = await pool.query(
-        `SELECT * FROM announcements`
+        `SELECT * FROM announcements ORDER BY posted_on DESC`
     );
     return rows;
 }
@@ -14,6 +14,26 @@ export async function getAnnouncementById(id) {
     );
     return rows[0];
 }
+
+export async function getAnnouncementsByRole(role) {
+    let rows = [];
+
+    if (role !== 'all') {
+        const [result] = await pool.query(
+            `SELECT * FROM announcements WHERE target_audience = ? ORDER BY posted_on DESC`,
+            [role]
+        );
+        rows = result;
+    } else {
+        const [result] = await pool.query(
+            `SELECT * FROM announcements ORDER BY posted_on DESC`
+        );
+        rows = result;
+    }
+
+    return rows;
+}
+
 
 export async function createAnnouncement(announcement) {
     const [rows] = await pool.query(
