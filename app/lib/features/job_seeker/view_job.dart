@@ -115,6 +115,7 @@ class ViewJob extends HookWidget {
         child: Column(
           children: [
             ViewApplicationCover(
+              claims: claims,
               job: job.value,
               isApplied: isApplied.value,
               isSaved: isSaved.value,
@@ -133,6 +134,7 @@ class ViewJob extends HookWidget {
 }
 
 class ViewApplicationCover extends StatelessWidget {
+  final Map<String, dynamic> claims;
   final Map<String, dynamic> job;
   final bool isApplied;
   final bool isSaved;
@@ -142,6 +144,7 @@ class ViewApplicationCover extends StatelessWidget {
   
   const ViewApplicationCover({
     super.key,
+    required this.claims,
     required this.job,
     required this.isApplied,
     required this.applyJob,
@@ -206,81 +209,93 @@ class ViewApplicationCover extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              isSaved ? AppButton(
-                label: 'Saved', 
-                onPressed: () {},
-                backgroundColor: AppColor.warning,
-                foregroundColor: AppColor.dark,
-                visualDensityY: -2,
-              ) : AppButton(
-                label: 'Save Job', 
-                onPressed: () {
-                  showDialog(
-                    context: context, 
-                    builder: (context) {
-                      return AppModal(
-                        title: 'Save job ${job["title"]} at ${job["location"]}?',
-                        titleStyle: AppText.fontSemibold.merge(AppText.textLg),
-                        confirmLabel: "Save Job",
-                        confirmBackground: AppColor.primary,
-                        confirmForeground: AppColor.light,
-                        onConfirm: saveJob,
-                      );
-                    }
-                  );
-                },
-                foregroundColor: AppColor.dark,
-                backgroundColor: AppColor.light,
-                visualDensityY: -2,
-              ),
-              
-              const SizedBox(width: 10),
-              isApplied ? AppButton(
-                label: 'Applied', 
-                onPressed: () {
-                  showDialog(
-                    context: context, 
-                    builder: (context) {
-                      return AppModal(
-                        title: 'Are you sure to unapply for job ${job["title"]} at ${job["location"]}',
-                        titleStyle: AppText.fontSemibold.merge(AppText.textLg),
-                        confirmLabel: "Unapply",
-                        confirmBackground: AppColor.primary,
-                        confirmForeground: AppColor.light,
-                        onConfirm: unapplyJob,
-                      );
-                    }
-                  );
-                },
-                backgroundColor: AppColor.success,
-                foregroundColor: AppColor.light,
-                visualDensityY: -2,
-              ) : AppButton(
-                label: 'Apply Job', 
-                onPressed: () {
-                  showDialog(
-                    context: context, 
-                    builder: (context) {
-                      return AppModal(
-                        title: 'Apply for ${job["title"]} at ${job["location"]}',
-                        titleStyle: AppText.fontSemibold.merge(AppText.textLg),
-                        message: 'You\'re about to apply for: ${job["title"]} at ${job["location"]}. Your information will be shared with the employer.',
-                        confirmLabel: "Apply",
-                        confirmBackground: AppColor.primary,
-                        confirmForeground: AppColor.light,
-                        onConfirm: applyJob,
-                      );
-                    }
-                  );
-                },
-                foregroundColor: AppColor.dark,
-                backgroundColor: AppColor.light,
-                visualDensityY: -2,
-              ),
-            ],
-          ),
+          claims['role'] == 'admin'
+            ? const SizedBox.shrink() // 👈 Return nothing (empty widget)
+            : Row(
+                children: [
+                  isSaved
+                      ? AppButton(
+                          label: 'Saved',
+                          onPressed: () {},
+                          backgroundColor: AppColor.warning,
+                          foregroundColor: AppColor.dark,
+                          visualDensityY: -2,
+                        )
+                      : AppButton(
+                          label: 'Save Job',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AppModal(
+                                  title:
+                                      'Save job ${job["title"]} at ${job["location"]}?',
+                                  titleStyle:
+                                      AppText.fontSemibold.merge(AppText.textLg),
+                                  confirmLabel: "Save Job",
+                                  confirmBackground: AppColor.primary,
+                                  confirmForeground: AppColor.light,
+                                  onConfirm: saveJob,
+                                );
+                              },
+                            );
+                          },
+                          foregroundColor: AppColor.dark,
+                          backgroundColor: AppColor.light,
+                          visualDensityY: -2,
+                        ),
+                  const SizedBox(width: 10),
+                  isApplied
+                      ? AppButton(
+                          label: 'Applied',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AppModal(
+                                  title:
+                                      'Are you sure to unapply for job ${job["title"]} at ${job["location"]}',
+                                  titleStyle:
+                                      AppText.fontSemibold.merge(AppText.textLg),
+                                  confirmLabel: "Unapply",
+                                  confirmBackground: AppColor.primary,
+                                  confirmForeground: AppColor.light,
+                                  onConfirm: unapplyJob,
+                                );
+                              },
+                            );
+                          },
+                          backgroundColor: AppColor.success,
+                          foregroundColor: AppColor.light,
+                          visualDensityY: -2,
+                        )
+                      : AppButton(
+                          label: 'Apply Job',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AppModal(
+                                  title:
+                                      'Apply for ${job["title"]} at ${job["location"]}',
+                                  titleStyle:
+                                      AppText.fontSemibold.merge(AppText.textLg),
+                                  message:
+                                      'You\'re about to apply for: ${job["title"]} at ${job["location"]}. Your information will be shared with the employer.',
+                                  confirmLabel: "Apply",
+                                  confirmBackground: AppColor.primary,
+                                  confirmForeground: AppColor.light,
+                                  onConfirm: applyJob,
+                                );
+                              },
+                            );
+                          },
+                          foregroundColor: AppColor.dark,
+                          backgroundColor: AppColor.light,
+                          visualDensityY: -2,
+                        ),
+                ],
+              )
         ],
       ),
     );

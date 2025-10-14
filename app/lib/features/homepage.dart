@@ -258,7 +258,7 @@ class FeaturedJobs extends StatelessWidget {
                 const SizedBox(height: 15.0),
                 AppButton(
                   label: 'View Details', 
-                  onPressed: claims['role'] == 'job_seeker' ? 
+                  onPressed: claims['role'] == 'job_seeker' || claims['role'] == 'admin' ? 
                     () => navigateTo(context, ViewJob(jobId: job['id'])) 
                   : claims['role'] == 'employer' ? 
                     () => showDialog(
