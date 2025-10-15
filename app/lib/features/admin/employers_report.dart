@@ -131,6 +131,7 @@ class EmployersReport extends HookWidget {
               ),
             ),
             EmployersTable(
+              activeTab: activeTab.value,
               loading: loading.value,
               employers: filteredEmployers.value
             ),
@@ -142,10 +143,12 @@ class EmployersReport extends HookWidget {
 }
 
 class EmployersTable extends StatelessWidget {
+  final String activeTab;
   final List<Map<String, dynamic>> employers;
   final bool loading;
   const EmployersTable({
     super.key,
+    required this.activeTab,
     required this.employers,
     required this.loading,
   });
@@ -175,14 +178,16 @@ class EmployersTable extends StatelessWidget {
             color: const Color.fromARGB(255, 191, 191, 191),
             width: 1,
           ),
-          columns: const [
-            DataColumn(label: Text('#')),
-            DataColumn(label: Text('Full Name')),
-            DataColumn(label: Text('E-mail Address')),
-            DataColumn(label: Text('Username')),
-            DataColumn(label: Text('Contact')),
-            DataColumn(label: Text('Registered At')),
-            DataColumn(label: Text('Documents')),
+          columns:  [
+            const DataColumn(label: Text('#')),
+            const DataColumn(label: Text('Full Name')),
+            const DataColumn(label: Text('E-mail Address')),
+            const DataColumn(label: Text('Username')),
+            const DataColumn(label: Text('Contact')),
+            const DataColumn(label: Text('Registered At')),
+            const DataColumn(label: Text('Documents')),
+            if (activeTab == 'Pending Employers')
+              const DataColumn(label: Text('Actions')),
           ], 
           rows: employers.asMap().entries.map((entry) {
             int index = entry.key;
@@ -234,7 +239,26 @@ class EmployersTable extends StatelessWidget {
                           ],
                         ),
                 ),
-
+                if (activeTab == 'Pending Employers')
+                  DataCell(
+                    Row(
+                      children: [
+                        AppButton(
+                          label: 'Approve', 
+                          onPressed: () {},
+                          backgroundColor: AppColor.success,
+                          visualDensityY: -3,
+                        ),
+                        const SizedBox(width: 5),
+                        AppButton(
+                          label: 'Reject', 
+                          onPressed: () {},
+                          backgroundColor: AppColor.danger,
+                          visualDensityY: -3,
+                        ),
+                      ],
+                    )
+                  ),
               ]
             );
           }).toList()

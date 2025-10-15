@@ -25,10 +25,11 @@ class UserService {
   }
 
   static Future<double> getUserProfileStrength(int id) async {
-    return await request(
+    final profileStrength = await request(
       '$url/get-profile-strength?id=$id',
       method: 'GET'
     );
+    return  (profileStrength as num).toDouble();
   }
 
   static Future<Map<String, dynamic>> getUserCredential(int id) async {
