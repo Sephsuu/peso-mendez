@@ -127,7 +127,7 @@ class EmployerVerificationQueue extends HookWidget {
     useEffect(() {
       void fetchData() async {
         try {
-          final res = await VerificationService.getVerificationsByRole('employer');
+          final res = await VerificationService.getVerificationsByRole('');
           employerVerifications.value = res;
         } catch (e) {
           if (!context.mounted) return;

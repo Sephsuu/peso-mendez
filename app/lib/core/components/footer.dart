@@ -1,6 +1,4 @@
-import 'package:app/core/components/navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:app/features/homepage.dart';
 import 'package:app/core/theme/typography.dart';
 
 class Footer extends StatelessWidget {
@@ -21,15 +19,15 @@ class Footer extends StatelessWidget {
             children: [
               GestureDetector(
                 child: const Text('Privacy Policy'),
-                onTap: () => navigateTo(context, const Homepage()),
+                onTap: () {},
               ),
               GestureDetector(
                 child: const Text('Terms of Use'),
-                onTap: () => navigateTo(context, const Homepage()),
+                onTap: () {},
               ),
               GestureDetector(
                 child: const Text('Contact'),
-                onTap: () => navigateTo(context, const Homepage()),                
+                onTap: () {},                
               )
             ],
           ),

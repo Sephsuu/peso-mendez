@@ -14,10 +14,16 @@ class VerificationService {
     );
   }
 
+  static Future<Map<String, dynamic>> getVerificationByUser(int id) async {
+    return await request(
+      '$url/get-by-user?id=$id',
+      method: 'GET',
+    );
+  }
+
   static Future<String?> uploadEmployerDocuments(File file) async {
     try {
       final uri = Uri.parse('$BASE_URL/uploads/employer-docs');
-      print(uri);
       final request = http.MultipartRequest('POST', uri);
 
       final stream = http.ByteStream(file.openRead());

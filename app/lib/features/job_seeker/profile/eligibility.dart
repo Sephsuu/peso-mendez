@@ -174,10 +174,6 @@ class Eligibility extends HookWidget {
       return null;
     }, [open]);
 
-    useEffect(() {
-      print(userL.value);
-    }, [userE.value]);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

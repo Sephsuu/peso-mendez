@@ -48,7 +48,7 @@ app.use('/jobs', jobRouter);
 app.use('/applications', applicationRouter);
 app.use('/announcements', announcementRouter);
 app.use('/verifications', verificationRouter);
-app.use('/api/upload', uploadRoute); // make sure Flutter hits /api/upload
+app.use('/uploads', uploadRoute); // make sure Flutter hits /api/upload
 
 // ✅ Start server
 app.listen(PORT, () => {

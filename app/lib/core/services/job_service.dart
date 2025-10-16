@@ -17,6 +17,13 @@ class JobService {
     );
   }
 
+  static Future<List<Map<String, dynamic>>> getJobSkills(int id) async {
+    return await request(
+      '$url/get-job-skills?id=$id',
+      method: 'GET'
+    );
+  }
+
   static Future<List<Map<String, dynamic>>> getJobsByEmployer(int id) async {
     return await request(
       '$url/get-by-employer?id=$id',
@@ -43,6 +50,14 @@ class JobService {
       '$url/create',
       method: 'POST',
       body: job
+    );
+  }
+
+  static Future<Map<String, dynamic>> createJobSkill(Map<String, dynamic> jobSkill) async {
+    return await request(
+      '$url/create-job-skill',
+      method: 'POST',
+      body: jobSkill
     );
   }
 

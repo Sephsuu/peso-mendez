@@ -1,4 +1,5 @@
 import 'package:app/core/components/alert.dart';
+import 'package:app/core/components/badge.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';
@@ -28,6 +29,7 @@ class ViewJob extends HookWidget {
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
     final job = useState<Map<String, dynamic>>({});
+    final jobSkills = useState<List<String>>([]);
     final loading = useState(true);
     final isSaved = useState(false);
     final isApplied = useState(false);
@@ -37,7 +39,8 @@ class ViewJob extends HookWidget {
         if (claims.isNotEmpty) {
           final data = await JobService.getJobById(jobId);
           job.value = data;
-
+          final jobSkillsRes = await JobService.getJobSkills(jobId);
+          jobSkills.value = jobSkillsRes.map((e) => e['skill']).cast<String>().toList();
           final saved = await JobService.getSavedJobByUserJob(claims['id'], jobId);
           final applied = await ApplicationService.getApplicationByJobAndUser(jobId, claims['id']);
           isSaved.value = saved.isNotEmpty;
@@ -122,7 +125,10 @@ class ViewJob extends HookWidget {
               saveJob: saveJob,
               applyJob: applyJob, unapplyJob: unapplyJob,
             ),
-            JobDescriptionCard(description: job.value["description"]),
+            JobDescriptionCard(
+              description: job.value["description"],
+              jobSkills: jobSkills.value,
+            ),
             JobDetailsCard(job: job.value),
             AboutCompanyCard(job: job.value),
             const Footer()
@@ -323,10 +329,12 @@ class ViewApplicationCover extends StatelessWidget {
 
 class JobDescriptionCard extends StatelessWidget {
   final String description;
+  final List<String> jobSkills;
 
   const JobDescriptionCard({
     super.key,
-    required this.description
+    required this.description,
+    required this.jobSkills,
   });
 
   @override
@@ -349,7 +357,29 @@ class JobDescriptionCard extends StatelessWidget {
                 ]
               ),
               const SizedBox(height: 5),
-              Text(description)
+              Text(description),
+              const SizedBox(height: 10),
+              Text("Required Skills", style: AppText.textMd.merge(AppText.fontSemibold)),
+              const SizedBox(height: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < jobSkills.length; i += 2)
+                    Row(
+                      children: [
+                        for (int j = i; j < i + 2 && j < jobSkills.length; j++)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8, bottom: 8),
+                            child: AppBadge(
+                              text: jobSkills[j],
+                              color: AppColor.primary,
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            ),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
             ],
           ),
         ),

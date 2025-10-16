@@ -13,6 +13,16 @@ router.get('', async  (req, res) => {
     }
 })
 
+router.get('/get-by-user', async(req, res) => {
+    const { id } = req.query;
+    try {
+        const query = await verificationQuery.getVerificationByUser(id);
+        return res.json(query);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+})
+
 router.post('/create', async (req, res) => {
     const verification = req.body;
     console.log(verification);

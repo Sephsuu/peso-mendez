@@ -9,7 +9,7 @@ import 'package:app/core/services/job_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/features/homepage.dart';
+import 'package:app/features/job_listing.dart';
 import 'package:app/features/job_seeker/all_applications.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/job_seeker/view_application.dart';
@@ -314,7 +314,7 @@ class YourApplicationsCard extends HookWidget {
                     const SizedBox(height: 10.0),
                     AppButton(
                       label: 'Browse Jobs', 
-                      onPressed: () => navigateTo(context, const Homepage()),
+                      onPressed: () => navigateTo(context, const JobListing()),
                       foregroundColor: AppColor.light,
                       textSize: 12,
                       visualDensityY: -2,
@@ -446,7 +446,7 @@ class SavedJobsCard extends StatelessWidget {
                       const SizedBox(height: 10.0),
                       AppButton(
                         label: 'Browse Jobs', 
-                        onPressed: () => navigateTo(context, const Homepage()),
+                        onPressed: () => navigateTo(context, const JobListing()),
                         foregroundColor: AppColor.light,
                         textSize: 12,
                         visualDensityY: -2,

@@ -1,3 +1,4 @@
+import 'package:app/core/components/badge.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
@@ -8,6 +9,7 @@ import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class OtherSkills extends HookWidget {
   final Map<String, dynamic> claims;
@@ -107,23 +109,29 @@ class OtherSkills extends HookWidget {
             children: [
               Text('My Skills:', style: AppText.fontBold),
               const SizedBox(height: 10),
-              ...user.value.map((item) {
-                return (
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('— ${item['skill'] ?? 'N/A'}'),
-                      const SizedBox(height: 5)
-                    ]
-                  )
-                );
-              }),
-         
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < user.value.length; i += 2)
+                    Row(
+                      children: [
+                        for (int j = i; j < i + 2 && j < user.value.length; j++)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8, bottom: 8),
+                            child: AppBadge(
+                              text: user.value[j]['skill'],
+                              color: AppColor.primary,
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            ),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
             ],
           ),
         )
-    
-
       ],
     );
   }

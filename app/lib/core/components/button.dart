@@ -4,7 +4,6 @@ import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/job_seeker/already_applied.dart';
-import 'package:app/features/employer/post_job_form.dart';
 import 'package:app/features/forms/register.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -337,30 +336,6 @@ class SubmitApplicationButton extends HookWidget {
 }
 
 // EMPLOYERS DASHBOARD
-
-class PostANewJobButton extends StatelessWidget {
-  const PostANewJobButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: const VisualDensity(vertical: -2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => PostNewJob(onNavigate: (page) => globalNavigateTo?.call(page))));
-      }, 
-      child: Text('Post a New Job', style: AppText.textXs)
-    );
-  }
-}
 
 class EmployerContentCardButton extends StatelessWidget {
   final String text;

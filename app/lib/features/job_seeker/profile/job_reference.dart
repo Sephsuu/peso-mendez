@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/loader.dart';
@@ -184,9 +182,6 @@ class JobReference extends HookWidget {
       return null;
     }, [open]);
 
-    useEffect(() {
-      print(user.value);
-    }, [user.value]);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -9,7 +9,6 @@ import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/shared/announcements.dart';
 import 'package:flutter/material.dart';
-import 'package:app/features/homepage.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -23,15 +22,20 @@ class OffcanvasNavigation extends HookWidget {
     final claims = useClaimsHook(context);
 
     List<Map<String, dynamic>> routes = [
-      { "name": "Home", "href": const Homepage() },
       { 
-        "name": "My Profile", "href": claims['role'] == 'job_seeker' ?
+        "name": "Home", "href": claims['role'] == 'job_seeker' ?
           const JobSeekerDashboard() : claims['role'] == 'employer' ?
           const EmployerDashboard() : const AdminDashboard() 
       },
       { "name": "Announcements", "href": const Announcements() },
-      { "name": "Career Hub", "href": const Homepage() },
-      { "name": "Contact", "href": const Homepage() },
+      { "name": "Career Hub", "href": claims['role'] == 'job_seeker' ?
+          const JobSeekerDashboard() : claims['role'] == 'employer' ?
+          const EmployerDashboard() : const AdminDashboard() 
+      },
+      { "name": "Contact", "href": claims['role'] == 'job_seeker' ?
+          const JobSeekerDashboard() : claims['role'] == 'employer' ?
+          const EmployerDashboard() : const AdminDashboard()  
+      },
     ];
 
     void logout() async {

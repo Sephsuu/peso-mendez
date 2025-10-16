@@ -12,11 +12,26 @@ export async function getVerifications(role) {
         )
     } else {
         rows = await pool.query(
-            `SELECT * FROM employer_verification WHERE status = ?`,
+            `SELECT 
+            v.id, v.employer_id, v.status, v.documents,
+            u.full_name, u.email, u.username, u.contact, u.created_at
+            FROM employer_verification v
+            JOIN users u ON u.id = v.employer_id
+            WHERE v.status = ?`,
             ['pending']
         )
     }
-    return rows[0];
+    
+    return rows[0] ?? [];
+}
+
+export async function getVerificationByUser(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM employer_verification WHERE employer_id = ?`,
+        [id]
+    )
+
+    return rows[0] ?? {}
 }
 
 export async function createVerification(verification) {
@@ -35,7 +50,12 @@ export async function updateStatus(id, updatedStatus) {
         SET status = ?
         WHERE id = ?`,
         [updatedStatus, id]
+    );
+
+    const [result] = await pool.query(
+        `SELECT * FROM employer_verification WHERE id = ?`,
+        [id]
     )
 
-    return rows;
+    return result[0] ?? {};
 }

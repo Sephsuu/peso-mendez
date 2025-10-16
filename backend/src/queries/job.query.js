@@ -15,6 +15,15 @@ export async function getJobById(id) {
     return rows[0];
 }
 
+export async function getJobSkills(id) {
+    const [rows] = await pool.query(
+        `SELECT skill FROM job_skills WHERE job_id = ?`,
+        [id]
+    );
+
+    return rows;
+}
+
 export async function getJobsByEmployer(employerId) {
     const [rows] = await pool.query(
         "SELECT * FROM jobs WHERE employer_id = ?",
@@ -44,22 +53,29 @@ export async function getSavedJobByUserJob(userId, jobId) {
 }
 
 export async function createJob(job) {
-    console.log(job);
-    
     const insertQuery = `
         INSERT INTO jobs
         (title, company, location, salary, type, description, employer_id, visibility)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [result] =  await pool.query(insertQuery, [
-        job.title, job.company, job.location, 
-        job.salary, job.type, job.description, 
+    const [result] = await pool.query(insertQuery, [
+        job.title, job.company, job.location,
+        job.salary, job.type, job.description,
         job.employerId, job.visibility
     ]);
 
-    return result;
+    return { id: result.insertId, ...job };
 }
+
+export async function createJobSkill(jobSkill) {
+    const [rows] = await pool.query(
+        `INSERT INTO job_skills (job_id, skill) VALUES (?, ?)`,
+        [jobSkill.jobId, jobSkill.skill]
+    )
+
+    return rows;
+} 
 
 export async function saveJob(userid, jobId) {
     const [result] = await pool.query(

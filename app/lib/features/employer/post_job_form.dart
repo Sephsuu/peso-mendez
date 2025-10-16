@@ -1,3 +1,4 @@
+import 'package:app/core/components/badge.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/input.dart';
@@ -10,15 +11,11 @@ import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 
 class PostNewJob extends StatelessWidget {
-  final Function(PageType) onNavigate;
-
   const PostNewJob({
     super.key,
-    required this.onNavigate
   });
 
   @override
@@ -62,6 +59,12 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
 
   List<String> types = ['Full-time', 'Part-time'];
   List<String> visibilities = ['Lite', 'Branded', 'Premium'];
+  List<String> skills = [
+    'Auto Mechnanic', 'Beautician', 'Carpentry Work',  'Computer Literate', 'Domestic Chores', 'Driver',
+    'Electrician', 'Embroidery', 'Gardening', 'Masonry', 'Painter/Artist', 'Painting Jobs',
+    'Photography', 'Plumbing', 'Sewing Dresses', 'Stenography', 'Tailoring'
+  ];
+  List<String> selectedSkills = [];
 
   @override
   void initState() {
@@ -110,6 +113,12 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
         });
 
         if (res.isNotEmpty) {
+          for (var skill in selectedSkills) {
+            await JobService.createJobSkill({
+              "jobId": res['id'],
+              "skill": skill
+            });
+          }
           if (!mounted) return;
           AppSnackbar.show(
             context,
@@ -152,6 +161,45 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           AppTextField(controller: _salary, label: 'Salary'),
           const SizedBox(height: 10),
           AppTextField(controller: _description, label: 'Job Description', maxLine: 4),
+          const SizedBox(height: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Required SKills for the Job:'),
+              const SizedBox(height: 10),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < selectedSkills.length; i += 2)
+                    Row(
+                      children: [
+                        for (int j = i; j < i + 2 && j < selectedSkills.length; j++)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8, bottom: 8),
+                            child: AppBadge(
+                              text: selectedSkills[j],
+                              color: AppColor.primary,
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            ),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          AppSelect(
+            items: skills,
+            onChanged: (value) {
+              if (value != null && !selectedSkills.contains(value)) {
+                setState(() {
+                  selectedSkills.add(value);
+                });
+              }
+            },
+          ),
           const SizedBox(height: 20),
           Row(
             children: [

@@ -4,12 +4,12 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/features/homepage.dart';
+import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AlreadyApplied extends HookWidget {
-  final Map<String, dynamic> job;
+  final Map<String, dynamic> job; 
   final int userId;
 
   const AlreadyApplied({
@@ -71,7 +71,7 @@ class AlreadyApplied extends HookWidget {
                           AppButton(
                             label: 'Back to Job Listing',
                             textSize: 12, 
-                            onPressed: () => navigateTo(context, const Homepage()),
+                            onPressed: () => navigateTo(context, const JobSeekerDashboard()),
                             visualDensityY: -2,
                           ),
                           const SizedBox(width: 5),

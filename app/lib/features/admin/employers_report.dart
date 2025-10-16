@@ -1,14 +1,19 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/loader.dart';
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
+import 'package:app/core/services/_endpoint.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
+final tabs = ['Verified Employers', 'Pending Employers', 'Rejected Employers'];
 
 class EmployersReport extends HookWidget {
   const EmployersReport({
@@ -52,7 +57,9 @@ class EmployersReport extends HookWidget {
     useEffect(() {
       if (activeTab.value == 'Verified Employers') { 
         employers.value = initialEmployers.value.where((user) => user['status'] == 'approved').toList(); 
-      } else { 
+      } else if (activeTab.value == 'Rejected Employers') { 
+        employers.value = initialEmployers.value.where((user) => user['status'] == 'rejected').toList();
+      } else {
         employers.value = initialEmployers.value.where((user) => user['status'] == 'pending').toList();
       }
       return;
@@ -70,6 +77,28 @@ class EmployersReport extends HookWidget {
       }
       return null;
     }, [find.value, employers.value]);
+
+    void updateVerificationStatus(int id, String status) async {
+      try {
+        final data = await VerificationService.updateVerificationStatus(id, status);
+        if (data.isNotEmpty) {
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context, 
+            message: 'Status updated to $status',
+            backgroundColor: AppColor.success,
+          );
+          reload.value = !reload.value;
+        }
+      } catch (e) {
+        if (!context.mounted) return;
+        AppSnackbar.show(
+          context, 
+          message: '$e',
+          backgroundColor: AppColor.danger,
+        );
+      }
+    }
 
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
@@ -94,24 +123,18 @@ class EmployersReport extends HookWidget {
               scrollDirection: Axis.horizontal,
               child: Row( 
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AppButton(
-                    label: 'Verified Employers', 
-                    onPressed: () => setActiveTab('Verified Employers'),
+                children: tabs.map((tab) {
+                  return AppButton(
+                    label: tab,
+                    onPressed: () => setActiveTab(tab),
                     visualDensityY: -3,
-                    backgroundColor: activeTab.value == 'Verified Employers' ? AppColor.primary : Colors.grey,
+                    backgroundColor: activeTab.value == tab 
+                        ? AppColor.primary 
+                        : Colors.grey,
                     foregroundColor: AppColor.light,
                     borderRadius: 0,
-                  ),
-                  AppButton(
-                    label: 'Pending Employers', 
-                    onPressed: () => setActiveTab('Pending Employers'),
-                    visualDensityY: -3,
-                    backgroundColor: activeTab.value == 'Pending Employers' ? AppColor.primary : Colors.grey,
-                    foregroundColor: AppColor.light,
-                    borderRadius: 0,
-                  )
-                ],
+                  );
+                }).toList(),
               ),
             ),
             SizedBox(
@@ -133,7 +156,8 @@ class EmployersReport extends HookWidget {
             EmployersTable(
               activeTab: activeTab.value,
               loading: loading.value,
-              employers: filteredEmployers.value
+              employers: filteredEmployers.value,
+              updateVerificationStatus: updateVerificationStatus,
             ),
           ],
         ),
@@ -146,15 +170,19 @@ class EmployersTable extends StatelessWidget {
   final String activeTab;
   final List<Map<String, dynamic>> employers;
   final bool loading;
+  final Function(int, String) updateVerificationStatus;
+
   const EmployersTable({
     super.key,
     required this.activeTab,
     required this.employers,
     required this.loading,
+    required this.updateVerificationStatus
   });
 
   @override
   Widget build(BuildContext context) {
+    
 
     if (loading) {
       return const Loader();
@@ -208,7 +236,7 @@ class EmployersTable extends StatelessWidget {
                             final String filePath = item["documents"];
                             final String fullUrl = filePath.startsWith("http")
                                 ? filePath
-                                : "http://localhost:3005/$filePath";
+                                : "$BASE_URL/$filePath";
 
                             final Uri uri = Uri.parse(fullUrl);
 
@@ -245,14 +273,38 @@ class EmployersTable extends StatelessWidget {
                       children: [
                         AppButton(
                           label: 'Approve', 
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                              context: context, 
+                              builder: (context) {
+                                return AppModal(
+                                  title: 'Are you sure to update verification status to APPROVED?',
+                                  confirmBackground: AppColor.primary,
+                                  confirmForeground: AppColor.light,
+                                  onConfirm: () => updateVerificationStatus(item['id'], 'approved'),
+                                );
+                              }
+                            );
+                          },
                           backgroundColor: AppColor.success,
                           visualDensityY: -3,
                         ),
                         const SizedBox(width: 5),
                         AppButton(
                           label: 'Reject', 
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                              context: context, 
+                              builder: (context) {
+                                return AppModal(
+                                  title: 'Are you sure to update verification status to REJECTED?',
+                                  confirmBackground: AppColor.primary,
+                                  confirmForeground: AppColor.light,
+                                  onConfirm: () => updateVerificationStatus(item['id'], 'rejected'),
+                                );
+                              }
+                            );
+                          },
                           backgroundColor: AppColor.danger,
                           visualDensityY: -3,
                         ),

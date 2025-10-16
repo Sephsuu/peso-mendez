@@ -20,8 +20,8 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/core/theme/colors.dart';
 
 
-class Homepage extends HookWidget {
-  const Homepage({super.key});
+class JobListing extends HookWidget {
+  const JobListing({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -24,6 +24,8 @@ class LanguageProfeciency extends HookWidget {
   Widget build(BuildContext context) {
     final loading = useState(true);
     final user = useState<List<Map<String, dynamic>>>([]);
+    final tempUser = useState<List<Map<String, dynamic>>>([]);
+
 
     void handleSubmit() async {
       try {
@@ -46,7 +48,7 @@ class LanguageProfeciency extends HookWidget {
         AppSnackbar.show(
           context, 
           message: '$e',
-          backgroundColor: AppColor.danger
+          backgroundColor: const Color.fromARGB(255, 28, 4, 6)
         );
       }
     }
@@ -70,54 +72,58 @@ class LanguageProfeciency extends HookWidget {
 
     useEffect(() {
       if (open) {
+        tempUser.value = user.value.map((item) => Map<String, dynamic>.from(item)).toList();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
             builder: (context) => AppModal(
-              title: 'Edit Language Profeciency',
+              title: 'Edit Language Proficiency',
               titleStyle: AppText.fontBold,
               confirmBackground: AppColor.success,
               confirmForeground: AppColor.light,
-              onConfirm: () => handleSubmit(),
+              onConfirm: () {
+                // Only apply changes when Confirm is pressed
+                user.value = tempUser.value;
+                handleSubmit();
+              },
               message: SizedBox(
                 height: 300,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      ...user.value.asMap().entries.map((entry) {
-                        final index = entry.key;   
-                        final item = entry.value;  
-
+                      ...tempUser.value.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('${item['language']} Language', style: AppText.fontBold.merge(AppText.textMd)),
                             const SizedBox(height: 12),
                             AppCheckbox(
-                              label: 'Read', 
-                              state: item['read'] == 1 ? true : false,
+                              label: 'Read',
+                              state: item['read'] == 1,
                               onChanged: (bool? newValue) {
-                                // print('Before ${item['read']}');
-                                // print('Before $newValue');
-                                // print(item['read'][]);
-                                // item['read'][index] = item['read'] == 1 ? 0 : 1;
-                                // print('After ${item['read']}');
-                                // print('After $newValue');
+                                final updated = [...tempUser.value];
+                                updated[index]['read'] = newValue == true ? 1 : 0;
+                                tempUser.value = updated;
                               },
                             ),
                             AppCheckbox(
-                              label: 'Write', 
-                              state: item['write']  == 1, // ✅ check boolean
+                              label: 'Write',
+                              state: item['write'] == 1,
                               onChanged: (bool? newValue) {
-                                item['read'] == 1;
+                                final updated = [...tempUser.value];
+                                updated[index]['write'] = newValue == true ? 1 : 0;
+                                tempUser.value = updated;
                               },
                             ),
-
                             AppCheckbox(
-                              label: 'Speak', 
+                              label: 'Speak',
                               state: item['speak'] == 1,
                               onChanged: (bool? newValue) {
-                                item['speak'] == 1;
+                                final updated = [...tempUser.value];
+                                updated[index]['speak'] = newValue == true ? 1 : 0;
+                                tempUser.value = updated;
                               },
                             ),
                           ],
@@ -126,17 +132,17 @@ class LanguageProfeciency extends HookWidget {
                     ],
                   ),
                 ),
-              )
+              ),
             ),
-          ).then((_) => setOpen()); // close after dialog dismissed
+          ).then((_) => setOpen());
         });
       }
       return null;
-    }, [open, user.value]);
+    }, [open]);
 
     useEffect(() {
-      print(user.value);
-    }, [user.value[0]]);
+      print(tempUser.value);
+    }, [tempUser.value]);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

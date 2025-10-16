@@ -25,6 +25,19 @@ router.get('/get-by-id', async (req, res) => {
     }
 })
 
+router.get('/get-job-skills', async (req, res) => {
+	const { id } = req.query;
+    try {
+        const job = await jobQuery.getJobSkills(id);
+        if (!job) {
+            res.status(404).json({ message: `No job with id ${id}` })
+        }
+        res.json(job);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+})
+
 router.get('/get-by-employer', async (req, res) => {
 	const { id } = req.query;
     try {
@@ -59,7 +72,17 @@ router.post('/create', async (req, res) => {
     try {
         const job = req.body;
         const query = await jobQuery.createJob(job);
-        return res.json(job);
+        return res.json(query);
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/create-job-skill', async (req, res) => {
+    try {
+        const job = req.body;
+        const query = await jobQuery.createJobSkill(job);
+        return res.json(query);
     } catch(err) {
         res.status(500).json({ error: err.message });
     }

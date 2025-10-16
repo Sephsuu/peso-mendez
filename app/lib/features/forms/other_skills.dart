@@ -48,7 +48,7 @@ class _OtherSkillsFormState extends State<OtherSkillsForm> {
           });
         }
         if (!mounted) return;
-        showAlertError(context, 'Success');
+        navigateTo(context, const Login());
       } catch (e) {
         if (!mounted) return;
         showAlertError(context, 'Error: $e');
@@ -119,7 +119,6 @@ class _OtherSkillsFormState extends State<OtherSkillsForm> {
                               });
                           }).toList(),
                         ),
-                  
                         const SizedBox(height: 15),
                         RegisterNextButton(registerUser: _nextForm),
                       ],

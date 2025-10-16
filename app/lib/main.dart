@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:app/features/homepage.dart';
 import 'package:app/features/forms/register.dart';
 
 Future<void> main() async {
@@ -68,7 +67,6 @@ class _MainScreenState extends State<MainScreen> {
   Widget _getPage() {
     switch (_currentPage) {
       case PageType.home:
-        return const Homepage();
       case PageType.register:
       case PageType.login:
       case PageType.jobSeekerDashboard:
