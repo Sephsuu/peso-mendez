@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app/core/services/_endpoint.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -21,9 +23,9 @@ class VerificationService {
     );
   }
 
-  static Future<String?> uploadEmployerDocuments(File file) async {
+  static Future<Map<String, dynamic>> uploadDocuments(File file, String role) async {
     try {
-      final uri = Uri.parse('$BASE_URL/uploads/employer-docs');
+      final uri = Uri.parse('$BASE_URL/uploads/$role');
       final request = http.MultipartRequest('POST', uri);
 
       final stream = http.ByteStream(file.openRead());
@@ -42,14 +44,14 @@ class VerificationService {
 
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
-        // Expected backend return: {"filePath": "uploads/employer-documents/file_123.pdf"}
-        final cleanPath = responseBody
-            .replaceAll('"', '')
-            .replaceAll('{filePath:', '')
-            .replaceAll('}', '')
-            .trim();
 
-        return cleanPath;
+        // ✅ Decode the JSON response properly
+        final Map<String, dynamic> jsonRes = jsonDecode(responseBody);
+
+        // // ✅ Extract only the file path
+        // final String? filePath = jsonRes['filePath'];
+
+        return jsonRes;
       } else {
         throw Exception('Upload failed with code ${response.statusCode}');
       }

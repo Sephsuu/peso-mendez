@@ -312,9 +312,9 @@ export async function createOtherSkill(otherSkill) {
 export async function updateUserCredential(user) {
     const [result] = await  pool.query(
         `UPDATE users 
-        SET full_name = ?, username = ?, contact = ?
+        SET full_name = ?, username = ?, contact = ?, document_path = ?
         WHERE id = ?`,
-        [user.fullName, user.username, user.contact, user.id]
+        [user.full_name, user.username, user.contact, user.document_path, user.id]
     ) ;
     return result;
 }

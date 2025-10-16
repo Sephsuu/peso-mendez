@@ -24,7 +24,6 @@ class EmpployerUploadDocument extends HookWidget {
     final pickedFile = useState<File?>(null);
     final isUploading = useState(false);
 
-    /// 🔹 Pick file
     Future<void> pickFile(BuildContext context) async {
       try {
         final result = await FilePicker.platform.pickFiles();
@@ -51,7 +50,6 @@ class EmpployerUploadDocument extends HookWidget {
       }
     }
 
-    /// 🔹 Upload file and save verification
     Future<void> submitVerification(BuildContext context) async {
       if (pickedFile.value == null) {
         AppSnackbar.show(
@@ -65,22 +63,12 @@ class EmpployerUploadDocument extends HookWidget {
       try {
         isUploading.value = true;
 
-        // Step 1: Upload the file to backend
-        final uploadedPath = await VerificationService.uploadEmployerDocuments(pickedFile.value!);
-        if (!context.mounted) return;
-        if (uploadedPath == null) {
-          AppSnackbar.show(
-            context,
-            message: 'File upload failed. Please try again.',
-            backgroundColor: AppColor.danger,
-          );
-          return;
-        }
+        final uploadedPath = await VerificationService.uploadDocuments(pickedFile.value!, 'employer');
+        if (!context.mounted) return;        
 
-        // Step 2: Save verification record in database
         await VerificationService.createVerification({
           "employerId": claims['id'],
-          "documents": uploadedPath, // ✅ backend file path
+          "documents": uploadedPath['filePath'], // ✅ backend file path
           "status": "pending",
         });
 
