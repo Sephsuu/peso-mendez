@@ -140,10 +140,6 @@ class LanguageProfeciency extends HookWidget {
       return null;
     }, [open]);
 
-    useEffect(() {
-      print(tempUser.value);
-    }, [tempUser.value]);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

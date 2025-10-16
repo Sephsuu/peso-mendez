@@ -1,11 +1,9 @@
-import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/job_seeker/already_applied.dart';
 import 'package:app/features/forms/register.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -185,37 +183,6 @@ class SignInButton extends StatelessWidget {
 }
 
 // JOB SEEKER DASHBOARD
-
-// VIEW JOB DETAIL (job_seeker/view_job_detail.dart)
-
-class ViewJobApplyJobButton extends StatelessWidget {
-  final Map<String, dynamic> job;
-  final int userId;
-  const ViewJobApplyJobButton({
-    super.key, 
-    required this.job,
-    required this.userId,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColor.primary,
-        foregroundColor: AppColor.light,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: const VisualDensity(vertical: -2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4)
-        )
-      ),
-      onPressed: () {
-          showJobDetailModal(context, job, userId);
-      }, 
-      child: const Text('Apply')
-    );
-  }
-}
 
 class ViewJobSendMessageButton extends StatelessWidget {
   const ViewJobSendMessageButton({super.key});

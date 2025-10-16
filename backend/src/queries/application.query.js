@@ -47,7 +47,7 @@ export async function getApplicationByJobAndUser(jobId, userId) {
 
 export async function getApplicationsByEmployer(employerId) {
     const [rows] = await pool.query(
-        `SELECT a.*, j.title, j.location, u.full_name
+        `SELECT a.*, j.title, j.location, u.full_name, u.document_path
         FROM applications a
         JOIN jobs j ON a.job_id = j.id
         JOIN users u ON a.job_seeker_id = u.id

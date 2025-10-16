@@ -2,9 +2,14 @@ import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
+import 'package:app/core/components/snackbar.dart';
+import 'package:app/core/hooks/utils.dart';
+import 'package:app/core/services/_endpoint.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ViewApplications extends HookWidget {
   final List<Map<String, dynamic>> applications;
@@ -187,8 +192,43 @@ class ViewApplicationsTable extends StatelessWidget {
                 DataCell(Text(application['title']?.toString() ?? 'N/A')),
                 DataCell(Text(application['location'] ?? 'N/A')),
                 DataCell(ViewApplicationUpdateStatus(initialValue: application["status"], applicationId: application["id"],)),
-                DataCell(Text(application['applied_on'] ?? 'N/A')),
-                DataCell(Text(application['resume'] ?? 'No Resume')),
+                DataCell(Text(formatDateTime(application['applied_on']))),
+                DataCell(
+                  application["document_path"] != null && application["document_path"].toString().isNotEmpty 
+                    ? GestureDetector(
+                      onTap: () async {
+                        final String filePath = application["document_path"];
+                        final String fullUrl = filePath.startsWith("http")
+                            ? filePath
+                            : "$BASE_URL/$filePath";
+
+                        final Uri uri = Uri.parse(fullUrl);
+
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication, // opens in browser or PDF viewer
+                          );
+                        } else {
+                          if (context.mounted) {
+                            AppSnackbar.show(
+                              context,
+                              message: "Cannot open document",
+                              backgroundColor: AppColor.danger
+                            );
+                          }
+                        }
+                      },
+                      child: const Text(
+                        'View Resume',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    )
+                    : const Text('No Resume')
+                ),
                 DataCell(Text(application['action'] ?? 'N/A')),
               ],
             );

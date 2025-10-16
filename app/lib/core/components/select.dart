@@ -375,7 +375,7 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
         if (!mounted) return;
         AppSnackbar.show(
           context, 
-          message: 'STatus updated successfully!',
+          message: 'Status updated successfully!',
           backgroundColor: AppColor.success
         );
       }
@@ -410,15 +410,16 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
           dropdownKey = UniqueKey(); 
         });
         
-        final result = await updateApplicationStatusModal(context, newValue);
-        
-        if (result != null && result.isNotEmpty) {
-          setState(() {
-            selectedValue = result;
-            _updateApplicationStatus(selectedValue);
-            dropdownKey = UniqueKey();
-          });
-        }
+        showDialog(
+          context: context, 
+          builder: (context) {
+            return AppModal(
+              title: 'Update application status to $newValue',
+              message: 'Are you sure to change this application status?',
+              onConfirm: () => _updateApplicationStatus(newValue),
+            );
+          }
+        );
       },
     );
   }

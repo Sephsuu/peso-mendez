@@ -3,13 +3,11 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/snackbar.dart';
-import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class OtherSkills extends HookWidget {
   final Map<String, dynamic> claims;

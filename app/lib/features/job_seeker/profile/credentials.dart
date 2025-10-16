@@ -5,6 +5,7 @@ import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/utils.dart';
+import 'package:app/core/services/_endpoint.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/services/verification_service.dart';
@@ -17,6 +18,7 @@ import 'dart:io';
 import 'package:app/core/components/navigation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
+import 'package:url_launcher/url_launcher.dart';
 
 class Credentials extends HookWidget {
   final Map<String, dynamic> claims;
@@ -354,11 +356,35 @@ class ResumeCard extends HookWidget {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      AppButton(
-                        backgroundColor: AppColor.success,
-                        label: isUploading.value ? 'Uploading...' : 'Update',
-                        visualDensityY: -2,
-                        onPressed: () {
+                      GestureDetector(
+                        onTap: () async {
+                          final String filePath = user["document_path"];
+                          final String fullUrl = filePath.startsWith("http")
+                              ? filePath
+                              : "$BASE_URL/$filePath";
+
+                          final Uri uri = Uri.parse(fullUrl);
+
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication, // opens in browser or PDF viewer
+                            );
+                          } else {
+                            if (context.mounted) {
+                              AppSnackbar.show(
+                                context,
+                                message: "Cannot open document",
+                                backgroundColor: AppColor.danger
+                              );
+                            }
+                          }
+                        },
+                        child: Text('View', style: AppText.textPrimary),
+                      ),
+                      const SizedBox(width: 15),
+                      GestureDetector(
+                        onTap: () {
                           showDialog(
                             context: context,
                             builder: (context) {
@@ -374,28 +400,8 @@ class ResumeCard extends HookWidget {
                             },
                           );
                         },
+                        child: Text('Update', style: AppText.textSuccess),
                       ),
-                      const SizedBox(width: 5),
-                      AppButton(
-                        label: isUploading.value ? 'Uploading...' : 'Continue',
-                        visualDensityY: -2,
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AppModal(
-                                title: 'Upload selected document?',
-                                confirmBackground: AppColor.primary,
-                                confirmForeground: AppColor.light,
-                                onConfirm: () async {
-                                  Navigator.pop(context);
-                                  await submitVerification(context);
-                                },
-                              );
-                            },
-                          );
-                        },
-                      )
                     ],
                   )
                 ],
