@@ -1,6 +1,7 @@
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/auth_service.dart';
+import 'package:app/core/services/notification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
@@ -64,7 +65,13 @@ class _RegisterFormState extends State<RegisterForm> {
             'role': roleValue
         });
 
-        if (res.isNotEmpty) {
+        final notifRes = await NotificationService.createNotification({
+          "userId": 7,
+          "type": 'ACCOUNT CREATED',
+          "content": "${res['role'] == 'job_seeker' ? "Job Seeker" : "Employer"} ${res['username']} has been registered." 
+        });
+
+        if (res.isNotEmpty && notifRes.isNotEmpty) {
           if (!mounted) return;
           if (roleValue == 'employer') {
             AppSnackbar.show(

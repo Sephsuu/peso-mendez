@@ -10,6 +10,7 @@ import applicationRouter from './src/routes/application.route.js';
 import announcementRouter from './src/routes/announcement.route.js';
 import verificationRouter from './src/routes/verification.route.js';
 import uploadRoute from './src/routes/upload.route.js';
+import notificationRoute from './src/routes/notifications.route.js';
 
 // Optional secret
 const secret = 'your-static-development-secret-key-here';
@@ -48,7 +49,8 @@ app.use('/jobs', jobRouter);
 app.use('/applications', applicationRouter);
 app.use('/announcements', announcementRouter);
 app.use('/verifications', verificationRouter);
-app.use('/uploads', uploadRoute); // make sure Flutter hits /api/upload
+app.use('/uploads', uploadRoute); 
+app.use('/notifications', notificationRoute); 
 
 // ✅ Start server
 app.listen(PORT, () => {

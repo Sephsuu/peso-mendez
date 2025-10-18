@@ -191,7 +191,10 @@ class ViewApplicationsTable extends StatelessWidget {
                 DataCell(Text(application['full_name'] ?? 'N/A')),
                 DataCell(Text(application['title']?.toString() ?? 'N/A')),
                 DataCell(Text(application['location'] ?? 'N/A')),
-                DataCell(ViewApplicationUpdateStatus(initialValue: application["status"], applicationId: application["id"],)),
+                DataCell(ViewApplicationUpdateStatus(
+                  initialValue: application["status"], 
+                  application: application)
+                ),
                 DataCell(Text(formatDateTime(application['applied_on']))),
                 DataCell(
                   application["document_path"] != null && application["document_path"].toString().isNotEmpty 

@@ -5,6 +5,7 @@ import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/use_claims.dart';
+import 'package:app/core/services/notification_service.dart';
 import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
@@ -66,21 +67,28 @@ class EmpployerUploadDocument extends HookWidget {
         final uploadedPath = await VerificationService.uploadDocuments(pickedFile.value!, 'employer');
         if (!context.mounted) return;        
 
-        await VerificationService.createVerification({
+        final res = await VerificationService.createVerification({
           "employerId": claims['id'],
           "documents": uploadedPath['filePath'], // ✅ backend file path
           "status": "pending",
         });
 
-        if (!context.mounted) return;
-        AppSnackbar.show(
-          context,
-          message:
-              'Documents uploaded successfully. Please wait for admin approval.',
-          backgroundColor: AppColor.success,
-        );
+        final notifRes = await NotificationService.createNotification({
+          "userId": 7,
+          "type": 'ACCREDITATION CREATED',
+          "content": "${claims['full_name']} applied for an accreditation." 
+        });
 
-        navigateTo(context, const EmployerDashboard());
+        if (res.isNotEmpty && notifRes.isNotEmpty) {
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context,
+            message:
+                'Documents uploaded successfully. Please wait for admin approval.',
+            backgroundColor: AppColor.success,
+          );
+          navigateTo(context, const EmployerDashboard());
+        }
       } catch (e) {
         if (!context.mounted) return;
         AppSnackbar.show(

@@ -8,6 +8,7 @@ import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/job_service.dart';
+import 'package:app/core/services/notification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
@@ -112,7 +113,13 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           "visibility": visibilityValue
         });
 
-        if (res.isNotEmpty) {
+        final notifRes = await NotificationService.createNotification({
+          "userId": 7,
+          "type": 'JOB CREATED',
+          "content": "Job $jobTitleValue has been created." 
+        });
+
+        if (res.isNotEmpty || notifRes.isNotEmpty) {
           for (var skill in selectedSkills) {
             await JobService.createJobSkill({
               "jobId": res['id'],

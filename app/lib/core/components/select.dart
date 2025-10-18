@@ -1,6 +1,7 @@
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/application_service.dart';
+import 'package:app/core/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/colors.dart';
@@ -345,12 +346,12 @@ class ViewApplicationDropdownSelect extends StatelessWidget {
 
 class ViewApplicationUpdateStatus extends StatefulWidget {
   final String initialValue;
-  final int applicationId;
+  final Map<String, dynamic> application;
 
   ViewApplicationUpdateStatus({
     super.key,
     required this.initialValue,
-    required this.applicationId
+    required this.application
   });
 
   @override
@@ -370,8 +371,15 @@ class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatu
   
   void _updateApplicationStatus(status) async {
     try {
-      final res = await ApplicationService.updateApplicationStatus(widget.applicationId, status);
-      if (res.isNotEmpty) {
+      final res = await ApplicationService.updateApplicationStatus(widget.application['id'], status);
+
+      final notifRes = await NotificationService.createNotification({
+        "userId": widget.application['job_seeker_id'],
+        "type": 'APPLICATION STATUS',
+        "content": "Application status updated to $status" 
+      });
+
+      if (res.isNotEmpty && notifRes.isNotEmpty) {
         if (!mounted) return;
         AppSnackbar.show(
           context, 
