@@ -7,7 +7,10 @@ import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/forms/login.dart';
+import 'package:app/features/shared/job_listing.dart';
 import 'package:app/features/shared/announcements.dart';
+import 'package:app/features/shared/messages.dart';
+import 'package:app/features/shared/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -27,7 +30,10 @@ class OffcanvasNavigation extends HookWidget {
           const JobSeekerDashboard() : claims['role'] == 'employer' ?
           const EmployerDashboard() : const AdminDashboard() 
       },
+      { "name": "Job Listing", "href": const JobListing() },
+      // { "name": "Messages", "href": Messages(user: claims) },
       { "name": "Announcements", "href": const Announcements() },
+      { "name": "Notifications", "href": const Notifications() },
       { "name": "Career Hub", "href": claims['role'] == 'job_seeker' ?
           const JobSeekerDashboard() : claims['role'] == 'employer' ?
           const EmployerDashboard() : const AdminDashboard() 

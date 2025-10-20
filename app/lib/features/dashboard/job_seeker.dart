@@ -9,7 +9,7 @@ import 'package:app/core/services/job_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
-import 'package:app/features/job_listing.dart';
+import 'package:app/features/shared/job_listing.dart';
 import 'package:app/features/job_seeker/all_applications.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/job_seeker/view_application.dart';
@@ -67,8 +67,6 @@ class JobSeekerDashboard extends HookWidget {
                   const GoToMessagesCard(),
                   const SizedBox(height: 10.0),
                   YourApplicationsCard(applications: applications.value),
-                  const SizedBox(height: 15.0),
-                  const SuggestedTrainings(),
                   const SizedBox(height: 15.0),
                   SavedJobsCard(savedJobs: savedJobs.value),
                 ],
@@ -384,30 +382,6 @@ class YourApplicationsCard extends HookWidget {
     );
   }
 }
-
-class SuggestedTrainings extends StatefulWidget {
-  const SuggestedTrainings({super.key});
-
-  @override
-  State<SuggestedTrainings> createState() => _SuggestedTrainingsState();
-}
-
-class _SuggestedTrainingsState extends State<SuggestedTrainings> {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Suggested Trainings and Events', style: AppText.textLg.merge(AppText.fontSemibold)),
-          Text('No upcoming trainings or events', style: AppText.textMuted)
-        ],
-      ),
-    );
-  }
-}
-
 
 class SavedJobsCard extends StatelessWidget {
   final List<Map<String, dynamic>> savedJobs; 

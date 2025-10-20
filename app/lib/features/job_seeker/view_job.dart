@@ -14,6 +14,7 @@ import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/job_seeker/already_applied.dart';
+import 'package:app/features/shared/messages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
@@ -130,7 +131,10 @@ class ViewJob extends HookWidget {
               jobSkills: jobSkills.value,
             ),
             JobDetailsCard(job: job.value),
-            AboutCompanyCard(job: job.value),
+            AboutCompanyCard(
+              claims: claims,
+              job: job.value
+            ),
             const Footer()
           ],
         ),
@@ -502,10 +506,12 @@ class JobDetailsCard extends StatelessWidget {
 }
 
 class AboutCompanyCard extends StatelessWidget {
+  final Map<String, dynamic> claims;
   final Map<String, dynamic> job;
 
   const AboutCompanyCard({
     super.key,
+    required this.claims,
     required this.job
   });
 
@@ -576,7 +582,7 @@ class AboutCompanyCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4)
                     )
                   ),
-                  onPressed: () {},
+                  onPressed: () => navigateTo(context, Messages(user: claims, otherUserId: job['employer_id'])),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

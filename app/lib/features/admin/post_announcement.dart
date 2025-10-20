@@ -5,6 +5,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/announcement_service.dart';
+import 'package:app/core/services/notification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/admin.dart';
@@ -71,8 +72,15 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
         "audience": targetAudienceVal!.toLowerCase().replaceAll(' ', '_')
       };
       try {
+        final announcementType = _targetAudience == 'Job Seeker' ? "JOB SEEKER" : _targetAudience == "Employer" ? "EMPLOYER" : "FOR ALL";
         final res = await AnnouncementService.createAnnouncement(announcement);
-        if (res.isNotEmpty) {
+        final notifRes = await NotificationService.createNotification({
+          "userId": 7,
+          "type": '$announcementType ANNOUNCEMENT',
+          "content": "Admin has announced something." 
+        });
+
+        if (res.isNotEmpty || notifRes.isNotEmpty) {
           if (!mounted) return;
           AppSnackbar.show(
             context, 

@@ -11,6 +11,7 @@ import announcementRouter from './src/routes/announcement.route.js';
 import verificationRouter from './src/routes/verification.route.js';
 import uploadRoute from './src/routes/upload.route.js';
 import notificationRoute from './src/routes/notifications.route.js';
+import messageRoute from './src/routes/message.route.js';
 
 // Optional secret
 const secret = 'your-static-development-secret-key-here';
@@ -51,6 +52,7 @@ app.use('/announcements', announcementRouter);
 app.use('/verifications', verificationRouter);
 app.use('/uploads', uploadRoute); 
 app.use('/notifications', notificationRoute); 
+app.use('/messages', messageRoute);
 
 // ✅ Start server
 app.listen(PORT, () => {
