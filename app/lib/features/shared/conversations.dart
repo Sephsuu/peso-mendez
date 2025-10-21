@@ -1,5 +1,8 @@
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/hooks/use_claims.dart';
+import 'package:app/core/services/message_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
@@ -11,34 +14,28 @@ class Conversations extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🧠 Example: Your logged-in user's ID
-    const userId = 40;
+    final claims = useClaimsHook(context);
+    final conversations = useState<List<Map<String, dynamic>>>([]);
 
-    // 🧱 Mock conversations data
-    final List<Map<String, dynamic>> conversations = [
-      {
-        "id": 8,
-        "latest_message": "Hello Worlds 2",
-        "created_at": "2025-10-20T16:24:19.000Z",
-        "updated_at": "2025-10-20T16:24:43.000Z",
-        "user_a_id": 43,
-        "user_a_name": "Marcela Del Pillar",
-        "user_b_id": 40,
-        "user_b_name": "Jhonane Santons"
-      },
-      {
-        "id": 9,
-        "latest_message": "Are you coming tomorrow?",
-        "created_at": "2025-10-19T13:12:00.000Z",
-        "updated_at": "2025-10-19T13:12:00.000Z",
-        "user_a_id": 40,
-        "user_a_name": "Jhonane Santons",
-        "user_b_id": 41,
-        "user_b_name": "Carlos Reyes"
-      },
-    ];
+    useEffect(() {
+      void fetchData() async {
+        try {
+          final res = await MessageService.getConversations(claims['id']);
+          conversations.value = res;
+        } catch (e) {
+          if (!context.mounted) return;
+          showDialog(
+            context: context, 
+            builder: (context) {
+              return AppModal(
+                title: '$e'
+              );
+            }
+          );
+        }
+      } fetchData(); return null;
+    }, [claims]);
 
-    // 🔹 Function to format short messenger-style date
     String formatShortDate(String isoString) {
       final date = DateTime.parse(isoString).toLocal();
       final now = DateTime.now();
@@ -78,9 +75,7 @@ class Conversations extends HookWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 'Messages',
-                style: AppText.textLg.merge(AppText.fontSemibold).copyWith(
-                      color: AppColor.primary,
-                    ),
+                style: AppText.textLg.merge(AppText.fontSemibold)
               ),
             ),
             const Divider(thickness: 1, height: 16),
@@ -88,12 +83,12 @@ class Conversations extends HookWidget {
             // 💬 Conversation List
             Expanded(
               child: ListView.builder(
-                itemCount: conversations.length,
+                itemCount: conversations.value.length,
                 itemBuilder: (context, index) {
-                  final conv = conversations[index];
+                  final conv = conversations.value[index];
 
                   // Determine who the "other person" is
-                  final isUserA = conv['user_a_id'] == userId;
+                  final isUserA = conv['user_a_id'] == claims['id'];
                   final otherName = isUserA
                       ? conv['user_b_name']
                       : conv['user_a_name'];

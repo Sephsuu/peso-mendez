@@ -1,3 +1,4 @@
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/services/message_service.dart';
 import 'package:app/core/services/user_service.dart';
@@ -60,14 +61,6 @@ class Messages extends HookWidget {
       } fetchData(); return null;
     }, [otherUserId, reload.value]);
 
-    // useState for managing messages list
-    // final messages = useState<List<Map<String, dynamic>>>([
-    //   {'sender': 'job_seeker', 'text': 'Hi! I saw your new job post.'},
-    //   {'sender': 'employer', 'text': 'Hello! Yes, we’re looking for developers.'},
-    //   {'sender': 'job_seeker', 'text': 'That’s great. I’m very interested!'},
-    //   {'sender': 'employer', 'text': 'Please send your resume to hr@example.com.'},
-    // ]);
-
     final controller = useTextEditingController();
 
     void sendMessage() async {
@@ -95,9 +88,10 @@ class Messages extends HookWidget {
       }
     }
 
+    if (otherUser.value.isEmpty) return const Loader();
     return Scaffold(
       appBar: AppBar(
-        title: Text(user['full_name'], style: AppText.textMd.merge(AppText.fontSemibold)),
+        title: Text(otherUser.value['full_name'], style: AppText.textMd.merge(AppText.fontSemibold)),
       ),
       body: Column(
         children: [

@@ -10,14 +10,18 @@ async function verifyConversation(userId, otherId, message) {
       [userId, otherId, otherId, userId]
     );
 
+    console.log(rows);
+    
+
     if (rows.length > 0) {
       const updateConvo = await pool.query(
         `UPDATE conversations SET latest_message = ? WHERE id = ?`,
         [message, rows[0].id]
       )
+      return
     }
 
-    const createConvo = await pool.query(
+    return await pool.query(
       `INSERT INTO conversations (user_a, user_b, latest_message)
       VALUES (?, ?, ?)`,
       [userId, otherId, message]
@@ -54,7 +58,7 @@ export async function getMessages(userId, otherId) {
       (sender_id = ? AND receiver_id = ?)
       OR
       (sender_id = ? AND receiver_id = ?)
-    ORDER BY timestamp ASC
+    ORDER BY created_at ASC
     `,
     [userId, otherId, otherId, userId]
   );
