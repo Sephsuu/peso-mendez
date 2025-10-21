@@ -18,6 +18,7 @@ class Notifications extends HookWidget {
     final notifications = useState<List<Map<String, dynamic>>>([]);
 
     useEffect(() {
+      if (claims.isEmpty) return null;
       void fetchData() async {
         try {
           final res = await NotificationService.getNotificationsByRole({

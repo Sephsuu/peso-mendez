@@ -3,6 +3,16 @@ import * as messageQuery from '../queries/message.query.js';
 
 const router = express.Router();
 
+router.get('/get-conversations', async (req, res) => {
+    const { userId } = req.query;
+    try {
+        const query = await messageQuery.getConversationsByUser(userId);
+        res.json(query);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+})
+
 router.get('/get-messages', async (req, res) => {
     const { userId, otherId } = req.query;
     try {
