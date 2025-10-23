@@ -54,6 +54,18 @@ class ViewActiveJobs extends HookWidget {
       return null;
     }, [search.value]);
 
+    useEffect(() {
+      if (selectedJob.value == jobOptions[0]) {
+        filteredJobs.value = jobs.where((job) {
+          return job['status'] == 'active';
+        }).toList();
+      } else {
+        filteredJobs.value = jobs.where((job) {
+          return job['status'] == 'inactive';
+        }).toList();
+      } return null;
+    }, [selectedJob.value]);
+
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -72,6 +84,7 @@ class ViewActiveJobs extends HookWidget {
             ViewActiveJobsTable(
               jobs: filteredJobs.value,
               setReload: setReload,
+              selectedJob: selectedJob.value,
             ),
             const SizedBox(height: 300),
             const Footer()
@@ -155,46 +168,56 @@ class ViewActiveJobsFilter extends StatelessWidget {
 class ViewActiveJobsTable extends StatelessWidget {
   final List<Map<String, dynamic>> jobs;
   final VoidCallback setReload;
+  final String selectedJob;
 
   const ViewActiveJobsTable({
     super.key,
     required this.jobs,
     required this.setReload,
+    required this.selectedJob,
   });
 
   @override
   Widget build(BuildContext context) {
-
     void handleDelete(int id) async {
       try {
         final res = await JobService.deleteJob(id);
         if (res.isNotEmpty) {
           if (!context.mounted) return;
-          AppSnackbar.show(
-            context, 
-            message: 'Job deleted sucessfully!'
-          );
+          AppSnackbar.show(context, message: 'Job deleted successfully!');
           setReload();
         }
       } catch (e) {
         if (!context.mounted) return;
-        AppSnackbar.show(
-          context, 
-          message: 'Error $e'
-        );
+        AppSnackbar.show(context, message: 'Error $e');
       }
     }
 
+    // ✅ Show a message if there are no jobs
+    if (jobs.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            'No ${selectedJob.toLowerCase()} found.',
+            style: AppText.fontSemibold.merge(AppText.textLg),
+          ),
+        ),
+      );
+    }
+
+    // ✅ Otherwise, show the data table
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTableTheme(
         data: DataTableThemeData(
-          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+          headingRowColor:
+              WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
           headingTextStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
-        ), 
+        ),
         child: DataTable(
           headingRowHeight: 40,
           dataRowMinHeight: 30,
@@ -224,46 +247,55 @@ class ViewActiveJobsTable extends StatelessWidget {
                 DataCell(
                   AppBadge(
                     text: job["visibility"],
-                    color: job["visibility"] == 'Lite' ? const Color.fromARGB(255, 52, 32, 0) : job["visibility"] == 'Branded' ? const Color.fromARGB(255, 150, 150, 150) : const Color.fromARGB(255, 156, 101, 0),
+                    color: job["visibility"] == 'Lite'
+                        ? const Color.fromARGB(255, 52, 32, 0)
+                        : job["visibility"] == 'Branded'
+                            ? const Color.fromARGB(255, 150, 150, 150)
+                            : const Color.fromARGB(255, 156, 101, 0),
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                  )
+                  ),
                 ),
                 DataCell(Text(job['posted_on'] ?? 'N/A')),
                 DataCell(
                   Row(
                     children: [
                       AppButton(
-                        label: 'View', 
-                        onPressed: () => navigateTo(context, ViewJob(jobId: job['id'])),
+                        label: 'View',
+                        onPressed: () =>
+                            navigateTo(context, ViewJob(jobId: job['id'])),
                         backgroundColor: AppColor.primary,
                         visualDensityY: -3,
                         textSize: 12,
                       ),
                       const SizedBox(width: 10),
                       AppButton(
-                        label: 'Update', 
-                        onPressed: () => navigateTo(context, EditJob(job: job)),
+                        label: 'Update',
+                        onPressed: () =>
+                            navigateTo(context, EditJob(job: job)),
                         backgroundColor: AppColor.success,
                         visualDensityY: -3,
                         textSize: 12,
                       ),
                       const SizedBox(width: 10),
                       AppButton(
-                        label: 'Delete', 
+                        label: 'Delete',
                         onPressed: () {
                           showDialog(
                             context: context,
                             builder: (context) {
                               return AppModal(
-                                title: 'Are you sure to delete job: ${job["title"]}',
-                                titleStyle: AppText.fontSemibold.merge(AppText.textLg),
-                                message: 'Warning: This action is irreversible.',
+                                title:
+                                    'Are you sure to delete job: ${job["title"]}',
+                                titleStyle:
+                                    AppText.fontSemibold.merge(AppText.textLg),
+                                message:
+                                    'Warning: This action is irreversible.',
                                 confirmLabel: "Confirm",
                                 confirmBackground: AppColor.danger,
                                 confirmForeground: AppColor.light,
                                 onConfirm: () => handleDelete(job["id"]),
                               );
-                            }
+                            },
                           );
                         },
                         backgroundColor: AppColor.danger,
@@ -271,11 +303,11 @@ class ViewActiveJobsTable extends StatelessWidget {
                         textSize: 12,
                       ),
                     ],
-                  )
+                  ),
                 ),
               ],
             );
-          }).toList()
+          }).toList(),
         ),
       ),
     );

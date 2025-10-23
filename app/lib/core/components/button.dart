@@ -78,7 +78,7 @@ class HomepageFindButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(4)
         )
       ),
-      onPressed: () { }, 
+      onPressed: () {}, 
       child: const Text('Find Job'),
     );
   }
