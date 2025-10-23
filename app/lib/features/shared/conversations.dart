@@ -5,6 +5,7 @@ import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/services/message_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/shared/messages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
@@ -98,10 +99,10 @@ class Conversations extends HookWidget {
                       formatShortDate(conv['updated_at'] ?? conv['created_at']);
 
                   return InkWell(
-                    onTap: () {
-                      // Navigate to chat page (optional)
-                      debugPrint('Open conversation ${conv['id']}');
-                    },
+                    onTap: () => navigateTo(
+                      context, 
+                      Messages(user: claims, otherUserId: conv['user_a_id'] == claims['id'] ? conv['user_b_id'] : conv['user_a_id'])
+                    ),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Row(

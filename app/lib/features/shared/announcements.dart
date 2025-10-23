@@ -7,6 +7,7 @@ import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/announcement_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/shared/view_announcement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -47,12 +48,9 @@ class Announcements extends HookWidget {
     return Scaffold(
       appBar: AppNavigationBar(
         title: 'Mendez PESO Job Portal',
-        onMenuPressed: (context) {
-          Scaffold.of(context).openDrawer();
-        },
+        onMenuPressed: (context) => Scaffold.of(context).openDrawer(),
       ),
       endDrawer: const OffcanvasNavigation(),
-
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -63,7 +61,7 @@ class Announcements extends HookWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 'Announcements',
-                style: AppText.textLg.merge(AppText.fontSemibold)
+                style: AppText.textLg.merge(AppText.fontSemibold),
               ),
             ),
             const Divider(thickness: 1, height: 16),
@@ -81,6 +79,7 @@ class Announcements extends HookWidget {
                       itemCount: announcements.value.length,
                       itemBuilder: (context, index) {
                         final item = announcements.value[index];
+
                         return Card(
                           elevation: 2,
                           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -89,24 +88,30 @@ class Announcements extends HookWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // 🏷 Title
                                 Text(
                                   item['title'] ?? 'Untitled',
-                                  style: AppText.textSm
-                                      .merge(AppText.fontSemibold),
+                                  style: AppText.textSm.merge(AppText.fontSemibold),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 6),
+
+                                // 📄 Content (ellipsis after 2 lines)
                                 Text(
                                   item['content'] ?? 'No content available.',
                                   style: AppText.textXs,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 10),
+
+                                // 📅 Footer row
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      formatAnnouncementDate(
-                                          item['posted_on']),
+                                      formatAnnouncementDate(item['posted_on']),
                                       style: AppText.textXs.copyWith(
                                         color: Colors.grey[600],
                                       ),
@@ -114,7 +119,7 @@ class Announcements extends HookWidget {
                                     AppButton(
                                       label: 'View More',
                                       textSize: 10,
-                                      onPressed: () {},
+                                      onPressed: () => navigateTo(context, ViewAnnouncement(announcement: item)),
                                       visualDensityY: -4,
                                     ),
                                   ],

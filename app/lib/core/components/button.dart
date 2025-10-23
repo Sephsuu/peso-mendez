@@ -19,19 +19,23 @@ class AppButton extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double visualDensityY;
   final bool isDisabled;
+  final bool disableShadow; // 👈 NEW
   final VoidCallback? onPressed;
+  final Color? shadowColor; // 👈 Now optional
 
   const AppButton({
     super.key,
     required this.label,
     required this.onPressed,
-    this.textSize = 14, 
+    this.textSize = 14,
     this.foregroundColor = AppColor.light,
     this.backgroundColor = AppColor.primary,
     this.borderRadius = 4,
     this.padding = const EdgeInsets.symmetric(horizontal: 10),
     this.visualDensityY = 0,
     this.isDisabled = false,
+    this.disableShadow = false, // 👈 Default: false
+    this.shadowColor, // 👈 Optional
   });
 
   @override
@@ -42,17 +46,21 @@ class AppButton extends StatelessWidget {
         padding: padding,
         foregroundColor: foregroundColor,
         backgroundColor: backgroundColor,
+        elevation: disableShadow ? 0 : 2, // 👈 Removes shadow when true
+        shadowColor: disableShadow
+            ? Colors.transparent // 👈 No shadow color when disabled
+            : (shadowColor ?? Colors.grey.withValues(alpha: 0.5)), // 👈 Default shadow
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius)
-        )
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
       ),
       onPressed: isDisabled ? null : onPressed,
       child: Text(
-        label, 
+        label,
         style: TextStyle(
-          fontSize: textSize
-        )
-      )
+          fontSize: textSize,
+        ),
+      ),
     );
   }
 }
@@ -70,9 +78,7 @@ class HomepageFindButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(4)
         )
       ),
-      onPressed: () {
-        print("Pressed");
-      }, 
+      onPressed: () { }, 
       child: const Text('Find Job'),
     );
   }

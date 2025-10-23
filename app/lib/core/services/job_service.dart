@@ -10,6 +10,13 @@ class JobService {
     );
   }
 
+  static Future<List<Map<String, dynamic>>> getRecommendedJobs(userId) async {
+    return await request(
+      '$url/get-recommended?id=$userId',
+      method: 'GET'
+    );
+  }
+
   static Future<Map<String, dynamic>> getJobById(int id) async {
     return await request(
       '$url/get-by-id?id=$id',

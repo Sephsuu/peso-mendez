@@ -5,6 +5,19 @@ export async function getJobs() {
     return rows;
 }
 
+export async function getRecommendedJobs(userId) {
+    const [rows] = await pool.query(
+        `SELECT DISTINCT j.*
+        FROM jobs j
+        JOIN job_skills js ON j.id = js.job_id
+        JOIN other_skills os ON js.skill = os.skill
+        WHERE os.user_id = ? AND j.status = ?;`,
+        [userId, 'active']
+    )
+
+    return rows ?? [];
+}
+
 export async function getJobById(id) {
     const [rows] = await pool.query(
         `SELECT *, j.id as id FROM jobs j 

@@ -19,6 +19,7 @@ import 'package:app/core/components/loader.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/core/theme/colors.dart';
 
+const jobOptions = ['Featured Jobs', 'Recommended Jobs'];
 
 class JobListing extends HookWidget {
   const JobListing({super.key});
@@ -26,6 +27,8 @@ class JobListing extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
+    final activeJobs = useState(jobOptions[0]);
+    final loading = useState(false);
     final find = useState("");
     final type = useState("All Jobs");
     final jobs = useState<List<Map<String, dynamic>>>([]);
@@ -42,17 +45,23 @@ class JobListing extends HookWidget {
     // Fetch all jobs
     useEffect(() {
       void fetchData() async {
+        loading.value = true; 
         try {
-          final data = await JobService.getAllJobs();
-          jobs.value = data;
+          if (activeJobs.value == jobOptions[0]) {
+            final data = await JobService.getAllJobs();
+            jobs.value = data;
+          } else {
+            final data = await JobService.getRecommendedJobs(claims['id']);
+            jobs.value = data;
+          }
         } catch (e) {
           if (!context.mounted) return;
           showAlertError(context, "Failed to load jobs.");
-        }
+        } finally { loading.value = false; }
       }
       fetchData();
       return null;
-    }, []);
+    }, [activeJobs.value]);
     
     // Filter all jobs depending on find search
     useEffect(() {
@@ -91,6 +100,18 @@ class JobListing extends HookWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: jobOptions.map((item) {
+                  return AppButton(
+                    label: item,
+                    onPressed: () { activeJobs.value = item; },
+                    disableShadow: true,
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: activeJobs.value != item ? AppColor.muted : AppColor.primary,
+                  );
+                }).toList()
+              ),
               Align(
                 alignment: Alignment.topCenter,
                 child: HomepageJumbotron(
@@ -101,14 +122,18 @@ class JobListing extends HookWidget {
                 ),
               ),
               const SizedBox(height: 10.0),
-              Text('Featured Local Jobs', style: AppText.textXl.merge(AppText.fontBold)),
+              Text(
+                activeJobs.value == jobOptions[0] ? 'Featured Local Jobs' : 'Jobs Matching My Skills',
+                style: AppText.textXl.merge(AppText.fontBold)
+              ),
               const SizedBox(height: 10.0),
               SizedBox(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                  child: FeaturedJobs(
+                  child: JobList(
                     claims: claims,
                     jobs: filteredJobs.value,
+                    loading: loading.value,
                   )
                 ),
               ),
@@ -214,20 +239,44 @@ class HomepageJumbotron extends StatelessWidget {
   }
 }
 
-class FeaturedJobs extends StatelessWidget {
+class JobList extends StatelessWidget {
   final Map<String, dynamic> claims;
   final List<Map<String, dynamic>> jobs;
+  final bool loading; 
 
-  const FeaturedJobs({
+  const JobList({
     super.key,
     required this.claims,
     required this.jobs,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (loading) return const Loader();
     if (jobs.isEmpty) {
-      return Container(padding: const EdgeInsets.symmetric(vertical: 40), child: const CircularProgressIndicator(color: AppColor.info));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.work_outline, size: 48, color: AppColor.muted),
+              const SizedBox(height: 12),
+              Text(
+                "No jobs found",
+                style: AppText.textMd.merge(AppText.fontSemibold),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "Try adjusting your filters or check back later.",
+                style: AppText.textMuted.merge(AppText.textSm),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return ListView.builder(
@@ -239,47 +288,63 @@ class FeaturedJobs extends StatelessWidget {
         return Card(
           color: Colors.white,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Color.fromARGB(255, 223, 223, 223), width: 1.0),
-            borderRadius: BorderRadius.circular(8)
+            side: const BorderSide(
+              color: Color.fromARGB(255, 223, 223, 223),
+              width: 1.0,
+            ),
+            borderRadius: BorderRadius.circular(8),
           ),
           margin: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(job["title"], style: AppText.textMd.merge(AppText.fontSemibold)),
+                Text(job["title"],
+                    style: AppText.textMd.merge(AppText.fontSemibold)),
                 const SizedBox(height: 12.0),
-                Text(job["company"], style: AppText.textSecondary.merge(AppText.fontSemibold)),
+                Text(job["company"],
+                    style:
+                        AppText.textSecondary.merge(AppText.fontSemibold)),
                 const SizedBox(height: 8.0),
-                Text("📍 ${job["location"]}", style: AppText.textMuted.merge(AppText.textXs)),
+                Text("📍 ${job["location"]}",
+                    style: AppText.textMuted.merge(AppText.textXs)),
                 const SizedBox(height: 8.0),
-                Text("💰 ${job["salary"]} • ${job["company"]}", style: AppText.textPrimary.merge(const TextStyle(fontSize: 13)).merge(AppText.fontSemibold)),
+                Text(
+                  "💰 ${job["salary"]} • ${job["company"]}",
+                  style: AppText.textPrimary
+                      .merge(const TextStyle(fontSize: 13))
+                      .merge(AppText.fontSemibold),
+                ),
                 const SizedBox(height: 15.0),
                 AppButton(
-                  label: 'View Details', 
-                  onPressed: claims['role'] == 'job_seeker' || claims['role'] == 'admin' ? 
-                    () => navigateTo(context, ViewJob(jobId: job['id'])) 
-                  : claims['role'] == 'employer' ? 
-                    () => showDialog(
-                      context: context, 
-                      builder: (context) {
-                        return AppModal(
-                          title: 'You cannot apply for this job because you\' an emplyer at PESO Mendez',
-                          titleStyle: AppText.fontSemibold.merge(AppText.textLg),
-                          confirmLabel: "I understand.",
-                          confirmBackground: AppColor.primary,
-                          confirmForeground: AppColor.light,
-                        );
-                      }
-                    )
-                  : () =>  navigateTo(context, const Login()),
+                  label: 'View Details',
+                  onPressed: claims['role'] == 'job_seeker' ||
+                          claims['role'] == 'admin'
+                      ? () => navigateTo(context, ViewJob(jobId: job['id']))
+                      : claims['role'] == 'employer'
+                          ? () => showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AppModal(
+                                    title:
+                                        "You cannot apply for this job because you're an employer at PESO Mendez",
+                                    titleStyle: AppText.fontSemibold
+                                        .merge(AppText.textLg),
+                                    confirmLabel: "I understand.",
+                                    confirmBackground: AppColor.primary,
+                                    confirmForeground: AppColor.light,
+                                  );
+                                },
+                              )
+                          : () => navigateTo(context, const Login()),
                   foregroundColor: AppColor.light,
                   visualDensityY: -1,
-                )
+                ),
               ],
             ),
-          )
+          ),
         );
       },
     );

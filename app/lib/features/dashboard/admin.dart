@@ -118,102 +118,81 @@ class EmployerVerificationQueue extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final reload = useState(false);
-    final employerVerifications = useState<List<Map<String, dynamic>>>([]);
-
-    void setReload() {
-      reload.value = !reload.value;
-    }
+    final verifications = useState<List<Map<String, dynamic>>>([]);
 
     useEffect(() {
-      void fetchData() async {
+      () async {
         try {
-          final res = await VerificationService.getVerificationsByRole('');
-          employerVerifications.value = res;
+          verifications.value = await VerificationService.getVerificationsByRole('');
         } catch (e) {
-          if (!context.mounted) return;
-          showAlertError(context, "Error: $e"); 
+          if (context.mounted) showAlertError(context, "Error: $e");
         }
-      }
-      fetchData();
+      }();
       return;
     }, [reload.value]);
 
-    Future<void> handleSubmit(id, status) async {
+    Future<void> updateStatus(id, status) async {
       try {
-        final res = await VerificationService.updateVerificationStatus(id, status);
-        if (res.isNotEmpty) {
-          if (!context.mounted) return;
+        await VerificationService.updateVerificationStatus(id, status);
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Employer verification status updated successfully!'))
+            const SnackBar(content: Text('Status updated successfully!')),
           );
-          setReload();
+          reload.value = !reload.value;
         }
-      } catch (e) { 
-        if (!context.mounted) return;
-        showAlertError(context, '$e');
+      } catch (e) {
+        if (context.mounted) showAlertError(context, '$e');
       }
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("🗂 Employer Verification Queue", style: AppText.textXl.merge(AppText.fontSemibold)),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Employer Name')),
-              DataColumn(label: Text('E-mail Address')),
-              DataColumn(label: Text('Status')),
-              DataColumn(label: Text('Actions')),
-            ], 
-            rows: employerVerifications.value.map((item) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(item['full_name'])),
-                  DataCell(Text(item['email'])),
-                  DataCell(Text(item['status'])),
-                  DataCell(
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            visualDensity: const VisualDensity(vertical: -3),
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            foregroundColor: AppColor.light,
-                            backgroundColor: AppColor.success,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4)
-                            )
-                          ),
-                          onPressed: () async {
-                            handleSubmit(item['id'], 'approved');
-                          }, 
-                          child: Text('Approve', style: AppText.textXs)
+        Text("🗂 Employer Verification Queue",
+            style: AppText.textXl.merge(AppText.fontSemibold)),
+        const SizedBox(height: 16),
+
+        verifications.value.isEmpty
+            ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: Text('No employer verifications found.',
+                      style: TextStyle(color: Colors.grey)),
+                ),
+              )
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Employer Name')),
+                    DataColumn(label: Text('Email')),
+                    DataColumn(label: Text('Status')),
+                    DataColumn(label: Text('Actions')),
+                  ],
+                  rows: verifications.value.map((item) {
+                    return DataRow(cells: [
+                      DataCell(Text(item['full_name'] ?? '—')),
+                      DataCell(Text(item['email'] ?? '—')),
+                      DataCell(Text(item['status'] ?? '—')),
+                      DataCell(Row(children: [
+                        AppButton(
+                          label: 'Approve',
+                          backgroundColor: AppColor.success,
+                          onPressed: () => updateStatus(item['id'], 'approved'),
+                          visualDensityY: -3,
                         ),
                         const SizedBox(width: 5),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            visualDensity: const VisualDensity(vertical: -3),
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            foregroundColor: AppColor.light,
-                            backgroundColor: AppColor.danger,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4)
-                            )
-                          ),
-                          onPressed: () async {
-                            await handleSubmit(item['id'], 'rejected');
-                          }, 
-                          child: Text('Reject', style: AppText.textXs)
+                        AppButton(
+                          label: 'Reject',
+                          backgroundColor: AppColor.danger,
+                          onPressed: () => updateStatus(item['id'], 'rejected'),
+                          visualDensityY: -3,
                         ),
-                      ],
-                    )
-                  )
-                ]
-              );
-            }).toList()
-          ),
-        )
+                      ])),
+                    ]);
+                  }).toList(),
+                ),
+              ),
       ],
     );
   }

@@ -12,6 +12,16 @@ router.get('/', async (req, res) => {
 	}
 })
 
+router.get('/get-recommended', async (req, res) => {
+    const { id } = req.query;
+    try {
+        const query = await jobQuery.getRecommendedJobs(id);
+        return res.json(query);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+})
+
 router.get('/get-by-id', async (req, res) => {
 	const { id } = req.query;
     try {

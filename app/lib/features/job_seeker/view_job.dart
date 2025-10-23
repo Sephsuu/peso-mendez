@@ -13,6 +13,7 @@ import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/employer/edit_job.dart';
 import 'package:app/features/job_seeker/already_applied.dart';
 import 'package:app/features/shared/messages.dart';
 import 'package:flutter/material.dart';
@@ -131,10 +132,8 @@ class ViewJob extends HookWidget {
               jobSkills: jobSkills.value,
             ),
             JobDetailsCard(job: job.value),
-            AboutCompanyCard(
-              claims: claims,
-              job: job.value
-            ),
+            if (claims['id'] != job.value['employer_id'])
+              AboutCompanyCard(claims: claims, job: job.value),
             const Footer()
           ],
         ),
@@ -221,6 +220,14 @@ class ViewApplicationCover extends StatelessWidget {
           const SizedBox(height: 10),
           claims['role'] == 'admin'
             ? const SizedBox.shrink() // 👈 Return nothing (empty widget)
+          : claims['role'] == 'employer'
+            ? AppButton(
+                label: 'Update Job',
+                onPressed: () => navigateTo(context, EditJob(job: job)),
+                backgroundColor: AppColor.light,
+                foregroundColor: AppColor.dark,
+                visualDensityY: -2,
+              )
             : Row(
                 children: [
                   isSaved

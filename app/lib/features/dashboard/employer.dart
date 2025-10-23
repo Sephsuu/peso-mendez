@@ -15,7 +15,6 @@ import 'package:app/features/employer/employer_upload_document.dart';
 import 'package:app/features/employer/post_job_form.dart';
 import 'package:app/features/employer/view_active_jobs.dart';
 import 'package:app/features/employer/view_applications.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -200,7 +199,7 @@ class DashboardSummary extends StatelessWidget {
           header: '💼 Active Jobs', 
           count: jobs.length.toString(), 
           color: AppColor.success, 
-          onTap: ViewActiveJobs(onNavigate: (page) => globalNavigateTo?.call(page), jobs: jobs,)
+          onTap: ViewActiveJobs(jobs: jobs,)
         ),
         DashboardSummaryCard(
           header: '👥 Applications', 
