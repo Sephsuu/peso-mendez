@@ -95,22 +95,39 @@ class AdminSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: navigateTo,
-      child: SizedBox(
-        width: double.infinity,
-        child: Card(
-          color: color,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(text, style: AppText.textMd.merge(AppText.fontSemibold).merge(AppText.textLight)),
-                Text(count, style: AppText.textFxl.merge(AppText.fontSemibold).merge(AppText.textLight))
-              ],
-            ),
+      child: Card(
+        color: Colors.white, // ✅ light background
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          // side: BorderSide(color: color.withOpacity(0.6), width: 1.2),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5, bottom: 5, left: 15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                text,
+                textAlign: TextAlign.center,
+                style: AppText.textXs.merge(AppText.fontSemibold).copyWith(
+                      color: Colors.black87,
+                    ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                count,
+                textAlign: TextAlign.center,
+                style: AppText.textFxl.merge(AppText.fontSemibold).copyWith(
+                      color: Colors.black87,
+                    ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
+

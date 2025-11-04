@@ -12,7 +12,7 @@ class Loader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 40), 
+        padding: const EdgeInsets.symmetric(vertical: 50), 
         child: const CircularProgressIndicator(
           color: AppColor.info
         )

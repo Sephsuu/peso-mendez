@@ -7,6 +7,7 @@ import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/forms/login.dart';
+import 'package:app/features/shared/about.dart';
 import 'package:app/features/shared/conversations.dart';
 import 'package:app/features/shared/job_listing.dart';
 import 'package:app/features/shared/announcements.dart';
@@ -30,6 +31,7 @@ class OffcanvasNavigation extends HookWidget {
           const JobSeekerDashboard() : claims['role'] == 'employer' ?
           const EmployerDashboard() : const AdminDashboard() 
       },
+      { "name": "About", "href": const About() },
       { "name": "Job Listing", "href": const JobListing() },
       { "name": "Messages", "href": const Conversations() },
       { "name": "Announcements", "href": const Announcements() },
