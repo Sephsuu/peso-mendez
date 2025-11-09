@@ -1,11 +1,13 @@
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/forms/educational_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -67,6 +69,46 @@ class EducationalBackround extends HookWidget {
 
 
     if (loading.value) return const Loader();
+
+    if (user.value.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.info_outline, size: 60, color: Colors.grey),
+              const SizedBox(height: 20),
+              const Text(
+                'No educational background found.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Please fill out your educational background to continue.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 24),
+              AppButton(
+                label: 'Fill Out Information',
+                backgroundColor: AppColor.primary,
+                foregroundColor: AppColor.light,
+                onPressed: () => navigateTo(context, EducationalBackgroundForm(userId: claims['id'])), // opens modal form
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

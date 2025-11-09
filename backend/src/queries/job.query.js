@@ -1,7 +1,11 @@
 import pool from "../../db.js";
 
 export async function getJobs() {
-    const [rows] = await pool.query('SELECT * FROM jobs WHERE status = "active" ORDER BY posted_on DESC');
+    const [rows] = await pool.query(`
+        SELECT * FROM jobs 
+        WHERE status = "active" 
+        ORDER BY posted_on DESC`
+    );
     return rows;
 }
 

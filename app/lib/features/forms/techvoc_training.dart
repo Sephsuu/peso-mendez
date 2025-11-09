@@ -12,13 +12,15 @@ import 'package:flutter/material.dart';
 
 class TechVocForm extends StatefulWidget {
   final int userId;
+  final bool fromProfile; // ✅ Added to match your other forms
 
-  const TechVocForm({ 
+  const TechVocForm({
     super.key,
     required this.userId,
+    this.fromProfile = false, // ✅ Default value (false)
   });
 
-  @override 
+  @override
   State<TechVocForm> createState() => _TechVocFormState();
 }
 
@@ -47,7 +49,21 @@ class _TechVocFormState extends State<TechVocForm> {
 
   @override
   void dispose() {
-
+    _techVocCourse1.dispose();
+    _techVocCourse2.dispose();
+    _techVocCourse3.dispose();
+    _hrsTraining1.dispose();
+    _hrsTraining2.dispose();
+    _hrsTraining3.dispose();
+    _institution1.dispose();
+    _institution2.dispose();
+    _institution3.dispose();
+    _skillsAcquired1.dispose();
+    _skillsAcquired2.dispose();
+    _skillsAcquired3.dispose();
+    _certReceived1.dispose();
+    _certReceived2.dispose();
+    _certReceived3.dispose();
     super.dispose();
   }
 
@@ -60,7 +76,7 @@ class _TechVocFormState extends State<TechVocForm> {
         "institution": _institution1.text.trim(),
         "skillsAcquired": _skillsAcquired1.text.trim(),
         "certReceived": _certReceived1.text.trim(),
-      }; 
+      };
       final Map<String, dynamic> techVoc2 = {
         "userId": widget.userId,
         "course": _techVocCourse2.text.trim(),
@@ -68,7 +84,7 @@ class _TechVocFormState extends State<TechVocForm> {
         "institution": _institution2.text.trim(),
         "skillsAcquired": _skillsAcquired2.text.trim(),
         "certReceived": _certReceived2.text.trim(),
-      }; 
+      };
       final Map<String, dynamic> techVoc3 = {
         "userId": widget.userId,
         "course": _techVocCourse3.text.trim(),
@@ -76,26 +92,33 @@ class _TechVocFormState extends State<TechVocForm> {
         "institution": _institution3.text.trim(),
         "skillsAcquired": _skillsAcquired3.text.trim(),
         "certReceived": _certReceived3.text.trim(),
-      }; 
+      };
+
       try {
         final techVocRes1 = await UserService.createTechVocTraining(techVoc1);
         final techVocRes2 = await UserService.createTechVocTraining(techVoc2);
         final techVocRes3 = await UserService.createTechVocTraining(techVoc3);
+
         if (techVocRes1.isNotEmpty && techVocRes2.isNotEmpty && techVocRes3.isNotEmpty) {
           if (!mounted) return;
           AppSnackbar.show(
             context,
-            message: 'Technical and Vocational updated successfully! You may now proceed to eligibility/professional license form.',
-            backgroundColor: AppColor.success
+            message:
+                'Technical and Vocational updated successfully! You may now proceed to eligibility/professional license form.',
+            backgroundColor: AppColor.success,
           );
-          navigateTo(context, EligibilityPRCForm(userId: widget.userId));
+
+          // ✅ Conditional navigation: from profile vs registration
+          widget.fromProfile
+              ? Navigator.pop(context)
+              : navigateTo(context, EligibilityPRCForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
         AppSnackbar.show(
           context,
-          message: '$e',
-          backgroundColor: AppColor.danger
+          message: 'Error $e',
+          backgroundColor: AppColor.danger,
         );
       }
     }
@@ -104,44 +127,76 @@ class _TechVocFormState extends State<TechVocForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
+      appBar: AppNavigationBar(
+        title: 'Mendez PESO Job Portal',
+        onMenuPressed: (context) {
+          Scaffold.of(context).openDrawer();
+        },
+      ),
       endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
               color: const Color.fromARGB(255, 244, 244, 244),
-              padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 30.0),
+              padding: const EdgeInsets.only(
+                top: 10.0,
+                left: 10.0,
+                right: 10.0,
+                bottom: 30.0,
+              ),
               child: Card(
                 color: Colors.white,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0, bottom: 30.0),
+                  padding: const EdgeInsets.only(
+                    top: 20.0,
+                    left: 20.0,
+                    right: 20.0,
+                    bottom: 30.0,
+                  ),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // ✅ Conditional Back / Skip logic
                         Align(
-                          alignment: Alignment.centerRight,  
+                          alignment: Alignment.centerRight,
                           child: GestureDetector(
-                            child: Text('Skip for now', style: AppText.textPrimary),
+                            child: Text(
+                              widget.fromProfile ? 'Back' : 'Skip for now',
+                              style: AppText.textPrimary,
+                            ),
                             onTap: () {
-                              AppSnackbar.show(
-                                context,
-                                message: 'You can edit your information on your profile when you logged in.',
-                                backgroundColor: AppColor.primary
-                              );
-                              navigateTo(context, const Login());
+                              if (widget.fromProfile) {
+                                Navigator.pop(context);
+                              } else {
+                                AppSnackbar.show(
+                                  context,
+                                  message:
+                                      'You can edit your information on your profile when you logged in.',
+                                  backgroundColor: AppColor.primary,
+                                );
+                                navigateTo(context, const Login());
+                              }
                             },
                           ),
                         ),
                         const SizedBox(height: 5),
                         SizedBox(
                           width: double.infinity,
-                          child: Text('Technical/Vocational and Other Trainings', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),
+                          child: Text(
+                            'Technical/Vocational and Other Trainings',
+                            textAlign: TextAlign.center,
+                            style: AppText.textXl
+                                .merge(AppText.textPrimary)
+                                .merge(AppText.fontSemibold),
+                          ),
                         ),
                         const SizedBox(height: 20.0),
-                        Text('Traning 1', style: AppText.textLg.merge(AppText.fontSemibold)),
+
+                        // ✅ Training 1
+                        Text('Training 1', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _techVocCourse1, placeholder: "Technical/Vocational Course"),
                         const SizedBox(height: 10.0),
@@ -153,10 +208,10 @@ class _TechVocFormState extends State<TechVocForm> {
                         const SizedBox(height: 10.0),
                         const Text('Certificate Received'),
                         RegisterTextFieldPlaceholder(controller: _certReceived1, placeholder: "e.g. NC I, NC II, NC III, etc."),
-                        const SizedBox(height: 10.0),
-                        const SizedBox(height: 15.0),
+                        const SizedBox(height: 20.0),
 
-                        Text('Traning 2', style: AppText.textLg.merge(AppText.fontSemibold)),
+                        // ✅ Training 2
+                        Text('Training 2', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _techVocCourse2, placeholder: "Technical/Vocational Course"),
                         const SizedBox(height: 10.0),
@@ -168,10 +223,10 @@ class _TechVocFormState extends State<TechVocForm> {
                         const SizedBox(height: 10.0),
                         const Text('Certificate Received'),
                         RegisterTextFieldPlaceholder(controller: _certReceived2, placeholder: "e.g. NC I, NC II, NC III, etc."),
-                        const SizedBox(height: 10.0),
-                        const SizedBox(height: 15.0),
+                        const SizedBox(height: 20.0),
 
-                        Text('Traning 3', style: AppText.textLg.merge(AppText.fontSemibold)),
+                        // ✅ Training 3
+                        Text('Training 3', style: AppText.textLg.merge(AppText.fontSemibold)),
                         const SizedBox(height: 10.0),
                         RegisterTextFieldPlaceholder(controller: _techVocCourse3, placeholder: "Technical/Vocational Course"),
                         const SizedBox(height: 10.0),
@@ -183,7 +238,7 @@ class _TechVocFormState extends State<TechVocForm> {
                         const SizedBox(height: 10.0),
                         const Text('Certificate Received'),
                         RegisterTextFieldPlaceholder(controller: _certReceived3, placeholder: "e.g. NC I, NC II, NC III, etc."),
-                        const SizedBox(height: 15.0),
+                        const SizedBox(height: 20.0),
 
                         RegisterNextButton(registerUser: _nextForm),
                       ],
@@ -196,7 +251,5 @@ class _TechVocFormState extends State<TechVocForm> {
         ),
       ),
     );
-    
-    
   }
 }

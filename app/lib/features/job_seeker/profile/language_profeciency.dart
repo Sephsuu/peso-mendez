@@ -2,10 +2,12 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/checkbox.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/forms/language_profeciency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -20,35 +22,34 @@ class LanguageProfeciency extends HookWidget {
     required this.open,
     required this.setOpen,
   });
+
   @override
   Widget build(BuildContext context) {
     final loading = useState(true);
     final user = useState<List<Map<String, dynamic>>>([]);
     final tempUser = useState<List<Map<String, dynamic>>>([]);
 
-
     void handleSubmit() async {
       try {
+        // TODO: Implement your update logic
         final res = await UserService.updateUserCredential({
-          // 'id': user.value['id'],
-          // 'fullName': user.value['full_name'],
-          // 'username': user.value['username'],
-          // 'contact': user.value['contact']
+          // Add your payload here if needed
         });
+
         if (res.isNotEmpty) {
           if (!context.mounted) return;
           AppSnackbar.show(
-            context, 
+            context,
             message: 'Credential updated successfully!',
-            backgroundColor: AppColor.success
+            backgroundColor: AppColor.success,
           );
         }
-      } catch (e) { 
+      } catch (e) {
         if (!context.mounted) return;
         AppSnackbar.show(
-          context, 
+          context,
           message: '$e',
-          backgroundColor: const Color.fromARGB(255, 28, 4, 6)
+          backgroundColor: const Color.fromARGB(255, 28, 4, 6),
         );
       }
     }
@@ -57,22 +58,68 @@ class LanguageProfeciency extends HookWidget {
       if (claims['id'] == null) return null;
       void fetchData() async {
         try {
-          final data = await UserService.getUserLanguageProfeciency(claims['id']);
+          final data =
+              await UserService.getUserLanguageProfeciency(claims['id']);
           user.value = data;
         } catch (e) {
           AppModal(title: ('$e'));
-        } finally { loading.value = false; }
+        } finally {
+          loading.value = false;
+        }
+      }
 
-      } fetchData();
+      fetchData();
       return null;
     }, [claims['id']]);
 
-
     if (loading.value) return const Loader();
 
+    if (user.value.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.info_outline, size: 60, color: Colors.grey),
+              const SizedBox(height: 20),
+              const Text(
+                'No language profeciencies found.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Please fill out your language profeciencies to continue.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 24),
+              AppButton(
+                label: 'Fill Out Information',
+                backgroundColor: AppColor.primary,
+                foregroundColor: AppColor.light,
+                onPressed: () => navigateTo(context, LanguageProfeciencyForm(userId: claims['id'])), // opens modal form
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // ========== MODAL HANDLER ==========
     useEffect(() {
       if (open) {
-        tempUser.value = user.value.map((item) => Map<String, dynamic>.from(item)).toList();
+        // Create editable copy
+        tempUser.value =
+            user.value.map((item) => Map<String, dynamic>.from(item)).toList();
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
@@ -82,7 +129,7 @@ class LanguageProfeciency extends HookWidget {
               confirmBackground: AppColor.success,
               confirmForeground: AppColor.light,
               onConfirm: () {
-                // Only apply changes when Confirm is pressed
+                // Apply temp changes to user state
                 user.value = tempUser.value;
                 handleSubmit();
               },
@@ -94,17 +141,22 @@ class LanguageProfeciency extends HookWidget {
                       ...tempUser.value.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
+
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${item['language']} Language', style: AppText.fontBold.merge(AppText.textMd)),
+                            Text(
+                              '${item['language']} Language',
+                              style: AppText.fontBold.merge(AppText.textMd),
+                            ),
                             const SizedBox(height: 12),
                             AppCheckbox(
                               label: 'Read',
                               state: item['read'] == 1,
                               onChanged: (bool? newValue) {
                                 final updated = [...tempUser.value];
-                                updated[index]['read'] = newValue == true ? 1 : 0;
+                                updated[index]['read'] =
+                                    newValue == true ? 1 : 0;
                                 tempUser.value = updated;
                               },
                             ),
@@ -113,7 +165,8 @@ class LanguageProfeciency extends HookWidget {
                               state: item['write'] == 1,
                               onChanged: (bool? newValue) {
                                 final updated = [...tempUser.value];
-                                updated[index]['write'] = newValue == true ? 1 : 0;
+                                updated[index]['write'] =
+                                    newValue == true ? 1 : 0;
                                 tempUser.value = updated;
                               },
                             ),
@@ -122,10 +175,22 @@ class LanguageProfeciency extends HookWidget {
                               state: item['speak'] == 1,
                               onChanged: (bool? newValue) {
                                 final updated = [...tempUser.value];
-                                updated[index]['speak'] = newValue == true ? 1 : 0;
+                                updated[index]['speak'] =
+                                    newValue == true ? 1 : 0;
                                 tempUser.value = updated;
                               },
                             ),
+                            AppCheckbox(
+                              label: 'Understand',
+                              state: item['understand'] == 1,
+                              onChanged: (bool? newValue) {
+                                final updated = [...tempUser.value];
+                                updated[index]['understand'] =
+                                    newValue == true ? 1 : 0;
+                                tempUser.value = updated;
+                              },
+                            ),
+                            const Divider(height: 16),
                           ],
                         );
                       }),
@@ -140,19 +205,20 @@ class LanguageProfeciency extends HookWidget {
       return null;
     }, [open]);
 
+    // ========== MAIN VIEW ==========
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-          width: double.infinity,  // full width
+          width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topLeft, 
-              end: Alignment.bottomRight,  
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
-                Color.fromARGB(255, 32, 64, 192),            
-                Color.fromARGB(255, 104, 129, 255),             
+                Color.fromARGB(255, 32, 64, 192),
+                Color.fromARGB(255, 104, 129, 255),
               ],
             ),
           ),
@@ -161,68 +227,80 @@ class LanguageProfeciency extends HookWidget {
             children: [
               Align(
                 child: Text(
-                  'Language Profeciency',
-                  style: AppText.textXl.merge(AppText.fontBold).merge(AppText.textLight)),
+                  'Language Proficiency',
+                  style: AppText.textXl
+                      .merge(AppText.fontBold)
+                      .merge(AppText.textLight),
+                ),
               ),
               const SizedBox(height: 10),
               AppButton(
-                label: 'Edit', 
+                label: 'Edit',
                 onPressed: () => setOpen(),
                 backgroundColor: AppColor.light,
                 foregroundColor: AppColor.dark,
                 visualDensityY: -4,
-              )
+              ),
             ],
           ),
         ),
+
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ...user.value.map((item) {
-                return (
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${item['language']} Language:', style: AppText.fontBold),
-                      AppCheckbox(
-                        label: 'Read', 
-                        state: item['read'] == 1,
-                        onChanged: (bool? newValue) {
-                          item['read'] == 1;
-                        },
-                      ),
-                      AppCheckbox(
-                        label: 'Write', 
-                        state: item['write'] == 1,
-                        onChanged: (bool? newValue) {
-                          item['write'] == 1;
-                        },
-                      ),
-                      AppCheckbox(
-                        label: 'Speak', 
-                        state: item['speak'] == 1,
-                        onChanged: (bool? newValue) {
-                          item['speak'] == 1;
-                        },
-                      ),
-                      AppCheckbox(
-                        label: 'Understand', 
-                        state: item['understand'] == 1,
-                        onChanged: (bool? newValue) {
-                          item['understand'] == 1;
-                        },
-                      ),
-                    ]
-                  )
+              ...user.value.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${item['language']} Language:',
+                        style: AppText.fontBold),
+                    AppCheckbox(
+                      label: 'Read',
+                      state: item['read'] == 1,
+                      onChanged: (bool? newValue) {
+                        final updated = [...user.value];
+                        updated[index]['read'] = newValue == true ? 1 : 0;
+                        user.value = updated;
+                      },
+                    ),
+                    AppCheckbox(
+                      label: 'Write',
+                      state: item['write'] == 1,
+                      onChanged: (bool? newValue) {
+                        final updated = [...user.value];
+                        updated[index]['write'] = newValue == true ? 1 : 0;
+                        user.value = updated;
+                      },
+                    ),
+                    AppCheckbox(
+                      label: 'Speak',
+                      state: item['speak'] == 1,
+                      onChanged: (bool? newValue) {
+                        final updated = [...user.value];
+                        updated[index]['speak'] = newValue == true ? 1 : 0;
+                        user.value = updated;
+                      },
+                    ),
+                    AppCheckbox(
+                      label: 'Understand',
+                      state: item['understand'] == 1,
+                      onChanged: (bool? newValue) {
+                        final updated = [...user.value];
+                        updated[index]['understand'] = newValue == true ? 1 : 0;
+                        user.value = updated;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 );
               }),
             ],
           ),
-        )
-    
-
+        ),
       ],
     );
   }

@@ -198,15 +198,15 @@ class DashboardSummary extends StatelessWidget {
       children: [
         DashboardSummaryCard(
           header: '💼 Active Jobs', 
-          count: jobs.length.toString(), 
+          count: jobs.where((job) => job["status"] == "active").length.toString(),
           color: AppColor.success, 
-          onTap: ViewActiveJobs(jobs: jobs,)
+          onTap: const ViewActiveJobs()
         ),
         DashboardSummaryCard(
           header: '👥 Applications', 
           count: applications.length.toString(), 
           color: AppColor.primary, 
-          onTap: ViewApplications(applications: applications)
+          onTap: const ViewApplications()
         ),
       ],
     );
@@ -257,11 +257,11 @@ class DashboardOtherContent extends StatelessWidget {
           )
         ),
         const SizedBox(height: 10),
-        DashboardOtherContentCard(
+        const DashboardOtherContentCard(
           header: '📄 Manage Applications', 
           paragraph: 'View, filter, and track candidate applications.', 
           button: EmployerContentCardButton(text: 'View Applications', 
-          page: ViewApplications(applications: applications))
+          page: ViewApplications())
         ),
         const SizedBox(height: 10),
         const DashboardOtherContentCard(

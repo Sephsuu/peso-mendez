@@ -12,13 +12,15 @@ import 'package:flutter/material.dart';
 
 class JobReferenceForm extends StatefulWidget {
   final int userId;
+  final bool fromProfile; // ✅ added same as in PersonalInformationForm
 
-  const JobReferenceForm({ 
+  const JobReferenceForm({
     super.key,
     required this.userId,
+    this.fromProfile = false, // ✅ default value
   });
 
-  @override 
+  @override
   State<JobReferenceForm> createState() => _JobReferenceFormState();
 }
 
@@ -59,24 +61,29 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
         "location1": _location1.text.trim(),
         "location2": _location2.text.trim(),
         "location3": _location3.text.trim(),
-      }; 
+      };
+
       try {
         final res = await UserService.createJobReference(jobRef);
         if (res.isNotEmpty) {
           if (!mounted) return;
           AppSnackbar.show(
             context,
-            message: 'Job Reference updated successfully! You may now proceed to language profeciency form.',
-            backgroundColor: AppColor.success
+            message: 'Job Reference updated successfully! You may now proceed to language proficiency form.',
+            backgroundColor: AppColor.success,
           );
-          navigateTo(context, LanguageProfeciencyForm(userId: widget.userId));
+
+          // ✅ conditional navigation
+          widget.fromProfile
+              ? Navigator.pop(context)
+              : navigateTo(context, LanguageProfeciencyForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
         AppSnackbar.show(
           context,
-          message: '$e',
-          backgroundColor: AppColor.danger
+          message: 'Error $e',
+          backgroundColor: AppColor.danger,
         );
       }
     }
@@ -85,51 +92,84 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
+      appBar: AppNavigationBar(
+        title: 'Mendez PESO Job Portal',
+        onMenuPressed: (context) {
+          Scaffold.of(context).openDrawer();
+        },
+      ),
       endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
               color: const Color.fromARGB(255, 244, 244, 244),
-              padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 30.0),
+              padding: const EdgeInsets.only(
+                top: 10.0,
+                left: 10.0,
+                right: 10.0,
+                bottom: 30.0,
+              ),
               child: Card(
                 color: Colors.white,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0, bottom: 30.0),
+                  padding: const EdgeInsets.only(
+                    top: 20.0,
+                    left: 20.0,
+                    right: 20.0,
+                    bottom: 30.0,
+                  ),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // ✅ Conditional Skip/Back button
                         Align(
-                          alignment: Alignment.centerRight,  
+                          alignment: Alignment.centerRight,
                           child: GestureDetector(
-                            child: Text('Skip for now', style: AppText.textPrimary),
+                            child: Text(
+                              widget.fromProfile ? 'Back' : 'Skip for now',
+                              style: AppText.textPrimary,
+                            ),
                             onTap: () {
-                              AppSnackbar.show(
-                                context,
-                                message: 'You can edit your information on your profile when you logged in.',
-                                backgroundColor: AppColor.primary
-                              );
-                              navigateTo(context, const Login());
+                              if (widget.fromProfile) {
+                                Navigator.pop(context);
+                              } else {
+                                AppSnackbar.show(
+                                  context,
+                                  message:
+                                      'You can edit your information on your profile when you logged in.',
+                                  backgroundColor: AppColor.primary,
+                                );
+                                navigateTo(context, const Login());
+                              }
                             },
                           ),
                         ),
                         const SizedBox(height: 5),
                         SizedBox(
                           width: double.infinity,
-                          child: Text('Job Reference', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),
+                          child: Text(
+                            'Job Reference',
+                            textAlign: TextAlign.center,
+                            style: AppText.textXl
+                                .merge(AppText.textPrimary)
+                                .merge(AppText.fontSemibold),
+                          ),
                         ),
                         const SizedBox(height: 20.0),
+
                         DropdownButtonFormField<String>(
                           decoration: const InputDecoration(
                             isDense: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 10.0),
                             labelText: 'Occupation Type',
                             border: OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 193, 193, 193)),
                             ),
                           ),
                           value: _occupationType,
@@ -152,20 +192,28 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                           },
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _occupation1, placeholder: "Preferred Occupation 1"),
+                        RegisterTextFieldPlaceholderRequired(
+                            controller: _occupation1,
+                            placeholder: "Preferred Occupation 1"),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _occupation2, placeholder: "Preferred Occupation 2"),
+                        RegisterTextFieldPlaceholderRequired(
+                            controller: _occupation2,
+                            placeholder: "Preferred Occupation 2"),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _occupation3, placeholder: "Preferred Occupation 3"),
+                        RegisterTextFieldPlaceholderRequired(
+                            controller: _occupation3,
+                            placeholder: "Preferred Occupation 3"),
                         const SizedBox(height: 30.0),
                         DropdownButtonFormField<String>(
                           decoration: const InputDecoration(
                             isDense: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 10.0),
                             labelText: 'Location Type',
                             border: OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 193, 193, 193)),
                             ),
                           ),
                           value: _locationType,
@@ -188,11 +236,17 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                           },
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _location1, placeholder: "Preferred Work Location 1"),
+                        RegisterTextFieldPlaceholderRequired(
+                            controller: _location1,
+                            placeholder: "Preferred Work Location 1"),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _location2, placeholder: "Preferred Work Location 2"),
+                        RegisterTextFieldPlaceholderRequired(
+                            controller: _location2,
+                            placeholder: "Preferred Work Location 2"),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _location3, placeholder: "Preferred Work Location 3"),
+                        RegisterTextFieldPlaceholderRequired(
+                            controller: _location3,
+                            placeholder: "Preferred Work Location 3"),
                         const SizedBox(height: 15.0),
 
                         RegisterNextButton(registerUser: _nextForm),
@@ -206,7 +260,5 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
         ),
       ),
     );
-    
-    
   }
 }

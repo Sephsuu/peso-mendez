@@ -198,13 +198,14 @@ class Credentials extends HookWidget {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  AppButton(
-                    label: 'Edit', 
-                    onPressed: () => setOpen(),
-                    backgroundColor: AppColor.light,
-                    foregroundColor: AppColor.dark,
-                    visualDensityY: -4,
-                  )
+                  if (claims["role"] != "employer") // 👈 Hide if role == "employer"
+                    AppButton(
+                      label: 'Edit',
+                      onPressed: () => setOpen(),
+                      backgroundColor: AppColor.light,
+                      foregroundColor: AppColor.dark,
+                      visualDensityY: -4,
+                    ),
                 ],
               )
             ],
@@ -229,7 +230,7 @@ class Credentials extends HookWidget {
               Text('Status:', style: AppText.fontBold),
               Text(credentials.value['status']),
               const SizedBox(height: 5),
-              ResumeCard(user: credentials.value),
+              ResumeCard(user: credentials.value, claims: claims),
               const SizedBox(height: 20),
               Text('Account Created:', style: AppText.fontBold),
               Text(formatDateTime(credentials.value['created_at'])),
@@ -243,21 +244,31 @@ class Credentials extends HookWidget {
 
 class ResumeCard extends HookWidget {
   final Map<String, dynamic> user;
+  final Map<String, dynamic> claims;
 
   const ResumeCard({
     super.key,
     required this.user,
+    required this.claims,
   });
 
   @override
   Widget build(BuildContext context) {
-    final filename = useState('My Resume');
+    final filename = useState(user["document_path"] != null && user["document_path"].toString().isNotEmpty
+        ? path.basename(user["document_path"])
+        : 'No resume uploaded');
     final pickedFile = useState<File?>(null);
     final isUploading = useState(false);
 
+    // ==============================
+    // PICK FILE
+    // ==============================
     Future<void> pickFile(BuildContext context) async {
       try {
-        final result = await FilePicker.platform.pickFiles();
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['pdf', 'docx', 'rtf', 'txt'],
+        );
 
         if (result != null && result.files.single.path != null) {
           final file = File(result.files.single.path!);
@@ -267,7 +278,7 @@ class ResumeCard extends HookWidget {
           if (!context.mounted) return;
           AppSnackbar.show(
             context,
-            message: 'No file selected',
+            message: 'No file selected.',
             backgroundColor: AppColor.danger,
           );
         }
@@ -275,12 +286,15 @@ class ResumeCard extends HookWidget {
         if (!context.mounted) return;
         AppSnackbar.show(
           context,
-          message: 'Error picking file: $e',
+          message: 'Error selecting file: $e',
           backgroundColor: AppColor.danger,
         );
       }
     }
 
+    // ==============================
+    // UPLOAD FILE
+    // ==============================
     Future<void> submitVerification(BuildContext context) async {
       if (pickedFile.value == null) {
         AppSnackbar.show(
@@ -294,19 +308,19 @@ class ResumeCard extends HookWidget {
       try {
         isUploading.value = true;
 
-        final uploadedPath = await VerificationService.uploadDocuments(pickedFile.value!, 'job-seeker');
-        if (!context.mounted) return;        
+        final uploadedPath =
+            await VerificationService.uploadDocuments(pickedFile.value!, 'job-seeker');
+        if (!context.mounted) return;
 
         await UserService.updateUserCredential({
           ...user,
-          "document_path": uploadedPath['filePath']
+          "document_path": uploadedPath['filePath'],
         });
 
         if (!context.mounted) return;
         AppSnackbar.show(
           context,
-          message:
-              'Resume uploaded successfully..',
+          message: 'Resume uploaded successfully!',
           backgroundColor: AppColor.success,
         );
 
@@ -323,93 +337,126 @@ class ResumeCard extends HookWidget {
       }
     }
 
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () async {
-            await pickFile(context);
-          },
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.insert_drive_file,
-                          color: Colors.blueGrey, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          filename.value,
-                          style: AppText.fontBold.merge(AppText.textMd),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    'Accepted file types are PDF (recommended), DOCX, RTF, and TXT',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          final String filePath = user["document_path"];
-                          final String fullUrl = filePath.startsWith("http")
-                              ? filePath
-                              : "$BASE_URL/$filePath";
+    // ==============================
+    // OPEN FILE
+    // ==============================
+    Future<void> viewFile(BuildContext context) async {
+      final String? filePath = user["document_path"];
+      if (filePath == null || filePath.isEmpty) {
+        AppSnackbar.show(
+          context,
+          message: "No resume uploaded yet.",
+          backgroundColor: AppColor.danger,
+        );
+        return;
+      }
 
-                          final Uri uri = Uri.parse(fullUrl);
+      final String fullUrl = filePath.startsWith("http")
+          ? filePath
+          : "$BASE_URL/$filePath";
 
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(
-                              uri,
-                              mode: LaunchMode.externalApplication, // opens in browser or PDF viewer
-                            );
-                          } else {
-                            if (context.mounted) {
-                              AppSnackbar.show(
-                                context,
-                                message: "Cannot open document",
-                                backgroundColor: AppColor.danger
+      final Uri uri = Uri.parse(fullUrl);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        if (context.mounted) {
+          AppSnackbar.show(
+            context,
+            message: "Cannot open document.",
+            backgroundColor: AppColor.danger,
+          );
+        }
+      }
+    }
+
+    // ==============================
+    // CARD UI
+    // ==============================
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row
+            Row(
+              children: [
+                const Icon(Icons.insert_drive_file, color: Colors.blueGrey, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    filename.value,
+                    style: AppText.fontBold.merge(AppText.textMd),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            const Text(
+              'Accepted file types: PDF (recommended), DOCX, RTF, TXT',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+
+            // Buttons Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // View Button
+                AppButton(
+                  label: 'View',
+                  onPressed: () => viewFile(context),
+                  backgroundColor: AppColor.primary,
+                  foregroundColor: AppColor.light,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  visualDensityY: -2,
+                ),
+                const SizedBox(width: 10),
+
+                // Upload Button
+                if (claims["role"] != "employer")
+                  AppButton(
+                    label: isUploading.value ? 'Uploading...' : 'Upload',
+                    onPressed: isUploading.value
+                        ? null
+                        : () async {
+                            await pickFile(context);
+                            if (pickedFile.value != null) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AppModal(
+                                  title: 'Upload selected document?',
+                                  confirmBackground: AppColor.success,
+                                  confirmForeground: AppColor.light,
+                                  onConfirm: () async {
+                                    Navigator.pop(context);
+                                    await submitVerification(context);
+                                  },
+                                ),
                               );
                             }
-                          }
-                        },
-                        child: Text('View', style: AppText.textPrimary),
-                      ),
-                      const SizedBox(width: 15),
-                      GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AppModal(
-                                title: 'Upload selected document?',
-                                confirmBackground: AppColor.success,
-                                confirmForeground: AppColor.light,
-                                onConfirm: () async {
-                                  Navigator.pop(context);
-                                  await submitVerification(context);
-                                },
-                              );
-                            },
-                          );
-                        },
-                        child: Text('Update', style: AppText.textSuccess),
-                      ),
-                    ],
-                  )
-                ],
-              ),
+                          },
+                    backgroundColor:
+                        isUploading.value ? Colors.grey : AppColor.success,
+                    foregroundColor: AppColor.light,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    visualDensityY: -2,
+                  ),
+              ],
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
-} 
+}

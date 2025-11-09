@@ -132,7 +132,7 @@ class ProfileStrengthCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Profile Strength'),
-                    Text("${profileStrength * 100}%")
+                    Text("${(profileStrength * 100 / 10).round() * 10}%")
                   ],
                 ),
               ),

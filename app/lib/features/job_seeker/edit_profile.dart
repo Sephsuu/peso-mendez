@@ -15,37 +15,63 @@ import 'package:app/features/job_seeker/profile/work_experience.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-const profileSections = ['Credentials', 'Personal Information', 'Job Reference', 'Language Profeciency', 'Educational Background', 'TechVoc and Other Trainings', 'Eligibility', 'Work Experience', 'Other Skills'];
+const profileSections = [
+  'Credentials',
+  'Personal Information',
+  'Job Reference',
+  'Language Profeciency',
+  'Educational Background',
+  'TechVoc and Other Trainings',
+  'Eligibility',
+  'Work Experience',
+  'Other Skills'
+];
 
 class EditProfile extends HookWidget {
+  final Map<String, dynamic>? employerClaim;
 
-  const EditProfile({super.key});
+  const EditProfile({
+    super.key,
+    this.employerClaim,
+  });
 
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
+    final activeClaim = employerClaim ?? claims; // ✅ Use employerClaim if available
+
     final open = useState(false);
     final section = useState('Credentials');
 
     void setOpen() {
       open.value = !open.value;
     }
-    
+
     return Scaffold(
-      appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
+      appBar: AppNavigationBar(
+        title: 'Mendez PESO Job Portal',
+        onMenuPressed: (context) {
+          Scaffold.of(context).openDrawer();
+        },
+      ),
       endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // ✅ Horizontal buttons for each section
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: profileSections.map((item) {
                   return AppButton(
-                    label: item, 
-                    onPressed: () { section.value = item; },
-                    backgroundColor: section.value == item ? AppColor.primary : const Color.fromARGB(255, 197, 216, 252),
-                    foregroundColor: section.value == item ? AppColor.light : AppColor.secondary,
+                    label: item,
+                    onPressed: () => section.value = item,
+                    backgroundColor: section.value == item
+                        ? AppColor.primary
+                        : const Color.fromARGB(255, 197, 216, 252),
+                    foregroundColor: section.value == item
+                        ? AppColor.light
+                        : AppColor.secondary,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     visualDensityY: -2,
                     borderRadius: 0,
@@ -53,63 +79,65 @@ class EditProfile extends HookWidget {
                 }).toList(),
               ),
             ),
-            section.value == 'Credentials'
-              ? Credentials(
-                claims: claims,
+
+            // ✅ Conditional sections
+            if (section.value == 'Credentials')
+              Credentials(
+                claims: activeClaim,
                 open: open.value,
                 setOpen: setOpen,
-              ) :
-            section.value == 'Personal Information'
-              ? PersonalInformation(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
-              ) :
-            section.value == 'Job Reference' 
-              ? JobReference(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
-              ) :
-            section.value == 'Language Profeciency' 
-              ? LanguageProfeciency(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
-              )  : 
-            section.value == 'Educational Background' 
-              ? EducationalBackround(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
-              ) :
-            section.value == 'TechVoc and Other Trainings' 
-              ? TechVocTrainings(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
-              ) : 
-            section.value == 'Work Experience' 
-              ? WorkExperience(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
-              ) : 
-            section.value == 'Eligibility' 
-              ? Eligibility(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
-              ) : OtherSkills(
-                claims: claims, 
-                open: open.value, 
-                setOpen: setOpen
               )
-
+            else if (section.value == 'Personal Information')
+              PersonalInformation(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              )
+            else if (section.value == 'Job Reference')
+              JobReference(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              )
+            else if (section.value == 'Language Profeciency')
+              LanguageProfeciency(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              )
+            else if (section.value == 'Educational Background')
+              EducationalBackround(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              )
+            else if (section.value == 'TechVoc and Other Trainings')
+              TechVocTrainings(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              )
+            else if (section.value == 'Eligibility')
+              Eligibility(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              )
+            else if (section.value == 'Work Experience')
+              WorkExperience(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              )
+            else
+              OtherSkills(
+                claims: activeClaim,
+                open: open.value,
+                setOpen: setOpen,
+              ),
           ],
         ),
       ),
     );
   }
 }
-

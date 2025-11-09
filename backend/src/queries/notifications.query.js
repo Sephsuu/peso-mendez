@@ -29,7 +29,7 @@ export async function getNotificationsByRole(role, userId) {
 
       case 'admin':
         query = `
-
+          SELECT * FROM notifications WHERE user_id = ?
         `;
         break;
 

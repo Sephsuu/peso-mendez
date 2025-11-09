@@ -61,7 +61,7 @@ export async function getUserPersonalInformation(id) {
         `SELECT * FROM personal_informations WHERE user_id = ?`,
         [id]
     );
-    return rows[0];
+    return rows[0] ?? {};
 } 
 
 export async function getUserJobReference(id) {
@@ -69,7 +69,7 @@ export async function getUserJobReference(id) {
         `SELECT * FROM job_references WHERE user_id = ?`,
         [id]
     );
-    return rows[0];
+    return rows[0] ?? {};
 } 
 
 export async function getUserLanguageProcefiency(id) {
@@ -77,7 +77,7 @@ export async function getUserLanguageProcefiency(id) {
         `SELECT * FROM language_profeciencies WHERE user_id = ?`,
         [id]
     );
-    return rows;
+    return rows ?? [];
 } 
 
 export async function getUserEducationalBackground(id) {
@@ -85,7 +85,7 @@ export async function getUserEducationalBackground(id) {
         `SELECT * FROM educational_backgrounds WHERE user_id = ?`,
         [id]
     );
-    return rows[0];
+    return rows[0] ?? {};
 } 
 
 export async function getUserTechVocTrainings(id) {
@@ -93,7 +93,7 @@ export async function getUserTechVocTrainings(id) {
         `SELECT * FROM tech_voc_trainings WHERE user_id = ?`,
         [id]
     );
-    return rows;
+    return rows ?? [];
 } 
 
 export async function getUserEligibility(id) {
@@ -101,7 +101,7 @@ export async function getUserEligibility(id) {
         `SELECT * FROM eligibilities WHERE user_id = ?`,
         [id]
     );
-    return rows;
+    return rows ?? [];
 } 
 
 export async function getUserProfessionalLicense(id) {
@@ -109,7 +109,7 @@ export async function getUserProfessionalLicense(id) {
         `SELECT * FROM professional_licenses WHERE user_id = ?`,
         [id]
     );
-    return rows;
+    return rows ?? [];
 } 
 
 export async function getUserWorkExperience(id) {
@@ -117,7 +117,7 @@ export async function getUserWorkExperience(id) {
         `SELECT * FROM work_experiences WHERE user_id = ?`,
         [id]
     );
-    return rows;
+    return rows ?? [];
 } 
 
 export async function getUserOtherSkills(id) {
@@ -125,7 +125,7 @@ export async function getUserOtherSkills(id) {
         `SELECT * FROM other_skills WHERE user_id = ?`,
         [id]
     );
-    return rows;
+    return rows ?? [];
 } 
 
 export async function registerUser(fullName, email, contactNumber, username, password, role) {

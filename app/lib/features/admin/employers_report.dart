@@ -107,18 +107,23 @@ class EmployersReport extends HookWidget {
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("📄 Employers Report", style: AppText.textXl.merge(AppText.fontSemibold)),
-                GestureDetector(
-                  child: Text('⬅️ Back', style: AppText.textPrimary,),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Employers Report", style: AppText.textXl.merge(AppText.fontSemibold)),
+                  GestureDetector(
+                    child: Text('⬅️ Back', style: AppText.textPrimary,),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
             ),
+            const Divider(thickness: 1, height: 16),
+            const SizedBox(height: 10),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row( 
@@ -137,6 +142,7 @@ class EmployersReport extends HookWidget {
                 }).toList(),
               ),
             ),
+            const SizedBox(height: 10),
             SizedBox(
               width: screenWidth * 0.9,
               child: TextField(
@@ -146,13 +152,14 @@ class EmployersReport extends HookWidget {
                   fillColor: AppColor.light,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
-                  labelText: 'Job title, keywords, or company',
+                  labelText: 'Search for an employer',
                   labelStyle: AppText.textSm,
                   border: const OutlineInputBorder()
                 ),
                 onChanged: (value) => setFind(value),
               ),
             ),
+            const SizedBox(height: 10),
             EmployersTable(
               activeTab: activeTab.value,
               loading: loading.value,

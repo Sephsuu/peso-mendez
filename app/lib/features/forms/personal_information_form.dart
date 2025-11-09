@@ -15,10 +15,12 @@ import 'package:intl/intl.dart';
 
 class PersonalInformationForm extends StatefulWidget {
   final int userId;
+  final bool fromProfile;
 
   const PersonalInformationForm({ 
     super.key,
     required this.userId,
+    this.fromProfile = false,
   });
 
   @override 
@@ -95,7 +97,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
             message: 'Personal Information updated successfully! You may now proceed to job reference form.',
             backgroundColor: AppColor.success
           );
-          navigateTo(context, JobReferenceForm(userId: widget.userId));
+          widget.fromProfile ? Navigator.pop(context) : navigateTo(context, JobReferenceForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
@@ -131,14 +133,14 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                         Align(
                           alignment: Alignment.centerRight,  
                           child: GestureDetector(
-                            child: Text('Skip for now', style: AppText.textPrimary),
+                            child: Text(widget.fromProfile ? 'Back' : 'Skip for now', style: AppText.textPrimary),
                             onTap: () {
                               AppSnackbar.show(
                                 context,
                                 message: 'You can edit your information on your profile when you logged in.',
                                 backgroundColor: AppColor.primary
                               );
-                              navigateTo(context, const Login());
+                              widget.fromProfile ? Navigator.pop(context) : navigateTo(context, const Login());
                             },
                           ),
                         ),

@@ -70,18 +70,23 @@ class ManageUsers extends HookWidget {
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("👥 Manage Users", style: AppText.textXl.merge(AppText.fontSemibold)),
-                GestureDetector(
-                  child: Text('⬅️ Back', style: AppText.textPrimary,),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Manage Users", style: AppText.textXl.merge(AppText.fontSemibold)),
+                  GestureDetector(
+                    child: Text('⬅️ Back', style: AppText.textPrimary,),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
             ),
+            const Divider(thickness: 1, height: 16),
+            const SizedBox(height: 10),
             SizedBox(
               width: screenWidth * 0.9,
               child: TextField(
@@ -91,13 +96,14 @@ class ManageUsers extends HookWidget {
                   fillColor: AppColor.light,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
-                  labelText: 'Job title, keywords, or company',
+                  labelText: 'Search for a user',
                   labelStyle: AppText.textSm,
                   border: const OutlineInputBorder()
                 ),
                 onChanged: (value) => setFind(value),
               ),
             ),
+            const SizedBox(height: 10),
             UsersTable(
               users: activeUsers, 
               loading: loading.value,

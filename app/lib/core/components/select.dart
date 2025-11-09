@@ -347,90 +347,96 @@ class ViewApplicationDropdownSelect extends StatelessWidget {
 class ViewApplicationUpdateStatus extends StatefulWidget {
   final String initialValue;
   final Map<String, dynamic> application;
+  final VoidCallback setReload;
 
-  ViewApplicationUpdateStatus({
+  const ViewApplicationUpdateStatus({
     super.key,
     required this.initialValue,
-    required this.application
+    required this.application,
+    required this.setReload,
   });
 
   @override
-  _ViewApplicationUpdateStatusState createState() => _ViewApplicationUpdateStatusState();
+  State<ViewApplicationUpdateStatus> createState() => _ViewApplicationUpdateStatusState();
 }
+
 class _ViewApplicationUpdateStatusState extends State<ViewApplicationUpdateStatus> {
-  List<String> items = ["Sent", "Reviewed", "Interview", "Rejected", "Hired"];
-  
-  String? selectedValue;
-  Key dropdownKey = UniqueKey(); // Add this key
-  
+  late String selectedValue;
+  final List<String> items = ["Sent", "Reviewed", "Interview", "Rejected", "Hired"];
+
   @override
   void initState() {
     super.initState();
-    selectedValue = widget.initialValue;
+    selectedValue = widget.initialValue; // ✅ correct initial value
   }
-  
-  void _updateApplicationStatus(status) async {
-    try {
-      final res = await ApplicationService.updateApplicationStatus(widget.application['id'], status);
 
-      final notifRes = await NotificationService.createNotification({
+  @override
+  void didUpdateWidget(covariant ViewApplicationUpdateStatus oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // ✅ When parent rebuilds (filter applied), update dropdown value correctly
+    if (oldWidget.initialValue != widget.initialValue) {
+      setState(() {
+        selectedValue = widget.initialValue;
+      });
+    }
+  }
+
+  void _updateApplicationStatus(String status) async {
+    try {
+      await ApplicationService.updateApplicationStatus(widget.application['id'], status);
+
+      await NotificationService.createNotification({
         "userId": widget.application['job_seeker_id'],
         "type": 'APPLICATION STATUS',
-        "content": "Application status updated to $status" 
+        "content": "Application status updated to $status"
       });
 
-      if (res.isNotEmpty && notifRes.isNotEmpty) {
-        if (!mounted) return;
-        AppSnackbar.show(
-          context, 
-          message: 'Status updated successfully!',
-          backgroundColor: AppColor.success
-        );
-      }
+      if (!mounted) return;
+
+      widget.setReload();
+      AppSnackbar.show(context, message: 'Status updated successfully!', backgroundColor: AppColor.success);
+
     } catch (e) {
       if (!mounted) return;
-      AppSnackbar.show(
-        context, 
-        message: '$e',
-        backgroundColor: AppColor.danger
-      );
+      AppSnackbar.show(context, message: '$e', backgroundColor: AppColor.danger);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      key: dropdownKey,
+      value: selectedValue,
       decoration: const InputDecoration(
         isDense: true,
         contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
         border: OutlineInputBorder(),
       ),
-      value: selectedValue,
       items: items.map((status) {
-        return DropdownMenuItem<String>(
+        return DropdownMenuItem(
           value: status,
           child: Text(status),
         );
       }).toList(),
-      onChanged: (String? newValue) async {
-        setState(() {
-          dropdownKey = UniqueKey(); 
-        });
-        
+      onChanged: (String? newValue) {
+        if (newValue == null) return;
+
         showDialog(
-          context: context, 
-          builder: (context) {
-            return AppModal(
-              title: 'Update application status to $newValue',
-              message: 'Are you sure to change this application status?',
-              onConfirm: () => _updateApplicationStatus(newValue),
-            );
-          }
+          context: context,
+          builder: (_) => AppModal(
+            title: "Update status to $newValue",
+            message: "Are you sure?",
+            onConfirm: () {
+              Navigator.pop(context);
+              setState(() => selectedValue = newValue); // ✅ keep UI synced
+              _updateApplicationStatus(newValue);
+            },
+          ),
         );
       },
     );
   }
 }
+
 
 // RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),

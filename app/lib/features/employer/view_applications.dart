@@ -1,25 +1,30 @@
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
+import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/_endpoint.dart';
+import 'package:app/core/services/application_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ViewApplications extends HookWidget {
-  final List<Map<String, dynamic>> applications;
-
   const ViewApplications({super.key, 
-    required this.applications,
   });
 
   @override
   Widget build(BuildContext context) {
+    final claims = useClaimsHook(context);
+    final loading = useState(true);
+    final reload = useState(false);
+    final applications = useState<List<Map<String, dynamic>>>([]);
     final filteredApplications = useState<List<Map<String, dynamic>>>([]);
     final selectedJob = useState("");
     final selectedLocation = useState("");
@@ -27,6 +32,10 @@ class ViewApplications extends HookWidget {
 
     final jobSelection = useState<List<String>>([]);
     final locationSelection = useState<List<String>>([]);
+
+    void setReload() {
+      reload.value = !reload.value;
+    }
 
     void setJob(String newVal) {
       selectedJob.value = newVal;
@@ -41,14 +50,33 @@ class ViewApplications extends HookWidget {
     }
 
     useEffect(() {
-      final jobs = applications.map((item) => item["title"].toString()).toSet().toList();
-      final locations = applications.map((item) => item["location"].toString()).toSet().toList();
+      void fetchData() async {
+        try {
+          final applicationsRes = await ApplicationService.getApplicationsByEmployer(claims["id"]);
+          applications.value = applicationsRes;
+          loading.value = false;
+        } catch (e) {
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context, 
+            message: '$e',
+            backgroundColor: AppColor.danger
+          );
+        }
+      }
+      fetchData();
+      return null;
+    }, [claims["id"], reload.value]);
+
+    useEffect(() {
+      final jobs = applications.value.map((item) => item["title"].toString()).toSet().toList();
+      final locations = applications.value.map((item) => item["location"].toString()).toSet().toList();
 
       jobSelection.value = ["All Jobs", ...jobs];
       locationSelection.value = ["All Locations", ...locations];
-      filteredApplications.value = applications;
+      filteredApplications.value = applications.value;
       return null;
-    }, [applications]);
+    }, [applications.value]);
 
     useEffect(() {
       if (selectedJob.value.isNotEmpty && selectedJob.value != "All Jobs") {
@@ -64,11 +92,12 @@ class ViewApplications extends HookWidget {
           return item["status"] == selectedStatus.value;
         }).toList();
       } else {
-        filteredApplications.value = applications;
+        filteredApplications.value = applications.value;
       }
       return null;
     }, [selectedJob.value, selectedLocation.value, selectedStatus.value]);
 
+    if (loading.value) return const Loader();
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
@@ -83,7 +112,10 @@ class ViewApplications extends HookWidget {
                   const SizedBox(height: 20),
                   ViewApplicationsFilter(jobs: jobSelection.value, locations: locationSelection.value, setJob: setJob, setLocation: setLocation, setStatus: setStatus),
                   const SizedBox(height: 20),
-                  ViewApplicationsTable(applications: filteredApplications.value),
+                  ViewApplicationsTable(
+                    applications: filteredApplications.value,
+                    setReload: setReload,
+                  ),
                 ],
               ),
             ),
@@ -101,16 +133,24 @@ class ViewApplicationHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
       children: [
-        Text('📄 View Applications', style: AppText.textXl.merge(AppText.fontSemibold)),
-        GestureDetector(
-          child: Text('⬅️ Back', style: AppText.textPrimary,),
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("View Applications", style: AppText.textXl.merge(AppText.fontSemibold)),
+              GestureDetector(
+                child: Text('⬅️ Back', style: AppText.textPrimary,),
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        ), 
+        const Divider(thickness: 1, height: 16),
       ],
     );
   }
@@ -150,10 +190,12 @@ class ViewApplicationsFilter extends StatelessWidget {
 
 class ViewApplicationsTable extends StatelessWidget {
   final List<Map<String, dynamic>> applications;
+  final VoidCallback setReload;
 
   const ViewApplicationsTable({
     super.key,
-    required this.applications
+    required this.applications,
+    required this.setReload
   });
 
   @override
@@ -193,7 +235,9 @@ class ViewApplicationsTable extends StatelessWidget {
                 DataCell(Text(application['location'] ?? 'N/A')),
                 DataCell(ViewApplicationUpdateStatus(
                   initialValue: application["status"], 
-                  application: application)
+                  application: application,
+                  setReload: setReload,
+                )
                 ),
                 DataCell(Text(formatDateTime(application['applied_on']))),
                 DataCell(
@@ -232,7 +276,20 @@ class ViewApplicationsTable extends StatelessWidget {
                     )
                     : const Text('No Resume')
                 ),
-                DataCell(Text(application['action'] ?? 'N/A')),
+                DataCell(
+                  GestureDetector(
+                    onTap: () {
+                      navigateTo(context, EditProfile(
+                        employerClaim: { "id": application['job_seeker_id'], "role": "employer" }
+                      ));
+                    },
+                    child: Text(
+                      'View',
+                      style: AppText.textPrimary,
+                    ),
+                  ),
+                ),
+
               ],
             );
           }).toList()

@@ -58,12 +58,23 @@ export async function getApplicationsByEmployer(employerId) {
 }
 
 export async function updateApplicationStatus(applicationId, status) {
-    const [rows] = await pool.query(
+    await pool.query(
         "UPDATE applications SET status = ? WHERE id = ?",
         [status, applicationId]
     );
-    return rows;
+
+    if (status === "Hired") {
+        await pool.query(
+            `UPDATE jobs 
+             SET status = 'inactive' 
+             WHERE id = (SELECT job_id FROM applications WHERE id = ?)`,
+            [applicationId]
+        );
+    }
+
+    return { message: "Status updated successfully" };
 }
+
 
 export async function deleteApplicationByJobAndUser(jobId, userId) {
     const result = await pool.query(

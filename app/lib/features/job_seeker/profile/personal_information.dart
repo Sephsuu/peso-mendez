@@ -2,12 +2,14 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
+import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/forms/personal_information_form.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -81,6 +83,45 @@ class PersonalInformation extends HookWidget {
     }, [claims['id']]);
 
     if (loading.value) return const Loader();
+
+    if (user.value.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.info_outline, size: 60, color: Colors.grey),
+              const SizedBox(height: 20),
+              const Text(
+                'No personal information found.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Please fill out your personal information to continue.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 24),
+              AppButton(
+                label: 'Fill Out Information',
+                backgroundColor: AppColor.primary,
+                foregroundColor: AppColor.light,
+                onPressed: () => navigateTo(context, PersonalInformationForm(userId: claims['id'], fromProfile: true)), // opens modal form
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     useEffect(() {
       if (open) {
@@ -364,13 +405,14 @@ class PersonalInformation extends HookWidget {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  AppButton(
-                    label: 'Edit', 
-                    onPressed: () => setOpen(),
-                    backgroundColor: AppColor.light,
-                    foregroundColor: AppColor.dark,
-                    visualDensityY: -4,
-                  )
+                  if (claims["role"] != "employer") // 👈 Hide if role == "employer"
+                    AppButton(
+                      label: 'Edit',
+                      onPressed: () => setOpen(),
+                      backgroundColor: AppColor.light,
+                      foregroundColor: AppColor.dark,
+                      visualDensityY: -4,
+                    ),
                 ],
               )
             ],
