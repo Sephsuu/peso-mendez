@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+backend/src/middlewares/service-account-key.json
 
 # IntelliJ related
 *.iml
