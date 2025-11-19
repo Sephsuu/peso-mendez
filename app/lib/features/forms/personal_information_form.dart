@@ -14,6 +14,8 @@ import 'package:date_field/date_field.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+const caviteLocations = ["Alfonso","Amadeo","Bacoor City","Carmona","Cavite City","Cavite Province","City of General Trias","Dasmariñas City","General Emilio Aguinaldo","General Mariano Alvarez","Imus City","Indang","Kawit","Magallanes","Maragondon","Mendez","Naic","Noveleta","Rosario","Silang","Tagaytay City","Tanza","Ternate","Trece Martires City"];
+
 class PersonalInformationForm extends StatefulWidget {
   final int userId;
   final bool fromProfile;
@@ -44,6 +46,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   final TextEditingController _suffix = TextEditingController();
   final TextEditingController _religion = TextEditingController();
   final TextEditingController _presentAddress = TextEditingController();
+  final TextEditingController _citmun = TextEditingController();
   final TextEditingController _tin = TextEditingController();
   String? _sex;
   String? _civilStatus;
@@ -52,6 +55,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   String? _employmentType;
   String? _isOfw;
   String? _isFormerOfw;
+  String? _selectedCitmun;
   DateTime? _selectedDate; 
 
   @override
@@ -88,6 +92,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
         "isOfw": _isOfw,
         "isFormerOfw": _isFormerOfw,
         "dateOfBirth": formattedDate,
+        "citmun": _citmun.text.trim()
       }; 
       try {
         final res = await UserService.createPersonalInformation(personalInfo);
@@ -160,6 +165,19 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                         RegisterTextFieldPlaceholder(controller: _suffix, placeholder: "Suffix"),
                         const SizedBox(height: 15.0),
                         RegisterTextareaFieldPlaceholderRequired(controller: _presentAddress, placeholder: "Present Address (House No./Barangay/Municipality/Province)"),
+                        const SizedBox(height: 15),
+                        AppSelect<String>(
+                          items: caviteLocations,
+                          value: _selectedCitmun,
+                          placeholder: "City/Municipality",
+                          getLabel: (item) => item,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCitmun = value;
+                              _citmun.text = value ?? "";
+                            });
+                          },
+                        ),
                         const SizedBox(height: 15.0),
                         DateTimeFormField(
                           decoration: const InputDecoration(
