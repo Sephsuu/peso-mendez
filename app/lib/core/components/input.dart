@@ -1,6 +1,7 @@
 import 'package:app/core/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:flutter/services.dart';
 
 class AppInputField extends StatelessWidget {
   final String label;
@@ -106,35 +107,53 @@ class RegisterTextFieldPlaceholder extends StatefulWidget {
   final String? placeholder;
   final bool enabled;
 
+  // NEW ARGUMENTS
+  final bool obscureText;
+  final String obscuringCharacter;
+  final List<TextInputFormatter>? inputFormatters;
+
   const RegisterTextFieldPlaceholder({
     super.key,
     required this.controller,
-    this.placeholder, 
+    this.placeholder,
     this.enabled = true,
+
+    // Defaults
+    this.obscureText = false,
+    this.obscuringCharacter = '•',
+    this.inputFormatters,
   });
 
   @override
-  _RegisterTextFieldPlaceholderState createState() => _RegisterTextFieldPlaceholderState();
+  _RegisterTextFieldPlaceholderState createState() =>
+      _RegisterTextFieldPlaceholderState();
 }
-class _RegisterTextFieldPlaceholderState extends State<RegisterTextFieldPlaceholder> {
+
+class _RegisterTextFieldPlaceholderState
+    extends State<RegisterTextFieldPlaceholder> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       enabled: widget.enabled,
       controller: widget.controller,
+      obscureText: widget.obscureText,
+      obscuringCharacter: widget.obscuringCharacter,
+      inputFormatters: widget.inputFormatters,
       decoration: InputDecoration(
         border: const OutlineInputBorder(),
         enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
+          borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193)),
         ),
         labelText: widget.placeholder,
         labelStyle: AppText.textMuted,
-        contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-        isDense: true
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+        isDense: true,
       ),
     );
   }
 }
+
 
 class RegisterTextareaFieldPlaceholderRequired extends StatefulWidget {
   final TextEditingController controller;
@@ -165,6 +184,12 @@ class _RegisterTextareaFieldPlaceholderRequiredState extends State<RegisterTexta
         contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
         isDense: true
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'This field is required';
+        }
+        return null;
+      },
     );
   }
 }

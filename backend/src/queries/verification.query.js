@@ -34,14 +34,66 @@ export async function getVerificationByUser(id) {
     return rows[0] ?? {}
 }
 
-export async function createVerification(verification) {
-    const [rows] = await pool.query(
-        `INSERT INTO employer_verification(employer_id, documents, status)
-        VALUES (?, ?, ?)`,
-        [verification.employerId, verification.documents, verification.status]
-    )
+export async function createOrUpdateVerification(verification) {
+    // 1️⃣ Check if employer already has a record
+    const [existing] = await pool.query(
+        `SELECT id FROM employer_verification WHERE employer_id = ? LIMIT 1`,
+        [verification.employerId]
+    );
 
-    return rows;
+    // 🟦 Fields we expect from Flutter
+    const fields = [
+        "documents",
+        "letter_of_intent",
+        "company_profile",
+        "business_permit",
+        "mayors_permit",
+        "sec_registration",
+        "poea_dmw_registration",
+        "approved_job_order",
+        "job_vacancies",
+        "philjobnet_accreditation",
+        "dole_no_pending_case_certificate",
+        "status"
+    ];
+
+    // Build dynamic SET part for SQL
+    const updates = fields.map(f => `${f} = ?`).join(", ");
+    const values = fields.map(f => verification[f] || null);
+
+    if (existing.length > 0) {
+        // 2️⃣ UPDATE existing row
+        const verificationId = existing[0].id;
+
+        await pool.query(
+            `UPDATE employer_verification SET ${updates} WHERE id = ?`,
+            [...values, verificationId]
+        );
+
+        return {
+            type: "updated",
+            id: verificationId
+        };
+    }
+
+    // 3️⃣ INSERT new record  
+    await pool.query(
+        `INSERT INTO employer_verification (
+            employer_id,
+            ${fields.join(", ")}
+        ) VALUES (
+            ?,
+            ${fields.map(() => "?").join(", ")}
+        )`,
+        [
+            verification.employerId,
+            ...values
+        ]
+    );
+
+    return {
+        type: "created"
+    };
 }
 
 export async function updateStatus(id, updatedStatus) {

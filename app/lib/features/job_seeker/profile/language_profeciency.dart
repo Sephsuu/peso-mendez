@@ -105,7 +105,7 @@ class LanguageProfeciency extends HookWidget {
                 label: 'Fill Out Information',
                 backgroundColor: AppColor.primary,
                 foregroundColor: AppColor.light,
-                onPressed: () => navigateTo(context, LanguageProfeciencyForm(userId: claims['id'])), // opens modal form
+                onPressed: () => navigateTo(context, LanguageProfeciencyForm(userId: claims['id'], fromProfile: true,)), // opens modal form
               ),
             ],
           ),

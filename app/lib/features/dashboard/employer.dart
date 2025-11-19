@@ -152,7 +152,7 @@ class DashboardHeader extends StatelessWidget {
                       style: TextStyle(color: Color.fromARGB(255, 203, 152, 0)),
                     ),
                     GestureDetector(
-                      onTap: () => navigateTo(context, const EmpployerUploadDocument()),
+                      onTap: () => navigateTo(context, const EmployerUploadAllDocuments()),
                       child: Text(
                         'Submit Documents',
                         style: const TextStyle(

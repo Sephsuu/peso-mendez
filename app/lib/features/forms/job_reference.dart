@@ -2,6 +2,7 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -9,6 +10,8 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/language_profeciency.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:flutter/material.dart';
+
+const caviteLocations = ["Alfonso","Amadeo","Bacoor City","Carmona","Cavite City","Cavite Province","City of General Trias","Dasmariñas City","General Emilio Aguinaldo","General Mariano Alvarez","Imus City","Indang","Kawit","Magallanes","Maragondon","Mendez","Naic","Noveleta","Rosario","Silang","Tagaytay City","Tanza","Ternate","Trece Martires City"];
 
 class JobReferenceForm extends StatefulWidget {
   final int userId;
@@ -28,6 +31,10 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
   final _formKey = GlobalKey<FormState>();
   final List<String> occupationTypes = ['Part-time', 'Full-time'];
   final List<String> locationTypes = ['Local', 'Overseas'];
+  String? _selectedLocation1;
+  String? _selectedLocation2;
+  String? _selectedLocation3;
+
 
   final TextEditingController _occupation1 = TextEditingController();
   final TextEditingController _occupation2 = TextEditingController();
@@ -172,7 +179,7 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                                   color: Color.fromARGB(255, 193, 193, 193)),
                             ),
                           ),
-                          value: _occupationType,
+                          initialValue: _occupationType,
                           items: occupationTypes.map((item) {
                             return DropdownMenuItem<String>(
                               value: item,
@@ -216,7 +223,7 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                                   color: Color.fromARGB(255, 193, 193, 193)),
                             ),
                           ),
-                          value: _locationType,
+                          initialValue: _locationType,
                           items: locationTypes.map((item) {
                             return DropdownMenuItem<String>(
                               value: item,
@@ -236,19 +243,78 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                           },
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(
-                            controller: _location1,
-                            placeholder: "Preferred Work Location 1"),
+                        _locationType == "Overseas"
+                          ? AppInputField(
+                              label: "Preferred Work Location 1",
+                              controller: _location1,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "This field is required";
+                                }
+                                return null;
+                              },
+                            )
+                          : AppSelect<String>(
+                              items: caviteLocations,
+                              value: _selectedLocation1,
+                              placeholder: "Preferred Work Location 1",
+                              getLabel: (item) => item,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLocation1 = value;
+                                  _location1.text = value ?? "";
+                                });
+                              },
+                            ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(
-                            controller: _location2,
-                            placeholder: "Preferred Work Location 2"),
+                        _locationType == "Overseas"
+                          ? AppInputField(
+                              label: "Preferred Work Location 2",
+                              controller: _location2,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "This field is required";
+                                }
+                                return null;
+                              },
+                            )
+                          : AppSelect<String>(
+                              items: caviteLocations,
+                              value: _selectedLocation2,
+                              placeholder: "Preferred Work Location 2",
+                              getLabel: (item) => item,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLocation2 = value;
+                                  _location2.text = value ?? "";
+                                });
+                              },
+                            ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(
-                            controller: _location3,
-                            placeholder: "Preferred Work Location 3"),
+                        _locationType == "Overseas"
+                          ? AppInputField(
+                              label: "Preferred Work Location 3",
+                              controller: _location3,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "This field is required";
+                                }
+                                return null;
+                              },
+                            )
+                          : AppSelect<String>(
+                              items: caviteLocations,
+                              value: _selectedLocation3,
+                              placeholder: "Preferred Work Location 3",
+                              getLabel: (item) => item,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLocation3 = value;
+                                  _location3.text = value ?? "";
+                                });
+                              },
+                            ),
                         const SizedBox(height: 15.0),
-
                         RegisterNextButton(registerUser: _nextForm),
                       ],
                     ),

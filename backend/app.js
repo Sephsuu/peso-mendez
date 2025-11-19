@@ -12,6 +12,7 @@ import verificationRouter from './src/routes/verification.route.js';
 import uploadRoute from './src/routes/upload.route.js';
 import notificationRoute from './src/routes/notifications.route.js';
 import messageRoute from './src/routes/message.route.js';
+import tokenRoute from './src/routes/token.route.js'
 
 // Optional secret
 const secret = 'your-static-development-secret-key-here';
@@ -36,7 +37,7 @@ app.use(cors({
     return callback(null, true); // Allow all origins - adjust for production
   },
   credentials: false,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
@@ -53,6 +54,7 @@ app.use('/verifications', verificationRouter);
 app.use('/uploads', uploadRoute); 
 app.use('/notifications', notificationRoute); 
 app.use('/messages', messageRoute);
+app.use('/tokens', tokenRoute);
 
 // ✅ Start server
 app.listen(PORT, () => {

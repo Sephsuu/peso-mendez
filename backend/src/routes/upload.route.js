@@ -9,88 +9,61 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🔹 Base uploads directory
-const baseUploadDir = path.join(__dirname, "../../uploads");
+const uploadDir = path.join(__dirname, "../../uploads/employer-documents");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-// 🔹 Ensure base directory exists
-if (!fs.existsSync(baseUploadDir)) {
-  fs.mkdirSync(baseUploadDir, { recursive: true });
-}
-
-// 🔹 Function to dynamically create upload folder
-function ensureFolderExists(folderPath) {
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath, { recursive: true });
-  }
-}
-
-// 🔹 Common Multer storage configuration
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let folder = "misc";
-    const type = req.params.type; // "employer" or "job-seeker"
-
-    if (type === "employer") folder = "employer-documents";
-    if (type === "job-seeker") folder = "job-seeker-documents";
-
-    const uploadDir = path.join(baseUploadDir, folder);
-    ensureFolderExists(uploadDir);
-
-    cb(null, uploadDir);
-  },
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const random = Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext);
-    const uniqueFileName = `${base}_${timestamp}_${random}${ext}`;
-    cb(null, uniqueFileName);
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
   },
 });
 
-// 🔹 File filter – only allow documents
-const fileFilter = (req, file, cb) => {
-  const allowed = [".pdf", ".doc", ".docx", ".rtf", ".txt"];
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (allowed.includes(ext)) cb(null, true);
-  else cb(new Error("Unsupported file type"), false);
-};
+const upload = multer({ storage });
 
-// 🔹 Create Multer upload instance
-const upload = multer({ storage, fileFilter });
+const documentFields = [
+  "letter_of_intent",
+  "company_profile",
+  "business_permit",
+  "mayors_permit",
+  "sec_registration",
+  "poea_dmw_registration",
+  "approved_job_order",
+  "job_vacancies",
+  "philjobnet_accreditation",
+  "dole_no_pending_case_certificate"
+];
 
-/**
- * POST /api/upload/:type
- * 
- * Examples:
- *  - /api/upload/employer
- *  - /api/upload/job-seeker
- */
-router.post("/:type", upload.single("file"), (req, res) => {
-  try {
-    const { type } = req.params;
+router.post(
+  "/employer/formdata",
+  upload.fields(documentFields.map(f => ({ name: f }))),
+  async (req, res) => {
+    try {
+      const { employerId } = req.body;
+      if (!employerId) {
+        return res.status(400).json({ error: "Missing employerId" });
+      }
 
-    if (!["employer", "job-seeker"].includes(type)) {
-      return res.status(400).json({ error: "Invalid upload type" });
+      // Build payload
+      const payload = { employerId };
+      for (const field of documentFields) {
+        payload[field] = req.files[field]
+          ? `uploads/employer-documents/${req.files[field][0].filename}`
+          : "";
+      }
+
+      res.json({
+        success: true,
+        message: "Documents uploaded!",
+        data: payload,
+      });
+
+    } catch (err) {
+      console.error("FormData Error:", err);
+      res.status(500).json({ error: "Upload failed" });
     }
-
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
-    // Generate relative path for DB storage
-    const folder = type === "employer" ? "employer-documents" : "job-seeker-documents";
-    const relativePath = `uploads/${folder}/${req.file.filename}`;
-
-    // Return clean JSON for Flutter
-    res.status(200).json({
-      message: `${type} document uploaded successfully`,
-      filePath: relativePath,
-    });
-  } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ error: "File upload failed" });
   }
-});
+);
 
 export default router;

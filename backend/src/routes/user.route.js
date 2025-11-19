@@ -267,6 +267,16 @@ router.patch('/update-job-ref', async (req, res) => {
 	}
 })
 
+router.patch('/update-language', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateLanguageProfeciency(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.patch('/update-techvoc-training', async (req, res) => {
 	const user = req.body;
 	try {

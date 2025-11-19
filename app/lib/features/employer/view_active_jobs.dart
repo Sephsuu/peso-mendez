@@ -129,7 +129,7 @@ class ViewActiveJosbHeader extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Manage Users", style: AppText.textXl.merge(AppText.fontSemibold)),
+              Text("My Jobs Postings", style: AppText.textXl.merge(AppText.fontSemibold)),
               GestureDetector(
                 child: Text('⬅️ Back', style: AppText.textPrimary,),
                 onTap: () {

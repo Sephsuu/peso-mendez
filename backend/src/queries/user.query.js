@@ -228,18 +228,19 @@ export async function createEducationalBackground(educBg) {
             user_id, elem_year_grad, elem_level_reached, elem_year_last_attended,
             seco_year_grad, seco_level_reached, seco_year_last_attended, ter_course,
             ter_year_grad, ter_level_reached, ter_year_last_attended, gs_course,
-            gs_year_grad, gs_level_reached, gs_year_last_attended, is_kto12, shs_strand  
+            gs_year_grad, gs_level_reached, gs_year_last_attended, is_kto12, shs_strand, highest_education
         )
         VALUES (
             ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?
         )`,
         [
             educBg.userId, educBg.elemYearGrad, educBg.elemLevelReached, educBg.elemYearLastAttended,
             educBg.secoYearGrad, educBg.secoLevelReached, educBg.secoYearLastAttended, educBg.terCourse,
             educBg.terYearGrad, educBg.terLevelReached, educBg.terYearLastAttended, educBg.gsCourse,
-            educBg.gsYearGrad, educBg.gsLevelReached, educBg.gsYearLastAttended, educBg.isKto12, educBg.shsStrand
+            educBg.gsYearGrad, educBg.gsLevelReached, educBg.gsYearLastAttended, educBg.isKto12, educBg.shsStrand,
+            educBg.highest_education
         ]
     );
     return result;
@@ -358,6 +359,31 @@ export async function updateJobReference(jobRef) {
     );
     return result;
 }
+
+export async function updateLanguageProfeciency(languageProf) {
+    console.log("Updating language proficiency:", languageProf);
+
+    const [result] = await pool.query(
+        `UPDATE language_profeciencies 
+         SET 
+            language = ?, 
+            \`read\` = ?, 
+            \`write\` = ?, 
+            speak = ?, 
+            understand = ?
+         WHERE id = ?`,
+        [
+            languageProf.language,
+            languageProf.read,
+            languageProf.write,
+            languageProf.speak,
+            languageProf.understand,
+            languageProf.id
+        ]
+    );
+    return result;
+}
+
 
 export async function updateTechVocTraining(techVoc) {
   const [result] = await pool.query(

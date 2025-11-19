@@ -12,10 +12,12 @@ import 'package:flutter/material.dart';
 
 class LanguageProfeciencyForm extends StatefulWidget {
   final int userId;
+  final bool fromProfile;
 
   const LanguageProfeciencyForm({ 
     super.key,
     required this.userId,
+    this.fromProfile = false, // ✅ default value
   });
 
   @override 
@@ -88,7 +90,9 @@ class _LanguageProfeciencyFormState extends State<LanguageProfeciencyForm> {
             message: 'Language Profeciency updated successfully! You may now proceed to educational background form.',
             backgroundColor: AppColor.success
           );
-          navigateTo(context, EducationalBackgroundForm(userId: widget.userId));
+          widget.fromProfile
+              ? Navigator.pop(context)
+              : navigateTo(context, EducationalBackgroundForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;
@@ -124,14 +128,22 @@ class _LanguageProfeciencyFormState extends State<LanguageProfeciencyForm> {
                         Align(
                           alignment: Alignment.centerRight,  
                           child: GestureDetector(
-                            child: Text('Skip for now', style: AppText.textPrimary),
+                            child: Text(
+                              widget.fromProfile ? 'Back' : 'Skip for now', 
+                              style: AppText.textPrimary
+                            ),
                             onTap: () {
-                              AppSnackbar.show(
-                                context, 
-                                message: 'You can edit your information on your profile when you logged in.',
-                                backgroundColor: AppColor.primary
-                              );
-                              navigateTo(context, const Login());
+                              if (widget.fromProfile) {
+                                Navigator.pop(context);
+                              } else {
+                                AppSnackbar.show(
+                                  context,
+                                  message:
+                                      'You can edit your information on your profile when you logged in.',
+                                  backgroundColor: AppColor.primary,
+                                );
+                                navigateTo(context, const Login());
+                              }
                             },
                           ),
                         ),

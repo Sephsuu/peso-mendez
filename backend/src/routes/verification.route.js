@@ -25,10 +25,9 @@ router.get('/get-by-user', async(req, res) => {
 
 router.post('/create', async (req, res) => {
     const verification = req.body;
-    console.log(verification);
     
     try {
-        const query = await verificationQuery.createVerification(verification);
+        const query = await verificationQuery.createOrUpdateVerification(verification);
         return res.json(query);
     } catch (err) {
         res.status(500).json({ error: err.message });

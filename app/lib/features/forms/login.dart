@@ -7,12 +7,14 @@ import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/_endpoint.dart';
+import 'package:app/core/services/token_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/forms/register.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 // import 'dart:convert';
@@ -86,6 +88,11 @@ class _LoginFormState extends State<LoginForm> {
 
         if (response.statusCode == 200) {
           final responseData = jsonDecode(response.body);
+
+          // await TokenService.saveFCMToken({
+          //   "userId": responseData['user']['id'],
+          //   "token": await FirebaseMessaging.instance.getToken()
+          // });
 
           final token = responseData['token'];
           final user = responseData['user'];

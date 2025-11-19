@@ -11,6 +11,7 @@ import 'package:app/features/forms/job_reference.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class PersonalInformationForm extends StatefulWidget {
@@ -33,7 +34,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   final List<String> civilStatus = ['Single', 'Married', 'Widowed'];
   final List<String> disabilities = ['N/A', 'Visual', 'Hearing', 'Speech', 'Physical', 'Mental', 'Others'];
   final List<String> employmentStatus = ['Employed', 'Unemployed'];
-  final List<String> employedTypes = ['Wage employed', 'Self-employed'];
+  final List<String> employedTypes = ['Job Seeker', 'Student', 'Research Planner', 'Migrant Worker', 'Returning OFW', 'OSY'];
   final List<String> unemployedTypes = ['New/Fresh Graduate', 'Finished Contract', 'Resigned', 'Retired', 'Laid off due to calamity', 'Terminated'];
   final List<String> isOfw = ['Yes', 'No'];
   final List<String> isFormerOfw = ['Yes', 'No'];
@@ -185,39 +186,31 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                           },
                         ),
                         const SizedBox(height: 15.0),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: RegisterDrowdownSelectRequired(
-                                items: genders,
-                                initialValue: _sex,
-                                placeholder: 'Sex',
-                                onChanged: (value) {
-                                  setState(() {
-                                    _sex = value;
-                                  });
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 5.0),
-                            Expanded(
-                              child: RegisterDrowdownSelectRequired(
-                                items: civilStatus,
-                                initialValue: _civilStatus,
-                                placeholder: 'Civil Status',
-                                onChanged: (value) {
-                                  setState(() {
-                                    _civilStatus = value;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
+                        RegisterDrowdownSelectRequired(
+                          items: civilStatus,
+                          initialValue: _civilStatus,
+                          placeholder: 'Civil Status',
+                          onChanged: (value) {
+                            setState(() {
+                              _civilStatus = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 15.0),
+                        RegisterDrowdownSelectRequired(
+                          items: genders,
+                          initialValue: _sex,
+                          placeholder: 'Sex',
+                          onChanged: (value) {
+                            setState(() {
+                              _sex = value;
+                            });
+                          },
                         ),
                         const SizedBox(height: 15.0),
                         RegisterTextFieldPlaceholderRequired(controller: _religion, placeholder: "Religion"),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _tin, placeholder: "TIN Number"),
+                        RegisterTextFieldPlaceholder(controller: _tin, placeholder: "TIN Number", obscureText: true, obscuringCharacter: 'X',),
                         const SizedBox(height: 15.0),
                         RegisterDrowdownSelect(items: disabilities, initialValue: _disability, placeholder: 'Disability', onChanged: (value) { setState(() { _disability = value; }); }),
                         const SizedBox(height: 15.0),
@@ -231,7 +224,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                               borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
                             ),
                           ),
-                          value: _employmentStatus,
+                          initialValue: _employmentStatus,
                           items: employmentStatus.map((gender) {
                             return DropdownMenuItem<String>(
                               value: gender,
@@ -300,5 +293,22 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
     );
     
     
+  }
+}
+
+class MaskAsXFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue) {
+
+    // Mask the displayed text with X’s
+    String masked = 'X' * newValue.text.length;
+
+    return TextEditingValue(
+      text: masked,
+      selection: TextSelection.collapsed(offset: masked.length),
+      composing: TextRange.empty,
+    );
   }
 }

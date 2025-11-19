@@ -37,7 +37,7 @@ class AppSelect<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       isExpanded: true,
       isDense: isDense,
       dropdownColor: fillColor,
@@ -230,6 +230,12 @@ class _RegisterDrowdownSelectState extends State<RegisterDrowdownSelect> {
           selectedValue = newValue;
         });
         widget.onChanged(newValue);
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'This field is required';
+        }
+        return null;
       },
     );
   }

@@ -49,6 +49,49 @@ class _RegisterFormState extends State<RegisterForm> {
       final usernameValue = _username.text.trim();
       final passwordValue = _password.text.trim();
       final roleValue = _role;
+
+      if (!emailValue.contains('@') && !emailValue.contains('.')) {
+        return AppSnackbar.show(
+          context, 
+          message: 'Please enter a valid email address.',
+          backgroundColor: AppColor.danger
+        );
+      }
+
+      if (contactValue.length != 11) {
+        return AppSnackbar.show(
+          context,
+          message: "Contact number must be 11 digits long.",
+          backgroundColor: AppColor.danger
+        );
+      }
+
+      if (int.tryParse(contactValue) == null) {
+        return AppSnackbar.show(
+          context,
+          message: "Contact number must only contain numerical characters.",
+          backgroundColor: AppColor.danger
+        );
+      }
+
+      if (usernameValue.length < 8) {
+        return AppSnackbar.show(
+          context,
+          message: "Username must be 8 or more characters long.",
+          backgroundColor: AppColor.danger
+        );
+      }
+
+      final isValidPassword = RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$').hasMatch(passwordValue);
+
+      if (!isValidPassword) {
+        return AppSnackbar.show(
+          context,
+          message: "Password must be at least 8 characters and include 1 uppercase letter, 1 number, and 1 special symbol.",
+          backgroundColor: AppColor.danger
+        );
+      }
+
       AppSnackbar.show(
         context, 
         message: 'Please wait. We are registering your credentials.',

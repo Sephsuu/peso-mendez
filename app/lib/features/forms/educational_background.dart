@@ -2,6 +2,7 @@ import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -9,6 +10,26 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/forms/techvoc_training.dart';
 import 'package:flutter/material.dart';
+
+final List<String> educationLevels = [
+  "No grade completed",
+  "Elementary Level",
+  "Elementary Graduate",
+  "Junior High School Level",
+  "Junior High School Graduate",
+  "Senior High School Level",
+  "Senior High School Graduate",
+  "High School Level (Non K-12)",
+  "High School Graduate (Non K-12)",
+  "Alternative Learning System",
+  "Vocational Level",
+  "College Level",
+  "College Graduate",
+  "Some Masteral Units",
+  "Master's Degree Holder",
+  "Some Doctorate Units",
+];
+
 
 class EducationalBackgroundForm extends StatefulWidget {
   final int userId;
@@ -46,6 +67,7 @@ class _EducationalBackgroundState extends State<EducationalBackgroundForm> {
   final TextEditingController _shsStrand = TextEditingController();
 
   bool isKto12 = false;
+  String? _highestEducation;
 
   @override
   void dispose() {
@@ -78,6 +100,7 @@ class _EducationalBackgroundState extends State<EducationalBackgroundForm> {
 
         "isKto12": isKto12,
         "shsStrand": _shsStrand.text.trim(),
+        "highest_education": _highestEducation ?? "",
       };
       try {
         final res = await UserService.createEducationalBackground(educBg);
@@ -139,6 +162,18 @@ class _EducationalBackgroundState extends State<EducationalBackgroundForm> {
                         SizedBox(
                           width: double.infinity,
                           child: Text('Educational Background', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),
+                        ),
+                        const SizedBox(height: 20.0),
+                        AppSelect<String>(
+                          items: educationLevels,
+                          value: _highestEducation,
+                          placeholder: "Highest Educational Attainment",
+                          getLabel: (item) => item,
+                          onChanged: (value) {
+                            setState(() {
+                              _highestEducation = value;
+                            });
+                          },
                         ),
                         const SizedBox(height: 20.0),
                         Text('Elementary', style: AppText.textLg.merge(AppText.fontSemibold)),
