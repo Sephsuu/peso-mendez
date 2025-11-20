@@ -310,6 +310,38 @@ export async function createOtherSkill(otherSkill) {
     return result;
 }
 
+export async function createEmployerInformation(info) {
+    console.log("Employer Information Payload:", info);
+
+    const [result] = await pool.query(
+        `INSERT INTO employer_information (
+            employer_id,
+            surname,
+            first_name,
+            middle_name,
+            date_of_birth,
+            sex,
+            citmun,
+            highest_education,
+            employer_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            info.employer_id,
+            info.surname,
+            info.first_name,
+            info.middle_name || null,
+            info.date_of_birth,
+            info.sex,
+            info.citmun,
+            info.highest_education,
+            info.employer_type
+        ]
+    );
+
+    return result;
+}
+
+
 export async function updateUserCredential(user) {
     const [result] = await  pool.query(
         `UPDATE users 

@@ -1,11 +1,11 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/loader.dart';
-import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/_endpoint.dart';
+import 'package:app/features/admin/view_employer_documents.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -221,8 +221,7 @@ class EmployersTable extends StatelessWidget {
             const DataColumn(label: Text('Contact')),
             const DataColumn(label: Text('Registered At')),
             const DataColumn(label: Text('Documents')),
-            if (activeTab == 'Pending Employers')
-              const DataColumn(label: Text('Actions')),
+            const DataColumn(label: Text('Actions')),
           ], 
           rows: employers.asMap().entries.map((entry) {
             int index = entry.key;
@@ -274,50 +273,14 @@ class EmployersTable extends StatelessWidget {
                           ],
                         ),
                 ),
-                if (activeTab == 'Pending Employers')
-                  DataCell(
-                    Row(
-                      children: [
-                        AppButton(
-                          label: 'Approve', 
-                          onPressed: () {
-                            showDialog(
-                              context: context, 
-                              builder: (context) {
-                                return AppModal(
-                                  title: 'Are you sure to update verification status to APPROVED?',
-                                  confirmBackground: AppColor.primary,
-                                  confirmForeground: AppColor.light,
-                                  onConfirm: () => updateVerificationStatus(item['id'], 'approved'),
-                                );
-                              }
-                            );
-                          },
-                          backgroundColor: AppColor.success,
-                          visualDensityY: -3,
-                        ),
-                        const SizedBox(width: 5),
-                        AppButton(
-                          label: 'Reject', 
-                          onPressed: () {
-                            showDialog(
-                              context: context, 
-                              builder: (context) {
-                                return AppModal(
-                                  title: 'Are you sure to update verification status to REJECTED?',
-                                  confirmBackground: AppColor.primary,
-                                  confirmForeground: AppColor.light,
-                                  onConfirm: () => updateVerificationStatus(item['id'], 'rejected'),
-                                );
-                              }
-                            );
-                          },
-                          backgroundColor: AppColor.danger,
-                          visualDensityY: -3,
-                        ),
-                      ],
-                    )
+                DataCell(
+                  AppButton(
+                    label: 'View Documents',
+                    backgroundColor: AppColor.primary,
+                    onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["employer_id"])),
+                    visualDensityY: -3,
                   ),
+                ),
               ]
             );
           }).toList()

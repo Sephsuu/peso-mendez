@@ -14,6 +14,8 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:flutter/material.dart';
 
+const caviteLocations = ["Alfonso","Amadeo","Bacoor City","Carmona","Cavite City","Cavite Province","City of General Trias","Dasmariñas City","General Emilio Aguinaldo","General Mariano Alvarez","Imus City","Indang","Kawit","Magallanes","Maragondon","Mendez","Naic","Noveleta","Rosario","Silang","Tagaytay City","Tanza","Ternate","Trece Martires City"];
+
 class PostNewJob extends StatelessWidget {
   const PostNewJob({
     super.key,
@@ -53,10 +55,12 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
   final TextEditingController _jobTitle = TextEditingController();
   final TextEditingController _company = TextEditingController();
   final TextEditingController _location = TextEditingController();
+  final TextEditingController _citmun = TextEditingController();
   final TextEditingController _description = TextEditingController();
   final TextEditingController _salary = TextEditingController();
   String? _jobType;
   String? _visibility;
+  String? _selectedCitmun;
 
   List<String> types = ['Full-time', 'Part-time'];
   List<String> visibilities = ['Lite', 'Branded', 'Premium'];
@@ -100,6 +104,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
       final salaryValue = _salary.text.trim();
       final jobTypeValue = _jobType;
       final visibilityValue = _visibility;
+      final citmunValue = _citmun.text.trim();
 
       try {
         final res = await JobService.createJob({
@@ -110,7 +115,8 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           "type": jobTypeValue,
           "description": descriptionValue,
           "employerId": employerId,
-          "visibility": visibilityValue
+          "visibility": visibilityValue,
+          "citmun": citmunValue,
         });
 
         final notifRes = await NotificationService.createNotification({
@@ -159,7 +165,21 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           const SizedBox(height: 10),
           AppTextField(controller: _company, label: 'Company'),
           const SizedBox(height: 10),
-          AppTextField(controller: _location, label: 'Location'),
+          AppTextField(controller: _location, label: 'Address'),
+          const SizedBox(height: 10),
+          Text('City/Municipality', textAlign: TextAlign.start, style: AppText.textSm),
+          const SizedBox(height: 7.0),
+          AppSelect<String>(
+            items: caviteLocations,
+            value: _selectedCitmun,
+            getLabel: (item) => item,
+            onChanged: (value) {
+              setState(() {
+                _selectedCitmun = value;
+                _citmun.text = value ?? "";
+              });
+            },
+          ),
           const SizedBox(height: 10),
           AppDropdownSelect(items: types, label: 'Job Type', initialValue: _jobType, placeholder: 'Select Type', onChanged: (value) { setState(() { _jobType = value; });}),
           const SizedBox(height: 10),

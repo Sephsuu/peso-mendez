@@ -13,6 +13,7 @@ import 'package:app/features/admin/employers_report.dart';
 import 'package:app/features/admin/job_seekers_report.dart';
 import 'package:app/features/admin/manage_users.dart';
 import 'package:app/features/admin/post_announcement.dart';
+import 'package:app/features/admin/view_employer_documents.dart';
 import 'package:app/features/shared/announcements.dart';
 import 'package:app/main.dart';
 import 'package:flutter/material.dart';
@@ -174,20 +175,6 @@ class EmployerVerificationQueue extends HookWidget {
       return;
     }, [reload.value]);
 
-    Future<void> updateStatus(id, status) async {
-      try {
-        await VerificationService.updateVerificationStatus(id, status);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Status updated successfully!')),
-          );
-          reload.value = !reload.value;
-        }
-      } catch (e) {
-        if (context.mounted) showAlertError(context, '$e');
-      }
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -222,16 +209,9 @@ class EmployerVerificationQueue extends HookWidget {
                         DataCell(Text(item['status'] ?? '—')),
                         DataCell(Row(children: [
                           AppButton(
-                            label: 'Approve',
-                            backgroundColor: AppColor.success,
-                            onPressed: () => updateStatus(item['id'], 'approved'),
-                            visualDensityY: -3,
-                          ),
-                          const SizedBox(width: 5),
-                          AppButton(
-                            label: 'Reject',
-                            backgroundColor: AppColor.danger,
-                            onPressed: () => updateStatus(item['id'], 'rejected'),
+                            label: 'View Documents',
+                            backgroundColor: AppColor.primary,
+                            onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["employer_id"])),
                             visualDensityY: -3,
                           ),
                         ])),

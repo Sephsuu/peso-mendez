@@ -27,7 +27,9 @@ export async function getVerifications(role) {
 
 export async function getVerificationByUser(id) {
     const [rows] = await pool.query(
-        `SELECT * FROM employer_verification WHERE employer_id = ?`,
+        `SELECT ev.*, u.full_name FROM employer_verification ev
+        JOIN users u ON ev.employer_id = u.id
+        WHERE employer_id = ?`,
         [id]
     )
 

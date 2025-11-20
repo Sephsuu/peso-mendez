@@ -4,6 +4,7 @@ import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/notification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/forms/employer_information.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/forms/personal_information_form.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +123,7 @@ class _RegisterFormState extends State<RegisterForm> {
               message: 'You are successfully registered. Please login to your account using your credentials.',
               backgroundColor: AppColor.success
             );
-            navigateTo(context, const Login());
+            navigateTo(context, EmployerInformationForm(employerId: res['userId']));
           } else { 
             AppSnackbar.show(
               context, 

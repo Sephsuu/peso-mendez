@@ -237,6 +237,16 @@ router.post('/create-other-skill', async (req, res) => {
 	}
 })
 
+router.post('/create-employer-information', async (req, res) => {
+	const employerInfo = req.body;
+	try {
+		const query = await userQuery.createEmployerInformation(employerInfo);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.patch('/update-credential', async (req, res) => {
 	const user = req.body;
 	try {

@@ -174,6 +174,14 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> createEmployerInformation(Map<String, dynamic> employerInfo) async {
+    return await request(
+      '$url/create-employer-information',
+      method: 'POST',
+      body: employerInfo
+    );
+  }
+
   static Future<Map<String, dynamic>> updateUserCredential(Map<String, dynamic> user) async {
     return await request(
       '$url/update-credential',
