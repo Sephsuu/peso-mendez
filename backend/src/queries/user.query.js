@@ -167,19 +167,19 @@ export async function createPersonalinformation(personalInfo) {
         `INSERT INTO personal_informations (
             user_id, surname, first_name, middle_name, date_of_birth, suffix,
             religion, present_address, tin, sex, civil_status,
-            disability, employment_status, employment_type, is_ofw, is_former_ofw, citmun
+            disability, employment_status, employment_type, is_ofw, is_former_ofw, citmun, clientele
         )
         VALUES (
             ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?
         )`,
         [
             personalInfo.userId, personalInfo.surname, personalInfo.firstName, 
             personalInfo.middleName, personalInfo.dateOfBirth, personalInfo.suffix, personalInfo.religion,
             personalInfo.presentAddress, personalInfo.tin, personalInfo.sex,
             personalInfo.civilStatus, personalInfo.disability, personalInfo.employmentStatus,
-            personalInfo.employmentType, personalInfo.isOfw, personalInfo.isFormerOfw, personalInfo.citmun
+            personalInfo.employmentType, personalInfo.isOfw, personalInfo.isFormerOfw, personalInfo.citmun, personalInfo.clientele
         ]
     );
     return result;

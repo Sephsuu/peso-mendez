@@ -1,6 +1,8 @@
 import 'package:app/core/components/alert.dart';
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/hooks/use_claims.dart';
+import 'package:app/core/hooks/utils.dart';
 import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
@@ -20,6 +22,7 @@ import 'package:app/core/theme/typography.dart';
 import 'package:app/core/theme/colors.dart';
 
 const jobOptions = ['Featured Jobs', 'Recommended Jobs'];
+const caviteLocations = ["All Locations","Alfonso","Amadeo","Bacoor City","Carmona","Cavite City","Cavite Province","City of General Trias","Dasmariñas City","General Emilio Aguinaldo","General Mariano Alvarez","Imus City","Indang","Kawit","Magallanes","Maragondon","Mendez","Naic","Noveleta","Rosario","Silang","Tagaytay City","Tanza","Ternate","Trece Martires City"];
 
 class JobListing extends HookWidget {
   const JobListing({super.key});
@@ -31,6 +34,9 @@ class JobListing extends HookWidget {
     final loading = useState(false);
     final find = useState("");
     final type = useState("All Jobs");
+    final citmun = useState(caviteLocations[0]);
+    final minSalary = useState(0);
+    final maxSalary = useState(0);
     final jobs = useState<List<Map<String, dynamic>>>([]);
     final filteredJobs = useState<List<Map<String, dynamic>>>([]);
 
@@ -40,6 +46,18 @@ class JobListing extends HookWidget {
 
     void setType(String newVal) {
       type.value = newVal;
+    }
+
+    void setCitmun(String newVal) {
+      citmun.value = newVal;
+    }
+
+    void setMinSalary(int newVal) {
+      minSalary.value = newVal;
+    }
+
+    void setMaxSalary(int newVal) {
+      maxSalary.value = newVal;
     }
 
     // Fetch all jobs
@@ -76,21 +94,46 @@ class JobListing extends HookWidget {
       return null;
     }, [find.value, jobs.value]);
 
-    // Filter jobs depending on type
     useEffect(() {
-      if (type.value == "Full-Time") {
-        filteredJobs.value = jobs.value.where((job) {
-          return job["type"] == "Full-Time";
+      loading.value = true;
+
+      List<Map<String, dynamic>> temp = jobs.value;
+
+      if (find.value.isNotEmpty) {
+        temp = temp.where((job) {
+          final title = job["title"]?.toLowerCase() ?? '';
+          return title.contains(find.value.toLowerCase());
         }).toList();
-      } else if (type.value == "Part-Time") {
-        filteredJobs.value = jobs.value.where((job) {
-          return job["type"] == "Part-Time";
-        }).toList();
-      } else {
-        filteredJobs.value = jobs.value;
       }
+
+      if (type.value == "Full-Time" || type.value == "Part-Time") {
+        temp = temp.where((job) => job["type"] == type.value).toList();
+      }
+
+      if (citmun.value != "All Locations") {
+        temp = temp.where((job) => job["citmun"] == citmun.value).toList();
+      }
+
+      if (!(minSalary.value == 0 && maxSalary.value == 0)) {
+        temp = temp.where((job) {
+          final salary = job["salary"] ?? 0; // numeric assumed
+          return salary >= minSalary.value && salary <= maxSalary.value;
+        }).toList();
+      }
+
+      filteredJobs.value = temp;
+
+      loading.value = false;
       return null;
-    }, [type.value]);
+    }, [
+      find.value,
+      type.value,
+      citmun.value,
+      minSalary.value,
+      maxSalary.value,
+      jobs.value
+    ]);
+
 
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez Peso Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
@@ -119,6 +162,10 @@ class JobListing extends HookWidget {
                   setFind: setFind, 
                   type: type.value,
                   setType: setType,
+                  citmun: citmun.value,
+                  setCitmun: setCitmun,
+                  setMinSalary: setMinSalary,
+                  setMaxSalary: setMaxSalary,
                 ),
               ),
               const SizedBox(height: 10.0),
@@ -151,6 +198,10 @@ class HomepageJumbotron extends StatelessWidget {
   final ValueChanged<String> setFind;
   final ValueChanged<String> setType;
   final String type;
+  final ValueChanged<String> setCitmun;
+  final String citmun;
+  final ValueChanged<int> setMinSalary;
+  final ValueChanged<int> setMaxSalary;
 
   const HomepageJumbotron({
     super.key, 
@@ -158,6 +209,10 @@ class HomepageJumbotron extends StatelessWidget {
     required this.setFind,
     required this.type,
     required this.setType,
+    required this.citmun,
+    required this.setCitmun,
+    required this.setMinSalary,
+    required this.setMaxSalary
   });
 
   @override
@@ -193,28 +248,73 @@ class HomepageJumbotron extends StatelessWidget {
               onChanged: (value) => setFind(value),
             ),
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(height: 10),
           SizedBox(
             width: screenWidth * 0.8,
-            child: TextField(
-              style: AppText.textXs,
-              enabled: false,
-              decoration: InputDecoration(
-                labelText: 'Mendez, Cavite',
-                labelStyle: AppText.textSm,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
-                filled: true,
-                fillColor: AppColor.light,
-                border: const OutlineInputBorder()
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: AppSelect(
+                    hideIcon: true,
+                    textSize: 12,
+                    items: jobTypes,
+                    value: type,
+                    onChanged: (value) {
+                      if (value != null) setType(value);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  flex: 4,
+                  child: AppSelect(
+                    hideIcon: true,
+                    textSize: 12,
+                    items: caviteLocations,
+                    value: citmun,
+                    onChanged: (value) {
+                      if (value != null) setCitmun(value);
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          HomepageDropdownSelect(
-            items: jobTypes, 
-            type: type, 
-            onChanged: setType
+          const SizedBox(height: 10),
+          SizedBox(
+            width: screenWidth * 0.8,
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: AppInputField(
+                    label: "Min Salary",
+                    textSize: 12,
+                    visualDensityY: -2,
+                    onChanged: (value) {
+                      int newVal = int.tryParse(value) ?? 0;
+                      setMinSalary(newVal);
+                    },
+                    numericOnly: true,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  flex: 1,
+                  child: AppInputField(
+                    label: "Max Salary",
+                    textSize: 12,
+                    visualDensityY: -2,
+                    onChanged: (value) {
+                      int newVal = int.tryParse(value) ?? 0;
+                      setMaxSalary(newVal);
+                    },
+                    numericOnly: true,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           AppButton(
@@ -308,11 +408,11 @@ class JobList extends StatelessWidget {
                     style:
                         AppText.textSecondary.merge(AppText.fontSemibold)),
                 const SizedBox(height: 8.0),
-                Text("📍 ${job["location"]}",
+                Text("📍 ${job["citmun"]}",
                     style: AppText.textMuted.merge(AppText.textXs)),
                 const SizedBox(height: 8.0),
                 Text(
-                  "💰 ${job["salary"]} • ${job["company"]}",
+                  "💰 ${formatToPeso(job["salary"])} • ${job["company"]}",
                   style: AppText.textPrimary
                       .merge(const TextStyle(fontSize: 13))
                       .merge(AppText.fontSemibold),

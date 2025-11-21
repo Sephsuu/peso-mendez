@@ -80,6 +80,15 @@ export async function updateApplicationStatus(applicationId, status) {
     return { message: "Status updated successfully" };
 }
 
+export async function updateApplicationPlacement(applicationId, placement) {
+    await pool.query(
+        "UPDATE applications SET placement = ? WHERE id = ?",
+        [placement, applicationId]
+    );
+
+    return { message: "Status updated successfully" };
+}
+
 
 export async function deleteApplicationByJobAndUser(jobId, userId) {
     const result = await pool.query(

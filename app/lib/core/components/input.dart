@@ -15,6 +15,12 @@ class AppInputField extends StatelessWidget {
   final bool? isEnabled;
   final int? maxLine;
 
+  final double textSize;
+  final double visualDensityY;
+
+  // ⭐ NEW: Accept only numbers?
+  final bool numericOnly;
+
   const AppInputField({
     super.key,
     required this.label,
@@ -27,6 +33,11 @@ class AppInputField extends StatelessWidget {
     this.initialValue,
     this.isEnabled = true,
     this.maxLine,
+    this.textSize = 14,
+    this.visualDensityY = -4,
+
+    // ⭐ default: off
+    this.numericOnly = false,
   });
 
   @override
@@ -34,19 +45,35 @@ class AppInputField extends StatelessWidget {
     return TextFormField(
       maxLines: maxLine ?? 1,
       controller: controller,
-      initialValue: controller == null ? initialValue : null, 
+      initialValue: controller == null ? initialValue : null,
       obscureText: obscureText,
-      keyboardType: keyboardType,
+
+      // ⭐ Use number keyboard when numericOnly = true
+      keyboardType: numericOnly ? TextInputType.number : keyboardType,
+
+      // ⭐ Add validator if needed
       validator: validator,
       onChanged: onChanged,
       enabled: isEnabled,
+
+      style: TextStyle(fontSize: textSize),
+
+      // ⭐ Only allow digits
+      inputFormatters: numericOnly
+          ? [FilteringTextInputFormatter.digitsOnly]
+          : null,
+
       decoration: InputDecoration(
         filled: true,
         fillColor: AppColor.light,
         isDense: true,
-        visualDensity: const VisualDensity(vertical: -4),
+        visualDensity: VisualDensity(vertical: visualDensityY),
+
         labelText: label,
         hintText: hint,
+        labelStyle: TextStyle(fontSize: textSize),
+        hintStyle: TextStyle(fontSize: textSize * 0.9),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -62,7 +89,6 @@ class AppInputField extends StatelessWidget {
     );
   }
 }
-
 
 class RegisterTextFieldPlaceholderRequired extends StatefulWidget {
   final TextEditingController controller;

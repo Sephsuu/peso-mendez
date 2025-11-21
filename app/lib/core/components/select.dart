@@ -7,17 +7,27 @@ import 'package:flutter/material.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 
+import 'package:flutter/material.dart';
+
 class AppSelect<T> extends StatelessWidget {
   final List<T> items;
   final T? value;
   final String? placeholder;
   final String Function(T)? getLabel;
   final void Function(T?) onChanged;
+
   final bool isDense;
   final double borderRadius;
   final EdgeInsetsGeometry contentPadding;
   final Color borderColor;
   final Color fillColor;
+  final double? width;
+
+  final double textSize;
+  final bool hideIcon;
+
+  // ⭐ NEW: required validator
+  final bool required;
 
   const AppSelect({
     super.key,
@@ -30,90 +40,76 @@ class AppSelect<T> extends StatelessWidget {
     this.borderRadius = 8.0,
     this.contentPadding =
         const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-    this.borderColor = const Color.fromARGB(178, 29, 0, 83), // Violet (Material purple 700)
+    this.borderColor = const Color.fromARGB(178, 29, 0, 83),
     this.fillColor = Colors.white,
+    this.width,
+    this.textSize = 14.0,
+    this.hideIcon = false,
+    this.required = false, // ⭐ default false
   });
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<T>(
-      initialValue: value,
-      isExpanded: true,
-      isDense: isDense,
-      dropdownColor: fillColor,
-      decoration: InputDecoration(
+    return SizedBox(
+      width: width ?? double.infinity,
+      child: DropdownButtonFormField<T>(
+        initialValue: value,
+        isExpanded: true,
         isDense: isDense,
-        filled: true,
-        fillColor: fillColor,
-        labelText: placeholder,
-        contentPadding: contentPadding,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-          borderSide: BorderSide(color: borderColor),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-          borderSide: BorderSide(color: borderColor, width: 1.4),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-          borderSide: BorderSide(color: borderColor, width: 1.8),
-        ),
-      ),
-      items: items.map((item) {
-        final label = getLabel != null ? getLabel!(item) : item.toString();
-        return DropdownMenuItem<T>(
-          value: item,
-          child: Text(label),
-        );
-      }).toList(),
-      onChanged: onChanged,
-    );
-  }
-}
+        dropdownColor: fillColor,
 
-class HomepageDropdownSelect extends StatefulWidget {
-  final List<String> items;
-  final String type;
-  final ValueChanged<String> onChanged;
-
-  const HomepageDropdownSelect({
-    super.key,
-    required this.items,
-    required this.type,
-    required this.onChanged,
-  });
-
-  @override
-  State<HomepageDropdownSelect> createState() => _HomepageDropdownSelectState();
-}
-class _HomepageDropdownSelectState extends State<HomepageDropdownSelect> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-      decoration: BoxDecoration(
-        color: AppColor.light,
-        border: Border.all(color: AppColor.muted, width: 1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: DropdownButton(
-        value: widget.type,
-        // hint: const Text('Job Type'),
-        items: widget.items.map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(), 
-        onChanged: (value) {
-          if (value != null) {
-            widget.onChanged(value);
+        // ⭐ REQUIRED VALIDATOR
+        validator: (val) {
+          if (required && val == null) {
+            return "This field is required";
           }
+          return null;
         },
-        isDense: true,
-        underline: const SizedBox(),
-        style: AppText.textSm.merge(AppText.fontSemibold).merge(AppText.textDark),
+
+        icon: hideIcon ? const SizedBox.shrink() : const Icon(Icons.arrow_drop_down),
+        iconSize: hideIcon ? 0 : 24,
+
+        decoration: InputDecoration(
+          isDense: isDense,
+          filled: true,
+          fillColor: fillColor,
+          labelText: placeholder,
+          contentPadding: contentPadding,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(color: borderColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(color: borderColor, width: 1.4),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(color: borderColor, width: 1.8),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: const BorderSide(color: Colors.red, width: 1.4),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: const BorderSide(color: Colors.red, width: 1.8),
+          ),
+        ),
+
+        items: items.map((item) {
+          final label = getLabel != null ? getLabel!(item) : item.toString();
+          return DropdownMenuItem<T>(
+            value: item,
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: textSize),
+            ),
+          );
+        }).toList(),
+
+        onChanged: onChanged,
       ),
     );
   }

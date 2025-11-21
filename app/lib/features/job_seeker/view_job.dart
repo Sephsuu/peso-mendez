@@ -9,6 +9,7 @@ import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/components/text.dart';
 import 'package:app/core/hooks/use_claims.dart';
+import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -200,7 +201,7 @@ class ViewApplicationCover extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               _iconText(Icons.location_on, job["location"]),
-              _iconText(Icons.monetization_on, job["salary"]),
+              _iconText(Icons.monetization_on, formatToPeso(job["salary"])),
             ],
           ),
           const SizedBox(height: 10),
@@ -448,7 +449,7 @@ class JobDetailsCard extends StatelessWidget {
                   ),
                   Expanded(
                     flex: 1,
-                    child: Text(job["salary"]),
+                    child: Text(formatToPeso(job["salary"])),
                   )
                 ],
               ),

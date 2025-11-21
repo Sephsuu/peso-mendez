@@ -38,6 +38,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   final List<String> employmentStatus = ['Employed', 'Unemployed'];
   final List<String> employedTypes = ['Job Seeker', 'Student', 'Research Planner', 'Migrant Worker', 'Returning OFW', 'OSY'];
   final List<String> unemployedTypes = ['New/Fresh Graduate', 'Finished Contract', 'Resigned', 'Retired', 'Laid off due to calamity', 'Terminated'];
+  final clienteleOptions = ["Jobseeker","Student","Researcher/Planner","Migrant Worker","Returning OFW","OSY"];
   final List<String> isOfw = ['Yes', 'No'];
   final List<String> isFormerOfw = ['Yes', 'No'];
   final TextEditingController _surname = TextEditingController();
@@ -47,6 +48,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   final TextEditingController _religion = TextEditingController();
   final TextEditingController _presentAddress = TextEditingController();
   final TextEditingController _citmun = TextEditingController();
+  final TextEditingController _clientele = TextEditingController();
   final TextEditingController _tin = TextEditingController();
   String? _sex;
   String? _civilStatus;
@@ -56,7 +58,9 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   String? _isOfw;
   String? _isFormerOfw;
   String? _selectedCitmun;
+  String? _selectedClientele;
   DateTime? _selectedDate; 
+
 
   @override
   void dispose() {
@@ -67,11 +71,19 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
     _religion.dispose();
     _presentAddress.dispose();
     _tin.dispose();
+    _citmun.dispose();
     super.dispose();
   }
 
   Future<void> _nextForm() async {
     if (_formKey.currentState!.validate()) {
+      if (_tin.text.trim().length < 9 && _tin.text.trim().length > 1) {
+        return AppSnackbar.show(
+          context, 
+          message: "TIN ID must be 9 characters long.",
+          backgroundColor: AppColor.danger
+        );
+      }
       final formattedDate = _selectedDate != null
       ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
       : null;
@@ -92,7 +104,8 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
         "isOfw": _isOfw,
         "isFormerOfw": _isFormerOfw,
         "dateOfBirth": formattedDate,
-        "citmun": _citmun.text.trim()
+        "citmun": _citmun.text.trim(),
+        "clientele": _clientele.text.trim(),
       }; 
       try {
         final res = await UserService.createPersonalInformation(personalInfo);
@@ -177,6 +190,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                               _citmun.text = value ?? "";
                             });
                           },
+                          required: true,
                         ),
                         const SizedBox(height: 15.0),
                         DateTimeFormField(
@@ -292,6 +306,20 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                             }
                             return null;
                           },
+                        ),
+                        const SizedBox(height: 15),
+                        AppSelect<String>(
+                          items: clienteleOptions,
+                          value: _selectedClientele,
+                          placeholder: "Clientele",
+                          getLabel: (item) => item,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedClientele = value;
+                              _clientele.text = value ?? "";
+                            });
+                          },
+                          required: true,
                         ),
                         const SizedBox(height: 15.0),
                         RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),

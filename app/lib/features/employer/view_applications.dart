@@ -15,6 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+final placements = ["Hired (Local - Private)","Hired (Local - Government)","Hired (Overseas)","Not Hired","Undergone Training","Provided Livelihood","Not Applicable"];
+final statuses = ["Sent", "Reviewed", "Interview", "Rejected", "Hired"];
+
 class ViewApplications extends HookWidget {
   const ViewApplications({super.key, 
   });
@@ -32,6 +35,10 @@ class ViewApplications extends HookWidget {
 
     final jobSelection = useState<List<String>>([]);
     final locationSelection = useState<List<String>>([]);
+    final selectedStatusMap = useState<Map<int, String?>>({});
+    final selectedPlacementMap = useState<Map<int, String?>>({});
+
+
 
     void setReload() {
       reload.value = !reload.value;
@@ -115,6 +122,8 @@ class ViewApplications extends HookWidget {
                   ViewApplicationsTable(
                     applications: filteredApplications.value,
                     setReload: setReload,
+                    selectedStatusMap: selectedStatusMap,
+                    selectedPlacementMap: selectedPlacementMap,
                   ),
                 ],
               ),
@@ -191,12 +200,59 @@ class ViewApplicationsFilter extends StatelessWidget {
 class ViewApplicationsTable extends StatelessWidget {
   final List<Map<String, dynamic>> applications;
   final VoidCallback setReload;
+  final ValueNotifier<Map<int, String?>> selectedStatusMap;
+  final ValueNotifier<Map<int, String?>> selectedPlacementMap; 
 
   const ViewApplicationsTable({
     super.key,
     required this.applications,
-    required this.setReload
+    required this.setReload,
+    required this.selectedStatusMap,
+    required this.selectedPlacementMap,
   });
+
+  void _updateStatus(BuildContext context, int id, String status) async {
+    try {
+      final data = await ApplicationService.updateApplicationStatus(id, status);
+      if (data.isNotEmpty) {
+        if (!context.mounted) return;
+        AppSnackbar.show(
+          context,
+          message: "Application status updated successfully!",
+          backgroundColor: AppColor.success,
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      AppSnackbar.show(
+        context,
+        message: "$e",
+        backgroundColor: AppColor.danger,
+      );
+    }
+  }
+
+  void _updatePlacement(BuildContext context, int id, String placement) async {
+    try {
+      final data = await ApplicationService.updateApplicationPlacement(id, placement);
+      if (data.isNotEmpty) {
+        if (!context.mounted) return;
+        AppSnackbar.show(
+          context,
+          message: "Placement updated successfully!",
+          backgroundColor: AppColor.success,
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      AppSnackbar.show(
+        context,
+        message: "$e",
+        backgroundColor: AppColor.danger,
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +260,9 @@ class ViewApplicationsTable extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: DataTableTheme(
         data: DataTableThemeData(
-          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+          headingRowColor: WidgetStateProperty.all(
+            const Color.fromARGB(255, 215, 215, 215),
+          ),
           headingTextStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -223,65 +281,147 @@ class ViewApplicationsTable extends StatelessWidget {
             DataColumn(label: Text('Job Title')),
             DataColumn(label: Text('Job Location')),
             DataColumn(label: Text('Status')),
+            DataColumn(label: Text("Placement")),
             DataColumn(label: Text('Applied On')),
             DataColumn(label: Text('Resume')),
             DataColumn(label: Text('Action')),
           ],
           rows: applications.map((application) {
+            final appId = application['id'];
+
             return DataRow(
               cells: [
                 DataCell(Text(application['full_name'] ?? 'N/A')),
                 DataCell(Text(application['title']?.toString() ?? 'N/A')),
                 DataCell(Text(application['location'] ?? 'N/A')),
-                DataCell(ViewApplicationUpdateStatus(
-                  initialValue: application["status"], 
-                  application: application,
-                  setReload: setReload,
-                )
+                DataCell(
+                  AppSelect<String>(
+                    items: statuses,
+                    value: selectedStatusMap.value[appId] ?? application["status"],
+                    placeholder: "Status",
+                    getLabel: (item) => item,
+                    onChanged: (value) async {
+                      bool? confirmed = await showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text("Confirm Change"),
+                          content: Text(
+                            "Are you sure you want to change status to \"$value\"?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text("Cancel"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text("Confirm"),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) {
+                        selectedStatusMap.value = {
+                          ...selectedStatusMap.value,
+                          appId: value,
+                        };
+                        _updateStatus(context, appId, value!);
+                      }
+                    },
+                  ),
+                ),
+                DataCell(
+                  AppSelect<String>(
+                    items: placements,
+                    value: selectedPlacementMap.value[appId] ?? application["placement"],
+                    placeholder: "Placement",
+                    getLabel: (item) => item,
+                    onChanged: (value) async {
+                      bool? confirmed = await showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text("Confirm Change"),
+                          content: Text(
+                            "Are you sure you want to change placement to \"$value\"?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text("Cancel"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text("Confirm"),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) {
+                        selectedPlacementMap.value = {
+                          ...selectedPlacementMap.value,
+                          appId: value,
+                        };
+
+                        _updatePlacement(context, appId, value!);
+                      }
+                    },
+                  ),
                 ),
                 DataCell(Text(formatDateTime(application['applied_on']))),
                 DataCell(
-                  application["document_path"] != null && application["document_path"].toString().isNotEmpty 
-                    ? GestureDetector(
-                      onTap: () async {
-                        final String filePath = application["document_path"];
-                        final String fullUrl = filePath.startsWith("http")
-                            ? filePath
-                            : "$BASE_URL/$filePath";
+                  application["document_path"] != null &&
+                          application["document_path"].toString().isNotEmpty
+                      ? GestureDetector(
+                          onTap: () async {
+                            final String filePath =
+                                application["document_path"];
+                            final String fullUrl = filePath.startsWith("http")
+                                ? filePath
+                                : "$BASE_URL/$filePath";
 
-                        final Uri uri = Uri.parse(fullUrl);
+                            final Uri uri = Uri.parse(fullUrl);
 
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(
-                            uri,
-                            mode: LaunchMode.externalApplication, // opens in browser or PDF viewer
-                          );
-                        } else {
-                          if (context.mounted) {
-                            AppSnackbar.show(
-                              context,
-                              message: "Cannot open document",
-                              backgroundColor: AppColor.danger
-                            );
-                          }
-                        }
-                      },
-                      child: const Text(
-                        'View Resume',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    )
-                    : const Text('No Resume')
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              if (context.mounted) {
+                                AppSnackbar.show(
+                                  context,
+                                  message: "Cannot open document",
+                                  backgroundColor: AppColor.danger,
+                                );
+                              }
+                            }
+                          },
+                          child: const Text(
+                            'View Resume',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        )
+                      : const Text('No Resume'),
                 ),
+
+                /// ACTION --------
                 DataCell(
                   GestureDetector(
                     onTap: () {
-                      navigateTo(context, EditProfile(
-                        employerClaim: { "id": application['job_seeker_id'], "role": "employer" }
-                      ));
+                      navigateTo(
+                        context,
+                        EditProfile(
+                          employerClaim: {
+                            "id": application['job_seeker_id'],
+                            "role": "employer"
+                          },
+                        ),
+                      );
                     },
                     child: Text(
                       'View',
@@ -289,12 +429,11 @@ class ViewApplicationsTable extends StatelessWidget {
                     ),
                   ),
                 ),
-
               ],
             );
-          }).toList()
-        )
-      )
+          }).toList(),
+        ),
+      ),
     );
   }
 }

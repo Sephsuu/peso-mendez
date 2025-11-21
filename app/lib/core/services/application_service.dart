@@ -38,6 +38,13 @@ class ApplicationService {
     );
   }
 
+  static Future<Map<String, dynamic>> updateApplicationPlacement(int id, String placement) async {
+    return await request(
+      '$url/update-placement?id=$id&placement=$placement',
+      method: 'PATCH',
+    );
+  }
+
   static Future<Map<String, dynamic>> deleteApplicationByJobUser(int jobId, int userId) async {
     return await request(
       '$url/delete-by-job-user?jobId=$jobId&userId=$userId',

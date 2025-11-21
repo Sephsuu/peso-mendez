@@ -157,10 +157,12 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.center,
-            child: Text('📝 Post a New Job', style: AppText.textXl.merge(AppText.fontSemibold)),
+          Text(
+            'Publish a Job',
+            style: AppText.textXl.merge(AppText.fontSemibold),
           ),
+          const Divider(thickness: 1, height: 16),
+          const SizedBox(height: 10),
           AppTextField(controller: _jobTitle, label: 'Job Title'),
           const SizedBox(height: 10),
           AppTextField(controller: _company, label: 'Company'),

@@ -137,7 +137,14 @@ class DashboardHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('👔 Employer Dashboard', style: AppText.textXl.merge(AppText.fontSemibold)),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(
+            'Employer Dashboard',
+            style: AppText.textXl.merge(AppText.fontSemibold),
+          ),
+        ),
+        const Divider(thickness: 1, height: 16),
         if (employerVerification.isEmpty) 
           SizedBox(
             width: double.infinity,

@@ -1,0 +1,58 @@
+websocket message .txt 
+
+
+lib/socket.ts
+
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+
+export function getMessagesSocket(userId: number) {
+    const socket = new SockJS("http://localhost:8081/ws"); 
+    const client = new Client({
+        webSocketFactory: () => socket,
+        debug: () => {},
+        reconnectDelay: 5000,
+    });
+
+    client.onConnect = () => {
+        client.subscribe(`/topic/conversation/${userId}`, (msg) => {
+            const update = JSON.parse(msg.body);
+
+            // Pass this to your UI list
+            window.dispatchEvent(
+                new CustomEvent("conversation-update", { detail: update })
+            );
+        });
+    };
+
+    client.activate();
+    return client;
+}
+
+
+
+
+inside converstation list component 
+
+useEffect(() => {
+    function updateHandler(e: any) {
+        const update = e.detail;
+
+        setConversations((prev) => {
+            // find conversation
+            const updated = prev.find((c) => c.id === update.conversationId);
+            if (!updated) return prev;
+
+            updated.updatedAt = update.updatedAt;
+            updated.updatedMessage = update.content;
+
+            // move to top
+            const filtered = prev.filter((c) => c.id !== update.conversationId);
+            return [updated, ...filtered];
+        });
+    }
+
+    window.addEventListener("conversation-update", updateHandler);
+    return () => window.removeEventListener("conversation-update", updateHandler);
+}, []);
+

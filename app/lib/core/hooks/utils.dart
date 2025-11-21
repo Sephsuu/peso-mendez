@@ -34,3 +34,13 @@ String formatAnnouncementDate(String dateString) {
     return '$shortDate at ${formatTime(date)}';
   }
 }
+
+String formatToPeso(num amount) {
+  final formatter = NumberFormat.currency(
+    locale: 'en_PH',
+    symbol: '₱',
+    decimalDigits: 2,
+  );
+
+  return formatter.format(amount);
+}

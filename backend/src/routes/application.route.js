@@ -60,6 +60,16 @@ router.patch('/update-status', async (req, res) => {
   }
 })
 
+router.patch('/update-placement', async (req, res) => {
+  const { id, placement } = req.query;
+  try {
+    const application = await applicationQuery.updateApplicationPlacement(id, placement);
+    res.json(application)
+  } catch (err) {
+      console.log(err);
+  }
+})
+
 router.delete('/delete-by-job-user', async (req, res) => {
   const { jobId, userId } = req.query;
   try {
