@@ -1,0 +1,80 @@
+plugins {
+    id "com.android.application"
+
+    // Firebase Plugin
+    id "com.google.gms.google-services"
+
+    id "kotlin-android"
+
+    // Flutter plugin must be last
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace = "com.pesomendez"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    // ================================
+    // 🔧 FIX: Java 8 + Desugaring
+    // ================================
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+
+        // REQUIRED: Enables modern Java APIs used by notifications
+        coreLibraryDesugaringEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "com.pesomendez"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties["keyAlias"]
+            keyPassword keystoreProperties["keyPassword"]
+            storeFile keystoreProperties["storeFile"] ? file(keystoreProperties["storeFile"]) : null
+            storePassword keystoreProperties["storePassword"]
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    // Firebase BOM
+    implementation platform("com.google.firebase:firebase-bom:34.3.0")
+
+    // Firebase services
+    implementation "com.google.firebase:firebase-analytics"
+    // Add if needed: messaging
+    implementation "com.google.firebase:firebase-messaging"
+
+    // 🔥 REQUIRED FOR flutter_local_notifications
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.3"
+}

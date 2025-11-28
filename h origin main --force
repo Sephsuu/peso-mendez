@@ -1,0 +1,401 @@
+[33mcommit ac0aefb4aa4e32a79daba324a7e5674223afe269[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Nov 28 11:50:33 2025 +0800
+
+    updated
+
+[33mcommit f463c79c9ddc80fcbfdadd3b2f8d64032f2b704e[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Nov 28 11:47:28 2025 +0800
+
+    updated
+
+[33mcommit cbf20eb7fb578d7d1e11fcb93a5c96323e2c7458[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Nov 27 12:06:55 2025 +0800
+
+    service key
+
+[33mcommit 265ed2025c581127dfacaed08a9f14ac38d1d86e[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Nov 27 11:53:26 2025 +0800
+
+    fixed some issues
+
+[33mcommit e3ce4e8c0971eb0f95ca11edb9247a2e8ea7a347[m
+Author: Shai <118340290+shynamei@users.noreply.github.com>
+Date:   Wed Nov 26 22:11:28 2025 +0800
+
+    from aves device
+
+[33mcommit c42f6ad6bb90c8130a161513d37ddaeaafbbc806[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Mon Nov 24 01:46:34 2025 +0800
+
+    added initial notifications
+
+[33mcommit fbd8a11de3de5fe2aa708a24e0c87b94f849dd3d[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sun Nov 23 22:29:20 2025 +0800
+
+    added charts report
+
+[33mcommit b0bb9b45cce4799de52ed0e9304604768e6bc3dc[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sat Nov 22 00:44:13 2025 +0800
+
+    added placement field on applications
+
+[33mcommit 34a51f6f604aee969bec2c3a43b8ce014a7b5e6e[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Nov 20 12:50:52 2025 +0800
+
+    admin can now view employer documents
+
+[33mcommit 7e3db1b44094842d1913c9d033c7322608675858[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Nov 20 01:05:27 2025 +0800
+
+    added city/municipality field on personal_informations
+
+[33mcommit ef82d1f56d273bb06843522ab408428f0e57db51[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Nov 20 00:51:53 2025 +0800
+
+    added gitignore
+
+[33mcommit 6fe7a4e3f6d995003e5d24913ada468e38bc972f[m[33m ([m[1;32mdev[m[33m)[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Nov 20 00:35:48 2025 +0800
+
+    can now upload employer verification requirements
+
+[33mcommit a0aa04e47601fdfe1d01aefe5d29f94771931aae[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sun Nov 9 18:08:53 2025 +0800
+
+    updated
+
+[33mcommit 19ce7337593deda40232f60a8cc3deaf095bc6af[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Nov 4 13:51:09 2025 +0800
+
+    added contact page
+
+[33mcommit 8e26adc6d60a1f59a8e43ef2a23ccc0944587471[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Oct 24 00:43:15 2025 +0800
+
+    updated
+
+[33mcommit 2030ad59a4ea444b2f03393b02d70c153131fd16[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Oct 24 00:20:42 2025 +0800
+
+    updated
+
+[33mcommit ee51031e8804ac83fe709da0dd5c4b7773caadf2[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Oct 21 23:28:29 2025 +0800
+
+    updated
+
+[33mcommit 2f1c74e0b875a7cca4627aede9f18bf65aa6955c[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Oct 21 21:30:47 2025 +0800
+
+    updated
+
+[33mcommit 76355b9f6a5c82a3fc4f156c44dde591e0109d9a[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Mon Oct 20 23:48:36 2025 +0800
+
+    updated
+
+[33mcommit b557e34678ceae1deba273e6045388be03db39ec[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sat Oct 18 16:41:07 2025 +0800
+
+    updated
+
+[33mcommit d4e8961295b0adb159fe178ca242d4ced8578d36[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Oct 16 22:28:02 2025 +0800
+
+    updated
+
+[33mcommit 1fd686bed1362786d98b97caecc2c7410c2508f2[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Oct 16 17:37:59 2025 +0800
+
+    updated
+
+[33mcommit c7e3041fc78c1602e242732347cf9efb3b438a7e[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Oct 16 14:32:12 2025 +0800
+
+    updated
+
+[33mcommit 3ed447ef0979622b6dae08b67d187c72fe143df1[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Oct 15 13:47:02 2025 +0800
+
+    updated
+
+[33mcommit db4ff2af74e84db211f975523f0f9ae3ea29f913[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Oct 14 22:30:03 2025 +0800
+
+    updated
+
+[33mcommit e1366421c3af9406f12de9ded0072c71ed99c105[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Oct 14 22:21:09 2025 +0800
+
+    updated
+
+[33mcommit db85b8cc54b203132e495e648d28c571d2ba1c63[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Oct 14 21:13:17 2025 +0800
+
+    modified:   app/lib/features/admin/employers_report.dart
+
+[33mcommit c47824d27596eb676bb7da779e8e47b2a62ba401[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Oct 14 20:55:06 2025 +0800
+
+    updated
+
+[33mcommit de9598ba9f93da8585e64ba9675b1e47106f512c[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Oct 14 16:19:13 2025 +0800
+
+    updated
+
+[33mcommit 3643e6d38410943cd71eccb0bdb56ffec9236fe4[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Oct 9 17:21:12 2025 +0800
+
+    updated
+
+[33mcommit 06603129dc4f8532cb688cace0a2da45c63befe2[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Oct 9 17:18:15 2025 +0800
+
+    updated
+
+[33mcommit cca0a53a0a104dfdad20150267e5e24acf9aa6e9[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Oct 9 01:43:29 2025 +0800
+
+    updated as of 09/10/2025 1:43 AM
+
+[33mcommit f6db220aa1d90e1bd710bb327591b1b1aceccab6[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sun Oct 5 17:10:50 2025 +0800
+
+    added viewing of announcements
+
+[33mcommit 0ac4a468df72479e4df315d80a19705e4e692833[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sun Oct 5 02:04:19 2025 +0800
+
+    updated as of 5/10/2025 2:04 AM
+
+[33mcommit cd26296e0bbd069c8e9a5a1f9fdf800353cacb66[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Sep 30 22:02:24 2025 +0800
+
+    updated
+
+[33mcommit 778776bbf8bf07b1e6056cf6c5503fe8f9055982[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Sep 30 20:53:58 2025 +0800
+
+    updated
+
+[33mcommit 73607c13e0990c8d0ceef9064979ddacaff803ba[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Sep 3 23:26:01 2025 +0800
+
+    updated as of 03/09/2025 11:25PM
+
+[33mcommit a7bb165e778190127ff869770988744745d94696[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Sep 3 15:51:33 2025 +0800
+
+    flutter ver 3.24
+
+[33mcommit 665a9856be9a3f9e9b4e9625c6902170f909b7f8[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Aug 21 18:05:25 2025 +0800
+
+    added skills selection for user
+
+[33mcommit 5cd0898fdd6d268f88ab81f4f44aa2d30679ccee[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Aug 21 13:24:39 2025 +0800
+
+    added eligibility/professional license and work experience form
+
+[33mcommit 4bec3b8fe383c93fc21d2956d99953572ef4d885[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Aug 20 19:08:04 2025 +0800
+
+    added eductional background, job reference, language profeciency, technical and vocational form, and initial ui for eligibility and prc form (no backend yet)
+
+[33mcommit 380ff2f3898d607132b8798574fb18e79affda7d[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Aug 19 20:41:09 2025 +0800
+
+    added personal information and job reference
+
+[33mcommit 377e9722bfb6cf40bb442f224fd0cc45b2054799[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Aug 12 20:17:58 2025 +0800
+
+    updated
+
+[33mcommit 434467da9a3b801c63a010eb9045a25108ab6bc0[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Aug 7 22:05:54 2025 +0800
+
+    added user management
+
+[33mcommit a1c1d192710d921868b00328c04218c032fa12d3[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sat Aug 2 23:08:41 2025 +0800
+
+    fixed application submission issues
+
+[33mcommit a650b4c58ce294be1c6d1ca09b851ce00067f461[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sat Jul 12 23:18:48 2025 +0800
+
+    added footer on application viewing
+
+[33mcommit 496060b52d5c25cffc72b3eccc6da9c248b941b9[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Jul 10 23:33:57 2025 +0800
+
+    added company information on application
+
+[33mcommit 1ad668f73199e80a2c8bb720a73c399db50c65ce[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Jul 9 23:40:09 2025 +0800
+
+    added additional application information for job seeker
+
+[33mcommit 89426c11a19a013f8fdeb751c9fa013947b94afe[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Jul 8 17:41:07 2025 +0800
+
+    added an application cover for applid jobs of job seeker
+
+[33mcommit 7baab83f17dfe6a1977b7c8c138943ee8ea93fbc[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Mon Jul 7 01:12:36 2025 +0800
+
+    added viewing of applications for job seeker side
+
+[33mcommit 7be90321ca36e664be9b3df8c65b0685777aac1a[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sat Jul 5 21:42:30 2025 +0800
+
+    refactor job seeker dashboard
+
+[33mcommit 930e585254fb92a4f94aca7c0f7b31c87931807d[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Sat Jul 5 00:24:41 2025 +0800
+
+    fully functional view application
+
+[33mcommit eeaa08a1c72cc0c6506b4219a6339b15b580841b[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Jul 4 23:48:27 2025 +0800
+
+    added update on application status
+
+[33mcommit 7b494bbf52a00c5ec4b25a13b2049618f620818d[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Jul 4 00:01:32 2025 +0800
+
+    initial update of application status (no backend yet)
+
+[33mcommit bc817dd87ece88bd73e5fb9907e370a09400e68a[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Jul 2 22:00:42 2025 +0800
+
+    added an admin dashboard
+
+[33mcommit 9e779e1e16457a864978406ae7cd72893c56689c[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Jun 27 23:05:12 2025 +0800
+
+    added view application filter
+
+[33mcommit 005fbcf46820cd95494222366a8b4411ec1799f7[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Jun 27 17:46:03 2025 +0800
+
+    fixed application
+
+[33mcommit 20624d855887d16ee6fde1a6fec601bc9df40ec8[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Jun 27 15:12:36 2025 +0800
+
+    fixed job application
+
+[33mcommit f57d8d57cd3fee06de723a4ceff2e2ae65373b5a[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Fri Jun 27 00:26:54 2025 +0800
+
+    added more features such as modal, view job detail
+
+[33mcommit 4d03ad90fc0b761a0eda7e146f159f69afb474c7[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Jun 26 14:34:11 2025 +0800
+
+    added employer dashboard
+
+[33mcommit 2102cf2a73b76df0231d987c7082505fd29ba0e9[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Thu Jun 26 00:29:15 2025 +0800
+
+    added login backend
+
+[33mcommit 19dfbd1207be9bdd08f902290c56a54048819490[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Jun 25 12:06:34 2025 +0800
+
+    fixed homepage
+
+[33mcommit 12984d364dafe3dbdc5ecbc96a30becad5686bb3[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Wed Jun 25 00:18:58 2025 +0800
+
+    added dashboard
+
+[33mcommit ff8473eedcc565878ef3976927909b51f8a41288[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Jun 24 22:24:21 2025 +0800
+
+    added forms for register and login
+
+[33mcommit 07592be86bb7340d3ee249658af283b23fbc598c[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Tue Jun 24 11:11:13 2025 +0800
+
+    finished homepage and added drawer
+
+[33mcommit 1c7b3c5fbedafc333dd8b9db14421c3f4a91616e[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Mon Jun 23 17:28:26 2025 +0800
+
+    added homepage jumbotron
+
+[33mcommit 6abbe87b4a79e501377d513d1aa74bd33a056f91[m
+Author: Joseph Bataller <batallerjem208@gmail.com>
+Date:   Mon Jun 23 14:00:50 2025 +0800
+
+    initial commit
