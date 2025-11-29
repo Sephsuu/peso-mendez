@@ -60,7 +60,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
   String? _jobType;
   String? _selectedCitmun;
 
-  List<String> types = ['Full-time', 'Part-time'];
+  List<String> types = ['Full-Time', 'Part-Time'];
   List<String> skills = [
     'Auto Mechnanic', 'Beautician', 'Carpentry Work',  'Computer Literate', 'Domestic Chores', 'Driver',
     'Electrician', 'Embroidery', 'Gardening', 'Masonry', 'Painter/Artist', 'Painting Jobs',

@@ -2,6 +2,7 @@ import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:flutter/material.dart';
+import 'package:app/core/hooks/utils.dart';
 
 class AllApplications extends StatelessWidget {
   final List<Map<String, dynamic>> applications;
@@ -91,7 +92,7 @@ class AllApplicationsTable extends StatelessWidget {
                 DataCell(Text(job['title'] ?? 'N/A')),
                 DataCell(Text(job['company']?.toString() ?? 'N/A')),
                 DataCell(Text(job['location'] ?? 'N/A')),
-                DataCell(Text(job['salary'] ?? 'N/A')),
+                DataCell(Text(formatToPeso(job['salary'] ))),
                 DataCell(Text(job['full_name'] ?? 'N/A')),
                 DataCell(
                   Row(

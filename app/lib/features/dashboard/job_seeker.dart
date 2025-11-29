@@ -63,9 +63,9 @@ class JobSeekerDashboard extends HookWidget {
                   const SizedBox(height: 10.0),
                   ProfileStrengthCard(profileStrength: profileStrength.value),
                   const SizedBox(height: 10.0),
-                  const NotificationsCard(),
+                  // const NotificationsCard(),
                   const SizedBox(height: 10.0),
-                  const GoToMessagesCard(),
+                  // const GoToMessagesCard(),
                   const SizedBox(height: 10.0),
                   YourApplicationsCard(applications: applications.value),
                   const SizedBox(height: 15.0),
@@ -172,104 +172,104 @@ class ProfileStrengthCard extends StatelessWidget {
   }
 }
 
-class NotificationsCard extends StatefulWidget {
-  const NotificationsCard({super.key});
+// class NotificationsCard extends StatefulWidget {
+//   const NotificationsCard({super.key});
 
-  @override
-  State<NotificationsCard> createState() => _NotificationsCardState();
-}
+//   @override
+//   State<NotificationsCard> createState() => _NotificationsCardState();
+// }
 
-class _NotificationsCardState extends State<NotificationsCard> {
+// class _NotificationsCardState extends State<NotificationsCard> {
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        color: Colors.white,
-        child: Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: Container(
-                padding: const EdgeInsets.all(10.0),
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 234, 234, 234),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16.0),
-                    topRight: Radius.circular(16.0),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Notifications'),
-                    GestureDetector(
-                      child: Text('Sea All', style: AppText.textXs.merge(AppText.textPrimary)),
-                      onTap: () {},
-                    )
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Text('No new notifications.', style: AppText.textMuted.merge(AppText.textXs)),
-            ),
-            const SizedBox(height: 20.0)
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       width: double.infinity,
+//       child: Card(
+//         color: Colors.white,
+//         child: Column(
+//           children: [
+//             SizedBox(
+//               width: double.infinity,
+//               child: Container(
+//                 padding: const EdgeInsets.all(10.0),
+//                 decoration: const BoxDecoration(
+//                   color: Color.fromARGB(255, 234, 234, 234),
+//                   borderRadius: BorderRadius.only(
+//                     topLeft: Radius.circular(16.0),
+//                     topRight: Radius.circular(16.0),
+//                   ),
+//                 ),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                   children: [
+//                     const Text('Notifications'),
+//                     GestureDetector(
+//                       child: Text('See All', style: AppText.textXs.merge(AppText.textPrimary)),
+//                       onTap: () {},
+//                     )
+//                   ],
+//                 ),
+//               ),
+//             ),
+//             const SizedBox(height: 10.0),
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 15.0),
+//               child: Text('No new notifications.', style: AppText.textMuted.merge(AppText.textXs)),
+//             ),
+//             const SizedBox(height: 20.0)
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class GoToMessagesCard extends StatelessWidget {
-  const GoToMessagesCard({super.key});
+// class GoToMessagesCard extends StatelessWidget {
+//   const GoToMessagesCard({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        color: Colors.white,
-        child: Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: Container(
-                padding: const EdgeInsets.all(10.0),
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 234, 234, 234),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16.0),
-                    topRight: Radius.circular(16.0),
-                  ),
-                ),
-                child: const Text('Messages'),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Text('Chat with employers regarding your applications.', style: AppText.textMuted.merge(AppText.textXs)),
-            ),
-            const SizedBox(height: 10.0),
-            AppButton(
-              label: 'Go To Messages', 
-              onPressed: () => {},
-              foregroundColor: AppColor.light,
-              textSize: 12,
-              visualDensityY: -2,
-            ),
-            const SizedBox(height: 20.0)
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       width: double.infinity,
+//       child: Card(
+//         color: Colors.white,
+//         child: Column(
+//           children: [
+//             SizedBox(
+//               width: double.infinity,
+//               child: Container(
+//                 padding: const EdgeInsets.all(10.0),
+//                 decoration: const BoxDecoration(
+//                   color: Color.fromARGB(255, 234, 234, 234),
+//                   borderRadius: BorderRadius.only(
+//                     topLeft: Radius.circular(16.0),
+//                     topRight: Radius.circular(16.0),
+//                   ),
+//                 ),
+//                 child: const Text('Messages'),
+//               ),
+//             ),
+//             const SizedBox(height: 10.0),
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 15.0),
+//               child: Text('Chat with employers regarding your applications.', style: AppText.textMuted.merge(AppText.textXs)),
+//             ),
+//             const SizedBox(height: 10.0),
+//             AppButton(
+//               label: 'Go To Messages', 
+//               onPressed: () => {},
+//               foregroundColor: AppColor.light,
+//               textSize: 12,
+//               visualDensityY: -2,
+//             ),
+//             const SizedBox(height: 20.0)
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class YourApplicationsCard extends HookWidget {
   final List<Map<String, dynamic>> applications;
@@ -289,7 +289,7 @@ class YourApplicationsCard extends HookWidget {
             children: [
               Text('Your Applications', style: AppText.textLg.merge(AppText.fontSemibold)),
               GestureDetector(
-                child: Text('Sea All', style: AppText.textSm.merge(AppText.textPrimary)),
+                child: Text('See All', style: AppText.textSm.merge(AppText.textPrimary)),
                 onTap: () {
                   Navigator.push(
                     context,
