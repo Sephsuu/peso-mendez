@@ -14,6 +14,8 @@ import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+const caviteLocations = ["Alfonso","Amadeo","Bacoor City","Carmona","Cavite City","Cavite Province","City of General Trias","Dasmariñas City","General Emilio Aguinaldo","General Mariano Alvarez","Imus City","Indang","Kawit","Magallanes","Maragondon","Mendez","Naic","Noveleta","Rosario","Silang","Tagaytay City","Tanza","Ternate","Trece Martires City"];
+
 class PersonalInformation extends HookWidget {
   final Map<String, dynamic> claims;
   final bool open;
@@ -40,6 +42,7 @@ class PersonalInformation extends HookWidget {
           'suffix': user.value['suffix'],
           'dateOfBirth': user.value['date_of_birth'],
           'religion': user.value['religion'],
+          "citmun": user.value['citmun'],
           'presentAddress': user.value['present_address'],
           'tin': user.value['tin'],
           'sex': user.value['sex'],
@@ -130,7 +133,7 @@ class PersonalInformation extends HookWidget {
             context: context,
             builder: (context) => AppModal(
               title: 'Edit Personal Information',
-              titleStyle: AppText.fontBold,
+              titleStyle: AppText.fontBold.merge(AppText.textXl),
               confirmBackground: AppColor.success,
               confirmForeground: AppColor.light,
               onConfirm: () => handleSubmit(),
@@ -139,9 +142,12 @@ class PersonalInformation extends HookWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+                      const SizedBox(height: 5),
                       AppInputField(
                         label: 'First Name',
                         initialValue: user.value['first_name'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           user.value = {
                             ...user.value,
@@ -153,6 +159,8 @@ class PersonalInformation extends HookWidget {
                       AppInputField(
                         label: 'Middle Name',
                         initialValue: user.value['middle_name'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           user.value = {
                             ...user.value,
@@ -164,6 +172,8 @@ class PersonalInformation extends HookWidget {
                       AppInputField(
                         label: 'Surname',
                         initialValue: user.value['surname'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           user.value = {
                             ...user.value,
@@ -175,6 +185,8 @@ class PersonalInformation extends HookWidget {
                       AppInputField(
                         label: 'Suffix',
                         initialValue: user.value['suffix'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           user.value = {
                             ...user.value,
@@ -216,6 +228,8 @@ class PersonalInformation extends HookWidget {
                         placeholder: 'Gender',
                         items: const ['Male', 'Female', 'Other'],
                         value: user.value['sex'], 
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (val) => {
                           user.value = {
                             ...user.value,
@@ -227,6 +241,8 @@ class PersonalInformation extends HookWidget {
                       AppInputField(
                         label: 'Religion',
                         initialValue: user.value['religion'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           user.value = {
                             ...user.value,
@@ -235,9 +251,24 @@ class PersonalInformation extends HookWidget {
                         },
                       ),
                       const SizedBox(height: 12),
+                      AppSelect(
+                        placeholder: 'City/Municipality',
+                        items: caviteLocations,
+                        value: user.value['citmun'], 
+                        visualDensityY: 0,
+                        textSize: 16,
+                        onChanged: (val) => {
+                          user.value = {
+                            ...user.value,
+                            'citmun': val
+                          }
+                        }
+                      ),
+                      const SizedBox(height: 12),
                       AppInputField(
                         label: 'Present Address',
                         initialValue: user.value['present_address'],
+                        textSize: 16,
                         maxLine: 3,
                         onChanged: (value) {
                           user.value = {
@@ -250,6 +281,8 @@ class PersonalInformation extends HookWidget {
                       AppInputField(
                         label: 'TIN ID',
                         initialValue: user.value['tin'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           user.value = {
                             ...user.value,
@@ -262,6 +295,8 @@ class PersonalInformation extends HookWidget {
                         placeholder: 'Civil Status',
                         items: const ['Single', 'Married', 'Widowed'],
                         value: user.value['civil_status'], 
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (val) => {
                           user.value = {
                             ...user.value,
@@ -274,6 +309,8 @@ class PersonalInformation extends HookWidget {
                         placeholder: 'Disablity',
                         items: const ['N/A', 'Visual', 'Hearing', 'Speech', 'Physical', 'Mental', 'Others'],
                         value: user.value['disability'], 
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (val) => {
                           user.value = {
                             ...user.value,
@@ -285,7 +322,9 @@ class PersonalInformation extends HookWidget {
                       AppSelect<String>(
                         placeholder: 'Employment Status',
                         items: const ['Employed', 'Unemployed'],
-                        value: user.value['employment_status'] as String?, // cast
+                        value: user.value['employment_status'] as String?, 
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (val) {
                           user.value = {
                             ...user.value,
@@ -296,6 +335,8 @@ class PersonalInformation extends HookWidget {
                       const SizedBox(height: 12),
                       AppSelect<String>(
                         placeholder: 'Employment Type',
+                        visualDensityY: 0,
+                        textSize: 16,
                         items: user.value['employment_status'] == 'Employed'
                             ? ['Wage employed', 'Self-employed']
                             : [
@@ -317,6 +358,8 @@ class PersonalInformation extends HookWidget {
                       const SizedBox(height: 12),
                       AppSelect(
                         placeholder: 'Are you an OFW?',
+                        visualDensityY: 0,
+                        textSize: 16,
                         items: const ['Yes', 'No'],
                         value: user.value['is_ofw'], 
                         onChanged: (val) => {
@@ -331,6 +374,8 @@ class PersonalInformation extends HookWidget {
                         placeholder: 'Are you a former OFW?',
                         items: const ['Yes', 'No'],
                         value: user.value['is_former_ofw'], 
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (val) => {
                           user.value = {
                             ...user.value,
@@ -425,6 +470,9 @@ class PersonalInformation extends HookWidget {
             children: [
               Text('Religion:', style: AppText.fontBold),
               Text(user.value['religion']),
+              const SizedBox(height: 5),
+              Text('City/Municipality:', style: AppText.fontBold),
+              Text(user.value['citmun']),
               const SizedBox(height: 5),
               Text('Present Address:', style: AppText.fontBold),
               Text(user.value['present_address']),

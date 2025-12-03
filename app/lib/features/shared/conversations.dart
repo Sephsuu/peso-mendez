@@ -1,3 +1,4 @@
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
@@ -15,6 +16,7 @@ class Conversations extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loading = useState(true);
     final claims = useClaimsHook(context);
     final conversations = useState<List<Map<String, dynamic>>>([]);
 
@@ -23,6 +25,7 @@ class Conversations extends HookWidget {
         try {
           final res = await MessageService.getConversations(claims['id']);
           conversations.value = res;
+          loading.value = false;
         } catch (e) {
           if (!context.mounted) return;
           showDialog(
@@ -66,7 +69,9 @@ class Conversations extends HookWidget {
       ),
       endDrawer: const OffcanvasNavigation(),
 
-      body: Padding(
+      body: loading.value 
+        ? const Loader()
+        : Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

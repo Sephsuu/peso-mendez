@@ -1,6 +1,7 @@
-import 'package:app/core/components/modal.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/notification_service.dart';
@@ -14,31 +15,46 @@ class Notifications extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loading = useState(true);
     final claims = useClaimsHook(context);
     final notifications = useState<List<Map<String, dynamic>>>([]);
+    final snackError = useState<String?>(null);
 
+    // Fetch data (NO dialog/snackbar here)
     useEffect(() {
       if (claims.isEmpty) return null;
-      void fetchData() async {
+
+      () async {
         try {
-          final res = await NotificationService.getNotificationsByRole({
-            "role": claims['role'],
-            "userId": claims['id']
-          });
-          notifications.value = res;
-        } catch (e) {
-          if (!context.mounted) return;
-          showDialog(
-            context: context, 
-            builder: (context) {
-              return AppModal(
-                title: '$e'
-              );
-            }
+          final res = await NotificationService.getNotificationsByUser(
+            claims["id"],
           );
+          notifications.value = res;
+          loading.value = false;
+        } catch (e) {
+          snackError.value = '$e'; // Store error instead of showing snackbar
         }
-      } fetchData(); return null;
-    }, [claims]);
+      }();
+
+      return null;
+    }, [claims["id"]]);
+
+    // Show snackbar safely AFTER build
+    useEffect(() {
+      if (snackError.value == null) return null;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+
+        AppSnackbar.show(
+          context, 
+          message: snackError.value!
+        );
+        snackError.value = null;
+      });
+
+      return null;
+    }, [snackError.value]);
 
     return Scaffold(
       appBar: AppNavigationBar(
@@ -48,13 +64,13 @@ class Notifications extends HookWidget {
         },
       ),
       endDrawer: const OffcanvasNavigation(),
-
-      body: Padding(
+      body: loading.value
+        ? const Loader()
+        : Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🧭 Page header
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
@@ -62,10 +78,7 @@ class Notifications extends HookWidget {
                 style: AppText.textLg.merge(AppText.fontSemibold),
               ),
             ),
-
             const Divider(thickness: 1, height: 16),
-
-            // 🗒️ Notification list
             Expanded(
               child: ListView.builder(
                 itemCount: notifications.value.length,
@@ -81,8 +94,7 @@ class Notifications extends HookWidget {
                       ),
                       title: Text(
                         notif['type'],
-                        style:
-                            AppText.textXs.merge(AppText.fontSemibold),
+                        style: AppText.textXs.merge(AppText.fontSemibold),
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +120,7 @@ class Notifications extends HookWidget {
             ),
           ],
         ),
-      ),
+      )
     );
   }
 }

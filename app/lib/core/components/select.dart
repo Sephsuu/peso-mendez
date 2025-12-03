@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 
-import 'package:flutter/material.dart';
-
 class AppSelect<T> extends StatelessWidget {
   final List<T> items;
   final T? value;
@@ -26,8 +24,10 @@ class AppSelect<T> extends StatelessWidget {
   final double textSize;
   final bool hideIcon;
 
-  // ⭐ NEW: required validator
   final bool required;
+
+  // ⭐ NEW: visualDensityY
+  final double visualDensityY;
 
   const AppSelect({
     super.key,
@@ -45,7 +45,10 @@ class AppSelect<T> extends StatelessWidget {
     this.width,
     this.textSize = 14.0,
     this.hideIcon = false,
-    this.required = false, // ⭐ default false
+    this.required = false,
+
+    // ⭐ default same as AppInputField
+    this.visualDensityY = -2.0,
   });
 
   @override
@@ -57,6 +60,7 @@ class AppSelect<T> extends StatelessWidget {
         isExpanded: true,
         isDense: isDense,
         dropdownColor: fillColor,
+        // visualDensity: VisualDensity(vertical: visualDensityY),
 
         // ⭐ REQUIRED VALIDATOR
         validator: (val) {
@@ -66,7 +70,9 @@ class AppSelect<T> extends StatelessWidget {
           return null;
         },
 
-        icon: hideIcon ? const SizedBox.shrink() : const Icon(Icons.arrow_drop_down),
+        icon: hideIcon
+            ? const SizedBox.shrink()
+            : const Icon(Icons.arrow_drop_down),
         iconSize: hideIcon ? 0 : 24,
 
         decoration: InputDecoration(
@@ -75,6 +81,10 @@ class AppSelect<T> extends StatelessWidget {
           fillColor: fillColor,
           labelText: placeholder,
           contentPadding: contentPadding,
+
+          // ⭐ Apply visual density to decoration
+          visualDensity: VisualDensity(vertical: visualDensityY),
+
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),
             borderSide: BorderSide(color: borderColor),

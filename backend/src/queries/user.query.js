@@ -357,8 +357,8 @@ export async function createEmployerInformation(info) {
     return result;
 }
 
-
 export async function updateUserCredential(user) {
+    console.log('QUERY', user);
     const [result] = await  pool.query(
         `UPDATE users 
         SET full_name = ?, username = ?, contact = ?, document_path = ?
@@ -375,13 +375,13 @@ export async function updatePersonalInformation(personalInfo) {
        surname = ?, first_name = ?, middle_name = ?, date_of_birth = ?,
        suffix = ?, religion = ?, present_address = ?, tin = ?,
        sex = ?, civil_status = ?, disability = ?, employment_status = ?,
-       employment_type = ?, is_ofw = ?, is_former_ofw = ?, updated_at = NOW()
+       employment_type = ?, is_ofw = ?, is_former_ofw = ?, citmun = ?, updated_at = NOW()
      WHERE user_id = ?`,
     [
       personalInfo.surname, personalInfo.firstName, personalInfo.middleName, personalInfo.dateOfBirth,
       personalInfo.suffix, personalInfo.religion, personalInfo.presentAddress,  personalInfo.tin,
       personalInfo.sex, personalInfo.civilStatus, personalInfo.disability, personalInfo.employmentStatus,
-      personalInfo.employmentType, personalInfo.isOfw, personalInfo.isFormerOfw, personalInfo.userId, // WHERE condition
+      personalInfo.employmentType, personalInfo.isOfw, personalInfo.isFormerOfw, personalInfo.citmun, personalInfo.userId, // WHERE condition
     ]
   );
 
@@ -460,25 +460,20 @@ export async function updateEducationalBackground(educBg) {
             educBg.elem_year_grad,
             educBg.elem_level_reached,
             educBg.elem_year_last_attended,
-
             educBg.seco_year_grad,
             educBg.seco_level_reached,
             educBg.seco_year_last_attended,
-
             educBg.ter_course,
             educBg.ter_year_grad,
             educBg.ter_level_reached,
             educBg.ter_year_last_attended,
-
             educBg.gs_course,
             educBg.gs_year_grad,
             educBg.gs_level_reached,
             educBg.gs_year_last_attended,
-
             educBg.is_kto12,
             educBg.shs_strand,
             educBg.highest_education,
-
             educBg.user_id
         ]
     );
@@ -537,6 +532,18 @@ export async function updateWorkExperience(workExp) {
     ]
   );
   return result;
+}
+
+export async function updateUserPassword(userId, hashedPassword) {
+    const sql = `
+        UPDATE users
+        SET password = ?
+        WHERE id = ?
+    `;
+
+    const [result] = await pool.query(sql, [hashedPassword, userId]);
+
+    return result;
 }
 
 export async function deleteOtherSkills(userId) {

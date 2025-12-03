@@ -1,13 +1,16 @@
 import 'package:app/core/components/button.dart';
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
+import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/forms/educational_background.dart';
+import 'package:app/features/job_seeker/profile/job_reference.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -30,7 +33,6 @@ class EducationalBackround extends HookWidget {
 
     void handleSubmit() async {
       try {
-        print('\n\n$user\n\n');
         final res = await UserService.updateUserEducationalBackground(user.value);
         if (res.isNotEmpty) {
           if (!context.mounted) return;
@@ -76,7 +78,7 @@ class EducationalBackround extends HookWidget {
             context: context,
             builder: (context) => AppModal(
               title: 'Edit Educational Background',
-              titleStyle: AppText.fontBold,
+              titleStyle: AppText.fontBold.merge(AppText.textXl),
               confirmBackground: AppColor.primary,
               confirmForeground: AppColor.light,
               onConfirm: () {
@@ -89,134 +91,233 @@ class EducationalBackround extends HookWidget {
                     height: 420,
                     child: SingleChildScrollView(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Elementary -------------------------------------------------
+                          const SizedBox(height: 5),
+                          AppSelect<String>(
+                            placeholder: 'Highest Educational Attainment',
+                            required: true,
+                            items: educationLevels,
+                            value: safeValue(tempUser.value['highest_education'], educationLevels),
+                            getLabel: (v) => v,
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'highest_education': val,
+                              };
+                            },
+                          ),
+                          const SizedBox(height: 12),
                           Text('Elementary', style: AppText.fontBold),
                           const SizedBox(height: 8),
-                          _modalInput(
-                            label: "Year Graduated",
-                            value: tempUser.value['elem_year_grad'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['elem_year_grad'] = v;
-                            }),
+                          AppInputField(
+                            label: 'Year Graduated',
+                            initialValue: tempUser.value['elem_year_grad'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'elem_year_grad': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Level Reached",
-                            value: tempUser.value['elem_level_reached'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['elem_level_reached'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Level Reached',
+                            initialValue: tempUser.value['elem_level_reached'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'elem_level_reached': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Last Year Attended",
-                            value: tempUser.value['elem_year_last_attended'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['elem_year_last_attended'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Last Year Attended',
+                            initialValue: tempUser.value['elem_year_last_attended'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'elem_year_last_attended': val
+                              };
+                            },
                           ),
                           const Divider(height: 20),
 
-                          // High School -------------------------------------------------
                           Text('High School', style: AppText.fontBold),
                           const SizedBox(height: 8),
-                          _modalInput(
-                            label: "Year Graduated",
-                            value: tempUser.value['seco_year_grad'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['seco_year_grad'] = v;
-                            }),
+                          AppInputField(
+                            label: 'Year Graduated',
+                            initialValue: tempUser.value['seco_year_grad'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'seco_year_grad': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Level Reached",
-                            value: tempUser.value['seco_level_reached'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['seco_level_reached'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Level Reached',
+                            initialValue: tempUser.value['seco_level_reached'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'seco_level_reached': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Last Year Attended",
-                            value: tempUser.value['seco_year_last_attended'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['seco_year_last_attended'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Last Year Attended',
+                            initialValue: tempUser.value['seco_year_last_attended'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'seco_year_last_attended': val
+                              };
+                            },
                           ),
                           const Divider(height: 20),
 
-                          // Senior High School -------------------------------------------------
                           Text('Senior High School', style: AppText.fontBold),
                           const SizedBox(height: 8),
-                          _modalInput(
-                            label: "SHS Strand",
-                            value: tempUser.value['shs_strand'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['shs_strand'] = v;
-                            }),
+                          AppInputField(
+                            label: 'SHS Strand',
+                            initialValue: tempUser.value['shs_strand'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'shs_strand': val
+                              };
+                            },
                           ),
                           const Divider(height: 20),
 
-                          // Tertiary -------------------------------------------------
                           Text('Tertiary', style: AppText.fontBold),
                           const SizedBox(height: 8),
-                          _modalInput(
-                            label: "Course",
-                            value: tempUser.value['ter_course'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['ter_course'] = v;
-                            }),
+                          AppInputField(
+                            label: 'Program',
+                            initialValue: tempUser.value['ter_course'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'ter_course': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Year Graduated",
-                            value: tempUser.value['ter_year_grad'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['ter_year_grad'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Year Graduated',
+                            initialValue: tempUser.value['ter_year_grad'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'ter_year_grad': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Level Reached",
-                            value: tempUser.value['ter_level_reached'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['ter_level_reached'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Level Reached',
+                            initialValue: tempUser.value['ter_level_reached'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'ter_level_reached': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Last Year Attended",
-                            value: tempUser.value['ter_year_last_attended'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['ter_year_last_attended'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Last Year Attended',
+                            initialValue: tempUser.value['ter_year_last_attended'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'ter_year_last_attended': val
+                              };
+                            },
                           ),
                           const Divider(height: 20),
 
                           // General Studies -------------------------------------------------
                           Text('General Studies', style: AppText.fontBold),
                           const SizedBox(height: 8),
-                          _modalInput(
-                            label: "Course",
-                            value: tempUser.value['gs_course'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['gs_course'] = v;
-                            }),
+                          AppInputField(
+                            label: 'Program/Course',
+                            initialValue: tempUser.value['gs_course'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'gs_course': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Year Graduated",
-                            value: tempUser.value['gs_year_grad'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['gs_year_grad'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Year Graduated',
+                            initialValue: tempUser.value['gs_year_grad'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'gs_year_grad': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Level Reached",
-                            value: tempUser.value['gs_level_reached'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['gs_level_reached'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Level Reached',
+                            initialValue: tempUser.value['gs_level_reached'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'gs_level_reached': val
+                              };
+                            },
                           ),
-                          _modalInput(
-                            label: "Last Year Attended",
-                            value: tempUser.value['gs_year_last_attended'],
-                            onChanged: (v) => modalSetState(() {
-                              tempUser.value['gs_year_last_attended'] = v;
-                            }),
+                          const SizedBox(height: 5),
+                          AppInputField(
+                            label: 'Last Year Attended',
+                            initialValue: tempUser.value['gs_year_last_attended'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'gs_year_last_attended': val
+                              };
+                            },
                           ),
                         ],
                       ),
@@ -402,24 +503,5 @@ class EducationalBackround extends HookWidget {
       ],
     );
   }
-}
-
-Widget _modalInput({
-  required String label,
-  required String? value,
-  required Function(String) onChanged,
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 10),
-    child: TextFormField(
-      initialValue: value ?? '',
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        isDense: true,
-      ),
-      onChanged: onChanged,
-    ),
-  );
 }
 

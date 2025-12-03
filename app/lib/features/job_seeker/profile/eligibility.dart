@@ -128,8 +128,8 @@ class Eligibility extends HookWidget {
           showDialog(
             context: context,
             builder: (context) => AppModal(
-              title: 'Edit Language Profeciency',
-              titleStyle: AppText.fontBold,
+              title: 'Edit Eligibility and License',
+              titleStyle: AppText.fontBold.merge(AppText.textXl),
               confirmBackground: AppColor.success,
               confirmForeground: AppColor.light,
               onConfirm: () => handleSubmit(),
@@ -148,16 +148,17 @@ class Eligibility extends HookWidget {
                               for (final key in fieldsE.keys)
                                 key: useTextEditingController(text: item[key] ?? ''),
                             };
-
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('TechVoc and Other Trainings ${index + 1}', style: AppText.fontBold),
+                                Text('Eligibility ${index + 1}', style: AppText.fontBold),
                                 const SizedBox(height: 12),
                                 for (final entry in fieldsE.entries) ...[
                                   AppInputField(
                                     label: entry.value,
                                     controller: controllers[entry.key]!,
+                                    visualDensityY: 0,
+                                    textSize: 16,
                                     onChanged: (value) {
                                       final updated = [...userE.value];
                                       updated[index] = {...updated[index], entry.key: value};
@@ -191,6 +192,8 @@ class Eligibility extends HookWidget {
                                   AppInputField(
                                     label: entry.value,
                                     controller: controllers[entry.key]!,
+                                    visualDensityY: 0,
+                                    textSize: 16,
                                     onChanged: (value) {
                                       final updated = [...userL.value];
                                       updated[index] = {...updated[index], entry.key: value};

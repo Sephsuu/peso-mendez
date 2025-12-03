@@ -56,7 +56,6 @@ router.post(
         return res.status(400).json({ error: "Missing employerId" });
       }
 
-      // Build payload
       const payload = { employerId };
       for (const field of documentFields) {
         payload[field] = req.files[field]
@@ -77,30 +76,23 @@ router.post(
   }
 );
 
+const jobSeekerUpload = multer({ storage: jobSeeekerStorage }); // job seeker
+
 router.post(
-  "/upload/resume",
-  upload.single("document"),
+  "/job-seeker/resume",
+  jobSeekerUpload.single("document"),
   async (req, res) => {
     try {
-      const { userId } = req.body;
-
-      if (!userId) {
-        return res.status(400).json({ error: "Missing userId" });
-      }
-
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
 
       const filePath = `uploads/job-seeker-documents/${req.file.filename}`;
 
-      // OPTIONAL: Save to database here
-      // await prisma.user.update(...)
-
       res.json({
         success: true,
         message: "Resume uploaded successfully!",
-        filePath: filePath,
+        filePath
       });
 
     } catch (err) {
@@ -109,43 +101,6 @@ router.post(
     }
   }
 );
-
-router.post(
-  "/upload/job-seeker-resume",
-  upload.single("document"),
-  async (req, res) => {
-    try {
-      const { userId } = req.body;
-
-      if (!userId) {
-        return res.status(400).json({ error: "Missing userId" });
-      }
-
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-
-      const filePath = `uploads/job-seeker-documents/${req.file.filename}`;
-
-      // UPDATE USER DOCUMENT PATH IN DATABASE
-      await prisma.user.update({
-        where: { id: Number(userId) },
-        data: { document_path: filePath },
-      });
-
-      return res.json({
-        success: true,
-        message: "Resume uploaded!",
-        filePath: filePath,
-      });
-
-    } catch (err) {
-      console.error("Upload Error:", err);
-      return res.status(500).json({ error: "Upload failed" });
-    }
-  }
-);
-
 
 
 export default router;

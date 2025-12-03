@@ -30,9 +30,9 @@ class VerificationService {
     );
   }
 
-  static Future<Map<String, dynamic>> uploadDocuments(File file, String role) async {
+  static Future<Map<String, dynamic>> uploadDocuments(File file) async {
     try {
-      final uri = Uri.parse('$BASE_URL/uploads/$role');
+      final uri = Uri.parse('$BASE_URL/uploads/job-seeker/resume');
       final request = http.MultipartRequest('POST', uri);
 
       final stream = http.ByteStream(file.openRead());
@@ -40,7 +40,7 @@ class VerificationService {
 
       request.files.add(
         http.MultipartFile(
-          'file',
+          'document',
           stream,
           length,
           filename: path.basename(file.path),
@@ -52,10 +52,8 @@ class VerificationService {
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
 
-        // ✅ Decode the JSON response properly
         final Map<String, dynamic> jsonRes = jsonDecode(responseBody);
 
-        // // ✅ Extract only the file path
         // final String? filePath = jsonRes['filePath'];
 
         return jsonRes;
@@ -68,7 +66,6 @@ class VerificationService {
   }
 
   static Future<Map<String, dynamic>> createVerification(verification) async {
-    print('CREATED');
     return await request(
       '$url/create',
       method: 'POST',

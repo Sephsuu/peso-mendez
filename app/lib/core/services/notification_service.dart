@@ -11,6 +11,20 @@ class NotificationService {
     );
   }
 
+  static Future<List<Map<String, dynamic>>> getNotificationsByUser(int id) async {
+    return await request(
+      '$url/get-by-user?id=$id',
+      method: 'GET',
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> getRecentNotifications(int id) async {
+    return await request(
+      '$url/get-recent?id=$id',
+      method: 'GET',
+    );
+  }
+
   static Future<Map<String, dynamic>> createNotification(Map<String, dynamic> notif) async {
     return await request(
       '$url/create',

@@ -12,6 +12,7 @@ import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
+import 'package:app/features/job_seeker/profile/change_password.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'dart:io';
@@ -19,7 +20,6 @@ import 'package:app/core/components/navigation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path/path.dart' as path;
-import 'package:url_launcher/url_launcher.dart';
 
 class Credentials extends HookWidget {
   final Map<String, dynamic> claims;
@@ -82,7 +82,7 @@ class Credentials extends HookWidget {
             context: context,
             builder: (context) => AppModal(
               title: 'Edit Profile',
-              titleStyle: AppText.fontBold,
+              titleStyle: AppText.fontBold.merge(AppText.textLg),
               confirmBackground: AppColor.success,
               confirmForeground: AppColor.light,
               onConfirm: () => handleSubmit(),
@@ -95,11 +95,15 @@ class Credentials extends HookWidget {
                         label: 'Email',
                         initialValue: credentials.value['email'],
                         isEnabled: false,
+                        visualDensityY: 0,
+                        textSize: 16,
                       ),
                       const SizedBox(height: 12),
                       AppInputField(
                         label: 'Full Name',
                         initialValue: credentials.value['full_name'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           credentials.value = {
                             ...credentials.value,
@@ -111,6 +115,8 @@ class Credentials extends HookWidget {
                       AppInputField(
                         label: 'Username',
                         initialValue: credentials.value['username'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           credentials.value = {
                             ...credentials.value,
@@ -122,6 +128,8 @@ class Credentials extends HookWidget {
                       AppInputField(
                         label: 'Contact Number',
                         initialValue: credentials.value['contact'],
+                        visualDensityY: 0,
+                        textSize: 16,
                         onChanged: (value) {
                           credentials.value = {
                             ...credentials.value,
@@ -133,6 +141,8 @@ class Credentials extends HookWidget {
                       AppInputField(
                         label: 'Account Created',
                         initialValue: formatDateTime(credentials.value['created_at']),
+                        visualDensityY: 0,
+                        textSize: 16,
                         isEnabled: false,
                       ),
                     ],
@@ -235,6 +245,14 @@ class Credentials extends HookWidget {
               const SizedBox(height: 20),
               Text('Account Created:', style: AppText.fontBold),
               Text(formatDateTime(credentials.value['created_at'])),
+              const SizedBox(height: 100),
+              Center(
+                child: AppButton(
+                  label: "Change Password", 
+                  onPressed: () => navigateTo(context, ChangePassword(userId: claims['id']))
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         )
@@ -264,9 +282,6 @@ class ResumeCard extends HookWidget {
           : "No resume uploaded",
     );
 
-    // ==============================
-    // PICK FILE
-    // ==============================
     Future<void> pickFile() async {
       try {
         final result = await FilePicker.platform.pickFiles(
@@ -288,9 +303,7 @@ class ResumeCard extends HookWidget {
       }
     }
 
-    // ==============================
-    // VIEW FILE (Google Viewer)
-    // ==============================
+
     void openDocument(String? url) {
       if (url == null || url.isEmpty) {
         AppSnackbar.show(context, message: "No resume uploaded yet.", backgroundColor: AppColor.danger);
@@ -324,50 +337,43 @@ class ResumeCard extends HookWidget {
       );
     }
 
-    // ==============================
-    // UPLOAD FILE
-    // ==============================
     Future<void> uploadResume() async {
       if (pickedFile.value == null) {
-        AppSnackbar.show(context, message: "Please select a file first.", backgroundColor: AppColor.danger);
+        AppSnackbar.show(context,
+          message: "Please select a file first.",
+          backgroundColor: AppColor.danger,
+        );
         return;
       }
 
       try {
         isUploading.value = true;
 
-        // Upload to backend
-        final uploaded = await VerificationService.uploadDocuments(
-          pickedFile.value!,
-          "job-seeker",
-        );
-
-        // Save user record
+        final uploaded = await VerificationService.uploadDocuments(pickedFile.value!);
         await UserService.updateUserCredential({
           ...user,
           "document_path": uploaded["filePath"],
         });
-
         if (!context.mounted) return;
-
-        AppSnackbar.show(context,
-            message: "Resume uploaded successfully!",
-            backgroundColor: AppColor.success);
-
+        AppSnackbar.show(
+          context,
+          message: "Resume uploaded successfully!",
+          backgroundColor: AppColor.success,
+        ); 
+        if (!context.mounted) return;
         navigateTo(context, const JobSeekerDashboard());
       } catch (e) {
         if (!context.mounted) return;
-        AppSnackbar.show(context,
-            message: "Upload error: $e",
-            backgroundColor: AppColor.danger);
+        AppSnackbar.show(
+          context,
+          message: "Upload error: $e",
+          backgroundColor: AppColor.danger,
+        );
       } finally {
-        isUploading.value = false;
+        isUploading.value = false;         
       }
     }
 
-    // ==============================
-    // UI
-    // ==============================
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -408,6 +414,7 @@ class ResumeCard extends HookWidget {
                   backgroundColor: AppColor.primary,
                   foregroundColor: AppColor.light,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  visualDensityY: -2,
                 ),
                 const SizedBox(width: 10),
 
@@ -417,6 +424,7 @@ class ResumeCard extends HookWidget {
                     backgroundColor: isUploading.value ? Colors.grey : AppColor.success,
                     foregroundColor: AppColor.light,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    visualDensityY: -2,
                     onPressed: isUploading.value
                         ? null
                         : () async {
@@ -427,7 +435,6 @@ class ResumeCard extends HookWidget {
                                 builder: (_) => AppModal(
                                   title: "Upload selected resume?",
                                   onConfirm: () async {
-                                    Navigator.pop(context);
                                     await uploadResume();
                                   },
                                   confirmBackground: AppColor.success,

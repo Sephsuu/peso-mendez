@@ -18,8 +18,9 @@ class AppInputField extends StatelessWidget {
   final double textSize;
   final double visualDensityY;
 
-  // ⭐ NEW: Accept only numbers?
   final bool numericOnly;
+
+  final bool required;
 
   const AppInputField({
     super.key,
@@ -34,10 +35,9 @@ class AppInputField extends StatelessWidget {
     this.isEnabled = true,
     this.maxLine,
     this.textSize = 14,
-    this.visualDensityY = -4,
-
-    // ⭐ default: off
+    this.visualDensityY = -2,
     this.numericOnly = false,
+    this.required = false,
   });
 
   @override
@@ -47,36 +47,32 @@ class AppInputField extends StatelessWidget {
       controller: controller,
       initialValue: controller == null ? initialValue : null,
       obscureText: obscureText,
-
-      // ⭐ Use number keyboard when numericOnly = true
       keyboardType: numericOnly ? TextInputType.number : keyboardType,
-
-      // ⭐ Add validator if needed
-      validator: validator,
       onChanged: onChanged,
       enabled: isEnabled,
-
       style: TextStyle(fontSize: textSize),
 
-      // ⭐ Only allow digits
-      inputFormatters: numericOnly
-          ? [FilteringTextInputFormatter.digitsOnly]
-          : null,
+      validator: (value) {
+        if (required && (value == null || value.trim().isEmpty)) {
+          return "This field is required";
+        }
+        if (validator != null) return validator!(value);
+        return null;
+      },
+
+      inputFormatters:
+          numericOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
 
       decoration: InputDecoration(
         filled: true,
         fillColor: AppColor.light,
         isDense: true,
         visualDensity: VisualDensity(vertical: visualDensityY),
-
         labelText: label,
         hintText: hint,
         labelStyle: TextStyle(fontSize: textSize),
         hintStyle: TextStyle(fontSize: textSize * 0.9),
-
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Colors.blue, width: 2),

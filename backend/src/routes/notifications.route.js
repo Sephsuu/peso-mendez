@@ -13,6 +13,26 @@ router.post('/get-by-role', async (req, res) => {
 	}
 })
 
+router.get('/get-by-user', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await notificationQuery.getNotificationsByUser(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/get-recent', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await notificationQuery.getRecentNotifications(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.post('/create', async (req, res) => {
 	const notification = req.body;
 	try {

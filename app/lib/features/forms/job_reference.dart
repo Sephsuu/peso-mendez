@@ -29,7 +29,7 @@ class JobReferenceForm extends StatefulWidget {
 
 class _JobReferenceFormState extends State<JobReferenceForm> {
   final _formKey = GlobalKey<FormState>();
-  final List<String> occupationTypes = ['Part-time', 'Full-time'];
+  final List<String> occupationTypes = ['Part-Time', 'Full-Time'];
   final List<String> locationTypes = ['Local', 'Overseas'];
   String? _selectedLocation1;
   String? _selectedLocation2;

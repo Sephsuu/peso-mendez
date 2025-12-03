@@ -1,15 +1,21 @@
+import 'package:app/core/components/button.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/job_seeker/view_application.dart';
+import 'package:app/features/shared/messages.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/hooks/utils.dart';
 
 class AllApplications extends StatelessWidget {
+  final Map<String, dynamic> claims; 
   final List<Map<String, dynamic>> applications;
 
   const AllApplications({
     super.key,
-     required this.applications,
+    required this.claims,
+    required this.applications,
   });
 
   @override
@@ -23,7 +29,10 @@ class AllApplications extends StatelessWidget {
           children: [
             const AllApplicationsHeader(),
             const SizedBox(height: 20),
-            AllApplicationsTable(applications: applications)
+            AllApplicationsTable(
+              applications: applications,
+              claims: claims,
+            )
           ],
         ),
       ),
@@ -52,10 +61,12 @@ class AllApplicationsHeader extends StatelessWidget {
 }
 
 class AllApplicationsTable extends StatelessWidget {
+  final Map<String, dynamic> claims;
   final List<Map<String, dynamic>> applications;
   
   const AllApplicationsTable({
     super.key,
+    required this.claims,
     required this.applications,
   });
   @override
@@ -97,17 +108,22 @@ class AllApplicationsTable extends StatelessWidget {
                 DataCell(
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          null;
-                        },
-                        child: Text("View", style: AppText.textPrimary),
+                      AppButton(
+                        label: 'View', 
+                        onPressed: () => navigateTo(context, ViewApplication(application: job)),
+                        foregroundColor: AppColor.light,
+                        visualDensityY: -3,
+                        textSize: 12,
                       ),
                       const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => null,
-                        child: Text("Message", style: AppText.textSuccess),
-                      ),
+                      AppButton(
+                        label: 'Message', 
+                        onPressed: () => navigateTo(context, Messages(user: claims, otherUserId: job['employer_id'])),
+                        backgroundColor: AppColor.success,
+                        foregroundColor: AppColor.light,
+                        visualDensityY: -3,
+                        textSize: 12,
+                      )
                     ],
                   )
                 ),

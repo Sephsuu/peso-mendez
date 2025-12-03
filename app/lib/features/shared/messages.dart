@@ -87,13 +87,14 @@ class Messages extends HookWidget {
         );
       }
     }
-
-    if (otherUser.value.isEmpty) return const Loader();
+    
     return Scaffold(
       appBar: AppBar(
-        title: Text(otherUser.value['full_name'], style: AppText.textMd.merge(AppText.fontSemibold)),
+        title: Text(otherUser.value['full_name'] ?? "Loading...", style: AppText.textMd.merge(AppText.fontSemibold)),
       ),
-      body: Column(
+      body: otherUser.value.isEmpty 
+        ? const Loader()
+        : Column(
         children: [
           Expanded(
             child: ListView.builder(

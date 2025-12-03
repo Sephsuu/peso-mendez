@@ -25,13 +25,9 @@ const PORT = 3005;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Serve uploaded files publicly
-// This lets you open: http://localhost:3005/uploads/employer-documents/file.pdf
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); 
-// ^ one of these will catch depending on where uploads is located; the second covers your case
 
-// ✅ Middleware setup
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true); // Allow Postman, mobile apps, etc.
@@ -45,7 +41,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Register all routes
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/jobs', jobRouter);
@@ -58,7 +53,6 @@ app.use('/messages', messageRoute);
 app.use('/tokens', tokenRoute);
 app.use('/reports', reportRoute);
 
-// ✅ Start server
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📂 Serving uploads from: ${path.join(__dirname, '../uploads')}`);

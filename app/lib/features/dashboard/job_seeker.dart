@@ -1,12 +1,14 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/job_service.dart';
+import 'package:app/core/services/notification_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
@@ -15,9 +17,10 @@ import 'package:app/features/job_seeker/all_applications.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/job_seeker/view_application.dart';
 import 'package:app/features/job_seeker/view_job.dart';
+import 'package:app/features/shared/messages.dart';
+import 'package:app/features/shared/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
 
 class JobSeekerDashboard extends HookWidget {
   const JobSeekerDashboard({super.key});
@@ -25,57 +28,33 @@ class JobSeekerDashboard extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
-    final applications = useState<List<Map<String, dynamic>>>([]);
-    final savedJobs = useState<List<Map<String, dynamic>>>([]);
-    final profileStrength = useState<double>(0);
-
-    // Fetch applications done by the user
-    useEffect(() {
-      void fetchData() async {
-        try {
-          final data = await ApplicationService.getApplicationsByUser(claims["id"]);
-          final savedJobRes = await JobService.getSavedJobsByUser(claims['id']);
-          final profileStrengthRes = await UserService.getUserProfileStrength(claims['id']);
-          applications.value = data;
-          savedJobs.value = savedJobRes;
-          profileStrength.value = profileStrengthRes;
-        } catch (e) {
-          if (!context.mounted) return;
-          showAlertError(context, "Failed to fetch applications. Please try again.");
-        }
-      }
-      fetchData();
-      return null;
-    }, [claims]);
 
     return Scaffold(
-      appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
+      appBar: AppNavigationBar(
+        title: 'Mendez PESO Job Portal',
+        onMenuPressed: (ctx) => Scaffold.of(ctx).openDrawer(),
+      ),
       endDrawer: const OffcanvasNavigation(),
+
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                children: [
-                  const SizedBox(height: 10.0),
-                  DashboardHeader(fullName: claims["full_name"] ?? "..."),
-                  const SizedBox(height: 10.0),
-                  ProfileStrengthCard(profileStrength: profileStrength.value),
-                  const SizedBox(height: 10.0),
-                  // const NotificationsCard(),
-                  const SizedBox(height: 10.0),
-                  // const GoToMessagesCard(),
-                  const SizedBox(height: 10.0),
-                  YourApplicationsCard(applications: applications.value),
-                  const SizedBox(height: 15.0),
-                  SavedJobsCard(savedJobs: savedJobs.value),
-                ],
-              ),
-            ),
-            const Footer(),
-          ],
-        )
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              DashboardHeader(fullName: claims["full_name"] ?? "..."),
+              const SizedBox(height: 10),
+              ProfileStrengthCard(claims: claims),
+              const SizedBox(height: 10),
+              NotificationsCard(claims: claims),
+              const SizedBox(height: 10),
+              YourApplicationsCard(claims: claims),
+              const SizedBox(height: 10),
+              SavedJobsCard(claims: claims),
+              const Footer(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -102,21 +81,43 @@ class DashboardHeader extends StatelessWidget {
   }
 }
 
-class ProfileStrengthCard extends StatelessWidget {
-  final double profileStrength;
-
+class ProfileStrengthCard extends HookWidget {
+  final Map<String, dynamic> claims;
   const ProfileStrengthCard({
     super.key,
-    required this.profileStrength,
+    required this.claims,
   });
 
   @override
   Widget build(BuildContext context) {
+    final loading = useState(true);
+    final profileStrength = useState<double>(0);
+
+    useEffect(() {
+      () async {
+        try {
+          final res = await UserService.getUserProfileStrength(claims['id']);
+          profileStrength.value = res;
+        } catch (_) {
+          if (context.mounted) {
+            showAlertError(context, "Failed to load profile strength");
+          }
+        } finally {
+          loading.value = false;
+        }
+      }();
+      return null;
+    }, [claims]);
+
     return SizedBox(
       width: double.infinity,
-      child: Card(
+      child: loading.value
+        ? const Loader()
+        : Card(
         color: Colors.white,
-        child: Column(
+        child: profileStrength.value == 0 
+          ? const Loader()
+          : Column(
           children: [
             SizedBox(
               width: double.infinity,
@@ -133,7 +134,7 @@ class ProfileStrengthCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Profile Strength'),
-                    Text("${(profileStrength * 100 / 10).round() * 10}%")
+                    Text("${(profileStrength.value * 100 / 10).round() * 10}%")
                   ],
                 ),
               ),
@@ -144,7 +145,7 @@ class ProfileStrengthCard extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4), // your desired radius
                 child: LinearProgressIndicator(
-                  value: profileStrength,
+                  value: profileStrength.value,
                   backgroundColor: Colors.grey[300],
                   color: AppColor.primary,
                   minHeight: 18,
@@ -172,58 +173,140 @@ class ProfileStrengthCard extends StatelessWidget {
   }
 }
 
-// class NotificationsCard extends StatefulWidget {
-//   const NotificationsCard({super.key});
+class NotificationsCard extends HookWidget {
+  final Map<String, dynamic> claims;
+  const NotificationsCard({
+    super.key,
+    required this.claims,
+  });
 
-//   @override
-//   State<NotificationsCard> createState() => _NotificationsCardState();
-// }
+  @override
+  Widget build(BuildContext context) {
+    final loading = useState(true);
+    final notifications = useState<List<Map<String, dynamic>>>([]);
 
-// class _NotificationsCardState extends State<NotificationsCard> {
+    useEffect(() {
+      () async {
+        try {
+          final res = await NotificationService.getRecentNotifications(
+            claims['id'],
+          );
+          notifications.value = res;
+        } catch (_) {
+          if (context.mounted) {
+            showAlertError(context, "Failed to load notifications");
+          }
+        } finally {
+          loading.value = false;
+        }
+      }();
+      return null;
+    }, [claims]);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return SizedBox(
-//       width: double.infinity,
-//       child: Card(
-//         color: Colors.white,
-//         child: Column(
-//           children: [
-//             SizedBox(
-//               width: double.infinity,
-//               child: Container(
-//                 padding: const EdgeInsets.all(10.0),
-//                 decoration: const BoxDecoration(
-//                   color: Color.fromARGB(255, 234, 234, 234),
-//                   borderRadius: BorderRadius.only(
-//                     topLeft: Radius.circular(16.0),
-//                     topRight: Radius.circular(16.0),
-//                   ),
-//                 ),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     const Text('Notifications'),
-//                     GestureDetector(
-//                       child: Text('See All', style: AppText.textXs.merge(AppText.textPrimary)),
-//                       onTap: () {},
-//                     )
-//                   ],
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(height: 10.0),
-//             Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 15.0),
-//               child: Text('No new notifications.', style: AppText.textMuted.merge(AppText.textXs)),
-//             ),
-//             const SizedBox(height: 20.0)
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+    if (loading.value) {
+      return const Loader();
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        color: Colors.white,
+        child: Column(
+          children: [
+            // HEADER
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 234, 234, 234),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Notifications'),
+                  GestureDetector(
+                    child: Text(
+                      'See All',
+                      style: AppText.textXs.merge(AppText.textPrimary),
+                    ),
+                    onTap: () => navigateTo(context, const Notifications()),
+                  )
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // IF NO NOTIFICATIONS
+            if (notifications.value.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                child: Text(
+                  'No new notifications.',
+                  style: AppText.textMuted.merge(AppText.textXs),
+                ),
+              ),
+
+            // IF THERE ARE NOTIFICATIONS — DISPLAY THEM
+            if (notifications.value.isNotEmpty)
+              Column(
+                children: notifications.value.map((notif) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15.0,
+                      vertical: 6.0,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 245, 245, 245),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 210, 210, 210),
+                          width: 1,
+                        ),
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                          child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              notif["type"] ?? "Notification",
+                              style: AppText.textXs.merge(AppText.fontSemibold),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              notif["content"] ?? "",
+                              style: AppText.textXs,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              formatDateTime(notif["created_at"]),
+                              style: AppText.textXs.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+
+            const SizedBox(height: 15),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 // class GoToMessagesCard extends StatelessWidget {
 //   const GoToMessagesCard({super.key});
@@ -272,17 +355,40 @@ class ProfileStrengthCard extends StatelessWidget {
 // }
 
 class YourApplicationsCard extends HookWidget {
-  final List<Map<String, dynamic>> applications;
+  final Map<String, dynamic> claims;
   const YourApplicationsCard({
     super.key,
-    required this.applications,
+    required this.claims
   });
 
   @override
   Widget build(BuildContext context) {
+    final loading = useState(true);
+    final applications = useState<List<Map<String, dynamic>>>([]);
+
+    useEffect(() {
+      () async {
+        try {
+          final data = await ApplicationService.getApplicationsByUser(
+            claims['id'],
+          );
+          applications.value = data;
+        } catch (_) {
+          if (context.mounted) {
+            showAlertError(context, "Failed to load applications");
+          }
+        } finally {
+          loading.value = false;
+        }
+      }();
+      return null;
+    }, [claims]);
+
     return SizedBox(
       width: double.infinity,
-      child: Column(
+      child: loading.value
+        ? const Loader()
+        : Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -294,7 +400,10 @@ class YourApplicationsCard extends HookWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AllApplications(applications: applications)
+                      builder: (context) => AllApplications(
+                        applications: applications.value,
+                        claims: claims,
+                      )
                     ),
                   );
                 },
@@ -302,7 +411,7 @@ class YourApplicationsCard extends HookWidget {
             ],
           ),
           const SizedBox(height: 5.0),
-          applications.isEmpty ?
+          applications.value.isEmpty ?
             Card(
               color: const Color.fromARGB(255, 211, 255, 235),
               child: Padding(
@@ -345,7 +454,7 @@ class YourApplicationsCard extends HookWidget {
                     DataColumn(label: Text('Status')),
                     DataColumn(label: Text('Actions')),
                   ],
-                  rows: applications.take(5).map((application) {
+                  rows: applications.value.take(5).map((application) {
                     return DataRow(
                       cells: [
                         DataCell(Text(application['title'] ?? 'N/A')),
@@ -363,7 +472,7 @@ class YourApplicationsCard extends HookWidget {
                               const SizedBox(width: 10), 
                               AppButton(
                                 label: 'Message', 
-                                onPressed: () {},
+                                onPressed: () => navigateTo(context, Messages(user: claims, otherUserId: application['employer_id'])),
                                 backgroundColor: AppColor.success,
                                 foregroundColor: AppColor.light,
                                 visualDensityY: -3,
@@ -384,18 +493,43 @@ class YourApplicationsCard extends HookWidget {
   }
 }
 
-class SavedJobsCard extends StatelessWidget {
-  final List<Map<String, dynamic>> savedJobs; 
+class SavedJobsCard extends HookWidget {
+  final Map<String, dynamic> claims;
   const SavedJobsCard({
     super.key,
-    required this.savedJobs,
+    required this.claims
   });
 
   @override
   Widget build(BuildContext context) {
+    final loading = useState(true);
+    final savedJobs = useState<List<Map<String, dynamic>>>([]);
+
+    useEffect(() {
+      () async {
+        try {
+          final data = await JobService.getSavedJobsByUser(claims['id']);
+          savedJobs.value = data;
+        } catch (_) {
+          if (context.mounted) {
+            showAlertError(context, "Failed to load saved jobs");
+          }
+        } finally {
+          loading.value = false;
+        }
+      }();
+      return null;
+    }, [claims]);
+
+    if (loading.value) {
+      return const Loader();
+    }
+
     return SizedBox(
       width: double.infinity,
-      child: Column(
+      child: loading.value 
+        ? const Loader()
+        : Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -403,12 +537,12 @@ class SavedJobsCard extends StatelessWidget {
               Text('Saved Jobs', style: AppText.textLg.merge(AppText.fontSemibold)),
               GestureDetector(
                 child: Text('Sea All', style: AppText.textXs.merge(AppText.textPrimary)),
-                onTap: () {},
+                onTap: () => {},
               )
             ],
           ),
           const SizedBox(height: 5.0),
-          savedJobs.isEmpty ?
+          savedJobs.value.isEmpty ?
             SizedBox(
               width: double.infinity,
               child: Card(
@@ -454,7 +588,7 @@ class SavedJobsCard extends StatelessWidget {
                     DataColumn(label: Text('Salary')),
                     DataColumn(label: Text('Actions')),
                   ],
-                  rows: savedJobs.take(5).map((item) {
+                  rows: savedJobs.value.take(5).map((item) {
                     return DataRow(
                       cells: [
                         DataCell(Text(item['title'] ?? 'N/A')),
@@ -472,7 +606,7 @@ class SavedJobsCard extends StatelessWidget {
                               const SizedBox(width: 10), 
                               AppButton(
                                 label: 'Message', 
-                                onPressed: () {},
+                                onPressed: () => navigateTo(context, Messages(user: claims, otherUserId: item['employer_id'])),
                                 backgroundColor: AppColor.success,
                                 foregroundColor: AppColor.light,
                                 visualDensityY: -3,

@@ -175,7 +175,9 @@ class JobListing extends HookWidget {
                 style: AppText.textXl.merge(AppText.fontBold)
               ),
               const SizedBox(height: 10.0),
-              SizedBox(
+              jobs.value.isEmpty 
+                ? const Loader()
+                : SizedBox(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                   child: JobList(

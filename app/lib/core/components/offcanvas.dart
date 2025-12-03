@@ -27,10 +27,6 @@ class OffcanvasNavigation extends HookWidget {
     double screenHeight = MediaQuery.of(context).size.height;
     final claims = useClaimsHook(context);
 
-    if (claims.isEmpty) {
-      return const Loader();
-    }
-
     List<Map<String, dynamic>> routes = [
       { 
         "name": "Home", "href": claims['role'] == 'job_seeker' ?
@@ -42,10 +38,6 @@ class OffcanvasNavigation extends HookWidget {
       { "name": "Messages", "href": const Conversations() },
       { "name": "Announcements", "href": const Announcements() },
       { "name": "Notifications", "href": const Notifications() },
-      // { "name": "Career Hub", "href": claims['role'] == 'job_seeker' ?
-      //     const JobSeekerDashboard() : claims['role'] == 'employer' ?
-      //     const EmployerDashboard() : const AdminDashboard() 
-      // },
       { "name": "Contact", "href": const Contact() },
     ];
 
@@ -55,10 +47,15 @@ class OffcanvasNavigation extends HookWidget {
 
     return Drawer(
       width: screenWidth * 0.7,
-      child: Container(
-        margin: EdgeInsets.only(top: screenHeight * 0.2),
+      child: claims.isEmpty 
+        ? const Loader()
+        : Container(
+        margin: EdgeInsets.only(top: screenHeight * 0.15),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            Center(child: Image.asset('assets/images/peso-mendez.png', width: 80)),
+            const SizedBox(height: 30),
             ...routes.expand((item) => [
               GestureDetector(
                 child: Text(item["name"], style: AppText.textMd.merge(AppText.fontSemibold)),

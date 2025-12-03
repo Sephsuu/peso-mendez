@@ -17,7 +17,6 @@ class JobSeekersReport extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
     final loading = useState(true);
     final reload = useState(false);
     final find = useState('');

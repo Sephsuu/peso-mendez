@@ -1,4 +1,3 @@
-import 'package:app/core/components/badge.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';

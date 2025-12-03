@@ -80,7 +80,7 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
       context,
       MaterialPageRoute(
         builder: (_) => Scaffold(
-          appBar: AppBar(title: Text("View Document")),
+          appBar: AppBar(title: const Text("View Document")),
           body: InAppWebView(
             initialUrlRequest: URLRequest(url: WebUri(finalUrl)),
           ),

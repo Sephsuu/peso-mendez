@@ -119,7 +119,7 @@ class TechVocTrainings extends HookWidget {
             context: context,
             builder: (context) => AppModal(
               title: 'Edit Language Profeciency',
-              titleStyle: AppText.fontBold,
+              titleStyle: AppText.fontBold.merge(AppText.textXl),
               confirmBackground: AppColor.success,
               confirmForeground: AppColor.light,
               onConfirm: () => handleSubmit(),
@@ -131,14 +131,12 @@ class TechVocTrainings extends HookWidget {
                       ...user.value.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
-
                         return HookBuilder(
                           builder: (context) {
                             final controllers = {
                               for (final key in fields.keys)
                                 key: useTextEditingController(text: item[key] ?? ''),
                             };
-
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -148,6 +146,8 @@ class TechVocTrainings extends HookWidget {
                                   AppInputField(
                                     label: entry.value,
                                     controller: controllers[entry.key]!,
+                                    visualDensityY: 0,
+                                    textSize: 16,
                                     onChanged: (value) {
                                       final updated = [...user.value];
                                       updated[index] = {...updated[index], entry.key: value};

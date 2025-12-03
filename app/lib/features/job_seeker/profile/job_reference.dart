@@ -24,28 +24,30 @@ class JobReference extends HookWidget {
     required this.open,
     required this.setOpen,
   });
+
   @override
   Widget build(BuildContext context) {
     final loading = useState(true);
     final user = useState<Map<String, dynamic>>({});
+    final tempUser = useState<Map<String, dynamic>>({});
 
     void handleSubmit() async {
       try {
-        final res = await UserService.updateUserJobReference(user.value);
+        final res = await UserService.updateUserJobReference(tempUser.value);
         if (res.isNotEmpty) {
           if (!context.mounted) return;
           AppSnackbar.show(
-            context, 
+            context,
             message: 'Credential updated successfully!',
-            backgroundColor: AppColor.success
+            backgroundColor: AppColor.success,
           );
         }
-      } catch (e) { 
+      } catch (e) {
         if (!context.mounted) return;
         AppSnackbar.show(
-          context, 
+          context,
           message: '$e',
-          backgroundColor: AppColor.danger
+          backgroundColor: AppColor.danger,
         );
       }
     }
@@ -56,14 +58,15 @@ class JobReference extends HookWidget {
         try {
           final data = await UserService.getUserJobReference(claims['id']);
           user.value = data;
-        } catch (e) {
-          AppModal(title: ('$e'));
-        } finally { loading.value = false; }
+          tempUser.value = Map<String, dynamic>.from(data);
+        } finally {
+          loading.value = false;
+        }
+      }
 
-      } fetchData();
+      fetchData();
       return null;
     }, [claims['id']]);
-
 
     if (loading.value) return const Loader();
 
@@ -98,7 +101,8 @@ class JobReference extends HookWidget {
                 label: 'Fill Out Information',
                 backgroundColor: AppColor.primary,
                 foregroundColor: AppColor.light,
-                onPressed: () => navigateTo(context, JobReferenceForm(userId: claims['id'], fromProfile: true)), // opens modal form
+                onPressed: () => navigateTo(context,
+                    JobReferenceForm(userId: claims['id'], fromProfile: true)),
               ),
             ],
           ),
@@ -111,115 +115,215 @@ class JobReference extends HookWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog(
             context: context,
-            builder: (context) => AppModal(
-              title: 'Edit Job Reference',
-              titleStyle: AppText.fontBold,
-              confirmBackground: AppColor.success,
-              confirmForeground: AppColor.light,
-              onConfirm: () => handleSubmit(),
-              message: SizedBox(
-                height: 300,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      AppSelect(
-                        placeholder: 'Occupation Type',
-                        items: const ['Part-time', 'Full-time'],
-                        value: user.value['occupation_type'], 
-                        onChanged: (val) => {
-                          user.value = {
-                            ...user.value,
-                            'occupation_type': val
-                          }
-                        }
+            builder: (context) {
+              return StatefulBuilder(
+                builder: (context, setDialogState) => AppModal(
+                  title: 'Edit Job Reference',
+                  titleStyle: AppText.fontBold.merge(AppText.textXl),
+                  confirmBackground: AppColor.success,
+                  confirmForeground: AppColor.light,
+                  onConfirm: () => handleSubmit(),
+                  message: SizedBox(
+                    height: 500,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 5),
+                          AppSelect<String>(
+                            placeholder: 'Occupation Type',
+                            required: true,
+                            items: const ['Part-Time', 'Full-Time'],
+                            value: tempUser.value['occupation_type'],
+                            getLabel: (v) => v,
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              setDialogState(() {});
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'occupation_type': val,
+                              };
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          AppInputField(
+                            label: 'Occupation 1',
+                            required: true,
+                            initialValue: tempUser.value['occupation1'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (value) {
+                              setDialogState(() {});
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'occupation1': value
+                              };
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          AppInputField(
+                            label: 'Occupation 2',
+                            required: true,
+                            initialValue: tempUser.value['occupation2'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (value) {
+                              setDialogState(() {});
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'occupation2': value
+                              };
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          AppInputField(
+                            label: 'Occupation 3',
+                            required: true,
+                            initialValue: tempUser.value['occupation3'],
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (value) {
+                              setDialogState(() {});
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'occupation3': value
+                              };
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          AppSelect<String>(
+                            placeholder: 'Location Type',
+                            required: true,
+                            items: const ['Local', 'Overseas'],
+                            value: tempUser.value['location_type'],
+                            getLabel: (v) => v,
+                            visualDensityY: 0,
+                            textSize: 16,
+                            onChanged: (val) {
+                              setDialogState(() {});
+                              tempUser.value = {
+                                ...tempUser.value,
+                                'location_type': val,
+                                'location1': null,
+                                'location2': null,
+                                'location3': null,
+                              };
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          tempUser.value['location_type'] == "Overseas"
+                              ? AppInputField(
+                                  label: 'Location 1',
+                                  required: true,
+                                  initialValue: tempUser.value['location1'],
+                                  visualDensityY: 0,
+                                  textSize: 16,
+                                  onChanged: (val) {
+                                    setDialogState(() {});
+                                    tempUser.value = {
+                                      ...tempUser.value,
+                                      'location1': val
+                                    };
+                                  },
+                                )
+                              : AppSelect<String>(
+                                  items: caviteLocations,
+                                  required: true,
+                                  value: safeValue(
+                                      tempUser.value['location1'],
+                                      caviteLocations),
+                                  placeholder: "Location 1",
+                                  getLabel: (v) => v,
+                                  visualDensityY: 0,
+                                  textSize: 16,
+                                  onChanged: (val) {
+                                    setDialogState(() {});
+                                    tempUser.value = {
+                                      ...tempUser.value,
+                                      'location1': val
+                                    };
+                                  },
+                                ),
+                          const SizedBox(height: 12),
+                          tempUser.value['location_type'] == "Overseas"
+                              ? AppInputField(
+                                  label: 'Location 2',
+                                  required: true,
+                                  initialValue: tempUser.value['location2'],
+                                  visualDensityY: 0,
+                                  textSize: 16,
+                                  onChanged: (val) {
+                                    setDialogState(() {});
+                                    tempUser.value = {
+                                      ...tempUser.value,
+                                      'location2': val
+                                    };
+                                  },
+                                )
+                              : AppSelect<String>(
+                                  items: caviteLocations,
+                                  required: true,
+                                  value: safeValue(
+                                      tempUser.value['location2'],
+                                      caviteLocations),
+                                  placeholder: "Location 2",
+                                  getLabel: (v) => v,
+                                  visualDensityY: 0,
+                                  textSize: 16,
+                                  onChanged: (val) {
+                                    setDialogState(() {});
+                                    tempUser.value = {
+                                      ...tempUser.value,
+                                      'location2': val
+                                    };
+                                  },
+                                ),
+                          const SizedBox(height: 12),
+                          tempUser.value['location_type'] == "Overseas"
+                              ? AppInputField(
+                                  label: 'Location 3',
+                                  required: true,
+                                  initialValue: tempUser.value['location3'],
+                                  visualDensityY: 0,
+                                  textSize: 16,
+                                  onChanged: (val) {
+                                    setDialogState(() {});
+                                    tempUser.value = {
+                                      ...tempUser.value,
+                                      'location3': val
+                                    };
+                                  },
+                                )
+                              : AppSelect<String>(
+                                  items: caviteLocations,
+                                  required: true,
+                                  value: safeValue(
+                                      tempUser.value['location3'],
+                                      caviteLocations),
+                                  placeholder: "Location 3",
+                                  getLabel: (v) => v,
+                                  visualDensityY: 0,
+                                  textSize: 16,
+                                  onChanged: (val) {
+                                    setDialogState(() {});
+                                    tempUser.value = {
+                                      ...tempUser.value,
+                                      'location3': val
+                                    };
+                                  },
+                                ),
+                          const SizedBox(height: 20),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      AppInputField(
-                        label: 'Occupation 1',
-                        initialValue: user.value['occupation1'],
-                        onChanged: (value) {
-                          user.value = {
-                            ...user.value,
-                            'occupation1': value
-                          };
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      AppInputField(
-                        label: 'Occupation 2',
-                        initialValue: user.value['occupation2'],
-                        onChanged: (value) {
-                          user.value = {
-                            ...user.value,
-                            'occupation2': value
-                          };
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      AppInputField(
-                        label: 'Occupation 3',
-                        initialValue: user.value['occupation3'],
-                        onChanged: (value) {
-                          user.value = {
-                            ...user.value,
-                            'occupation3': value
-                          };
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      AppSelect(
-                        placeholder: 'Location Type',
-                        items: const ['Local', 'Overseas'],
-                        value: user.value['location_type'], 
-                        onChanged: (val) => {
-                          user.value = {
-                            ...user.value,
-                            'location_type': val
-                          }
-                        }
-                      ),
-                      const SizedBox(height: 12),
-                      AppInputField(
-                        label: 'Location 1',
-                        initialValue: user.value['location1'],
-                        onChanged: (value) {
-                          user.value = {
-                            ...user.value,
-                            'location1': value
-                          };
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      AppInputField(
-                        label: 'Location 2',
-                        initialValue: user.value['location2'],
-                        onChanged: (value) {
-                          user.value = {
-                            ...user.value,
-                            'location2': value
-                          };
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      AppInputField(
-                        label: 'Location 3',
-                        initialValue: user.value['location3'],
-                        onChanged: (value) {
-                          user.value = {
-                            ...user.value,
-                            'location3': value
-                          };
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                    ],
+                    ),
                   ),
                 ),
-              )
-            ),
-          ).then((_) => setOpen()); // close after dialog dismissed
+              );
+            },
+          ).then((_) => setOpen());
         });
       }
+
       return null;
     }, [open]);
 
@@ -228,14 +332,14 @@ class JobReference extends HookWidget {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-          width: double.infinity,  // full width
+          width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topLeft, 
-              end: Alignment.bottomRight,  
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
-                Color.fromARGB(255, 32, 64, 192),            
-                Color.fromARGB(255, 104, 129, 255),             
+                Color.fromARGB(255, 32, 64, 192),
+                Color.fromARGB(255, 104, 129, 255),
               ],
             ),
           ),
@@ -243,44 +347,35 @@ class JobReference extends HookWidget {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'Job Reference',
-                  style: AppText.textXl.merge(AppText.fontBold).merge(AppText.textLight)),
+                child: Text('Job Reference',
+                    style: AppText.textXl
+                        .merge(AppText.fontBold)
+                        .merge(AppText.textLight)),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(
-                    Icons.fact_check, 
-                    size: 15, 
-                    color: AppColor.light
-                  ),
+                  const Icon(Icons.fact_check,
+                      size: 15, color: AppColor.light),
                   const SizedBox(width: 5),
-                  Text(
-                    user.value['occupation_type'] ?? 'N/A',
-                    style: AppText.textLight.merge(AppText.fontSemibold)
-                  )
+                  Text(user.value['occupation_type'] ?? 'N/A',
+                      style: AppText.textLight.merge(AppText.fontSemibold))
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(
-                    Icons.location_on, 
-                    size: 15, 
-                    color: AppColor.light
-                  ),
+                  const Icon(Icons.location_on,
+                      size: 15, color: AppColor.light),
                   const SizedBox(width: 5),
-                  Text(
-                    user.value['location_type'] ?? 'N/A', 
-                    style: AppText.textLight.merge(AppText.fontSemibold)
-                  )
+                  Text(user.value['location_type'] ?? 'N/A',
+                      style: AppText.textLight.merge(AppText.fontSemibold))
                 ],
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  if (claims["role"] != "employer") // 👈 Hide if role == "employer"
+                  if (claims["role"] != "employer")
                     AppButton(
                       label: 'Edit',
                       onPressed: () => setOpen(),
@@ -319,13 +414,14 @@ class JobReference extends HookWidget {
               Text('Fill up date:', style: AppText.fontBold),
               Text(formatDateTime(user.value['created_at'])),
               const SizedBox(height: 5),
-
             ],
           ),
         )
-    
-
       ],
     );
   }
+}
+
+T? safeValue<T>(T? value, List<T> items) {
+  return items.contains(value) ? value : null;
 }

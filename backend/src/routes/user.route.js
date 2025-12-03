@@ -249,6 +249,7 @@ router.post('/create-employer-information', async (req, res) => {
 
 router.patch('/update-credential', async (req, res) => {
 	const user = req.body;
+	console.log('ROUTE', user);
 	try {
 		const query = await userQuery.updateUserCredential(user);
 		res.json(query);

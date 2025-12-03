@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getUserByEmailOrUsername, getUserById } from '../queries/user.query.js';
+import { getUserByEmailOrUsername, getUserById, updateUserPassword } from '../queries/user.query.js';
 import { authenticateToken } from '../middlewares/authToken.js';
 import { registerUser } from '../queries/user.query.js';
 import * as tokenQuery from '../queries/token.query.js';
@@ -100,5 +100,38 @@ router.post('/register', async (req, res) => {
 router.get('/get-claims', authenticateToken, (req, res) => {
   res.json(req.user);
 });
+
+router.post('/update-password', async (req, res) => {
+  try {
+    const { userId, old_password, new_password } = req.body;
+
+    if (!old_password || !new_password) {
+      return res.status(400).json({ message: "Both old and new password are required" });
+    }
+
+    const user = await getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(old_password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Old password is incorrect" });
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+    console.log('Line 125');
+    
+
+    await updateUserPassword(userId, hashedPassword);
+
+    res.json({ message: "Password updated successfully" });
+
+  } catch (err) {
+    console.error("UPDATE PASSWORD ERROR:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 
 export default router;

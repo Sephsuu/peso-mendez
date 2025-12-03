@@ -175,6 +175,7 @@ class _LoginFormState extends State<LoginForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(child: Image.asset('assets/images/peso-mendez.png', width: 60)),
                 SizedBox(
                   width: double.infinity,
                   child: Text('Sign in to Mendez PESO', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),

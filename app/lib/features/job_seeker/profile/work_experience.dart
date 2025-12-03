@@ -118,8 +118,8 @@ class WorkExperience extends HookWidget {
           showDialog(
             context: context,
             builder: (context) => AppModal(
-              title: 'Edit Language Profeciency',
-              titleStyle: AppText.fontBold,
+              title: 'Edit Work Experiences',
+              titleStyle: AppText.fontBold.merge(AppText.textXl),
               confirmBackground: AppColor.success,
               confirmForeground: AppColor.light,
               onConfirm: () => handleSubmit(),
@@ -131,23 +131,23 @@ class WorkExperience extends HookWidget {
                       ...user.value.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
-
                         return HookBuilder(
                           builder: (context) {
                             final controllers = {
                               for (final key in fields.keys)
                                 key: useTextEditingController(text: item[key] ?? ''),
                             };
-
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('TechVoc and Other Trainings ${index + 1}', style: AppText.fontBold),
+                                Text('Work Experience ${index + 1}', style: AppText.fontBold),
                                 const SizedBox(height: 12),
                                 for (final entry in fields.entries) ...[
                                   AppInputField(
                                     label: entry.value,
                                     controller: controllers[entry.key]!,
+                                    visualDensityY: 0,
+                                    textSize: 16,
                                     onChanged: (value) {
                                       final updated = [...user.value];
                                       updated[index] = {...updated[index], entry.key: value};

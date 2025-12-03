@@ -33,6 +33,14 @@ class AuthService {
     );
   }
 
+  static Future<Map<String, dynamic>> changePassword(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-password',
+      method: 'POST',
+      body: user
+    );
+  }
+
   static Future<void> logout(BuildContext context) async {
     await _secureStorage.delete(key: 'jwt_token');
     if (!context.mounted) return;

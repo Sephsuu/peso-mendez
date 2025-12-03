@@ -151,6 +151,7 @@ class _RegisterFormState extends State<RegisterForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(child: Image.asset('assets/images/peso-mendez.png', width: 60)),
                 SizedBox(
                   width: double.infinity,
                   child: Text('Create Your Account', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),

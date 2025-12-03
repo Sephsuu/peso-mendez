@@ -16,8 +16,10 @@ class AppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          Image.asset('assets/images/peso-mendez.png', width: 50),
+          const SizedBox(width: 10),
           Center(
             child: Text(
               title,

@@ -41,6 +41,24 @@ export async function getNotificationsByRole(role, userId) {
     return rows ?? [];
 }
 
+export async function getNotificationsByUser(id) {
+  const [rows] = await pool.query(
+    `SELECT * FROM notifications WHERE recipient_id = ? ORDER BY created_at DESC`,
+    [id]
+  )
+
+  return rows ?? [];
+}
+
+export async function getRecentNotifications(id) {
+  const [rows] = await pool.query(
+    `SELECT * FROM notifications WHERE recipient_id = ? ORDER BY created_at DESC LIMIT 5`,
+    [id]
+  )
+
+  return rows ?? [];
+}
+
 export async function createNotification(notfication) {
     const [rows] = await pool.query(
         `INSERT INTO notifications (recipient_id, recipient_role, sender_id, content, type)

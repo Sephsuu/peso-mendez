@@ -21,7 +21,6 @@ import 'package:app/features/admin/reports/highest_education.dart';
 import 'package:app/features/admin/reports/placements.dart';
 import 'package:app/features/admin/view_employer_documents.dart';
 import 'package:app/features/shared/announcements.dart';
-import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -262,7 +261,7 @@ class AdminActions extends StatelessWidget {
             text: "Manage Users",
             page: ManageUsers(),
           ),
-          AdminActionButton(
+          const AdminActionButton(
             color: AppColor.primary,
             text: "Post Announcement",
             page: const PostAnnouncement(),
