@@ -1,3 +1,4 @@
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/auth_service.dart';
@@ -164,114 +165,64 @@ class _RegisterFormState extends State<RegisterForm> {
                 const SizedBox(height: 10.0),
                 Text('Full Name', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                TextFormField(
+                AppInputField(
+                  label: '',
                   controller: _fullName,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    labelText: null,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    isDense: true
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
-                    }
-                    return null;
-                  },
+                  required: true,
+                  visualDensityY: 0,
+                  textSize: 16,
+                  validatorMessage: "Please enter your full name.",
                 ),
                 const SizedBox(height: 8.0),
                 Text('E-mail Address', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                TextFormField(
+                AppInputField(
+                  label: '',
                   controller: _email,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    labelText: null,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    isDense: true
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your e-mail address';
-                    }
-                    return null;
-                  },
+                  required: true,
+                  visualDensityY: 0,
+                  textSize: 16,
+                  validatorMessage: "Please enter your email address.",
                 ),
                 const SizedBox(height: 8.0),
                 Text('Contact Number', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                TextFormField(
+                AppInputField(
+                  label: '',
                   controller: _contact,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    labelText: null,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    isDense: true
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your contact number';
-                    }
-                    return null;
-                  },
+                  required: true,
+                  visualDensityY: 0,
+                  textSize: 16,
+                  validatorMessage: "Please enter your contact number.",
                 ),
                 const SizedBox(height: 8.0),
                 Text('Username', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                TextFormField(
+                AppInputField(
+                  label: '',
                   controller: _username,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    labelText: null,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    isDense: true
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your username';
-                    }
-                    return null;
-                  },
+                  required: true,
+                  visualDensityY: 0,
+                  textSize: 16,
+                  validatorMessage: "Please enter your username.",
                 ),
                 const SizedBox(height: 8.0),
                 Text('Password', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                TextFormField(
-                  obscureText: true,
+                AppInputField(
+                  label: '',
                   controller: _password,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    labelText: null,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    isDense: true
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
+                  required: true,
+                  visualDensityY: 0,
+                  textSize: 16,
+                  obscureText: true,
+                  validatorMessage: "Please enter your password.",
                 ),
                 const SizedBox(height: 8.0),
                 Text('I am a:', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
                 DropdownButtonFormField<String>(
-                  value: _role,
+                  initialValue: _role,
                   items: roles.map((role) {
                     return DropdownMenuItem<String>(
                       value: role['value'],       
@@ -281,7 +232,6 @@ class _RegisterFormState extends State<RegisterForm> {
                   onChanged: (value) {
                     setState(() {
                       _role = value;
-                      print(_role); // prints 'employer' or 'job_seeker'
                     });
                   },
                   decoration: const InputDecoration(

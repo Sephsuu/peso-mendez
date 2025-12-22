@@ -244,13 +244,14 @@ class LanguageProfeciency extends HookWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              AppButton(
-                label: 'Edit',
-                onPressed: () => setOpen(),
-                backgroundColor: AppColor.light,
-                foregroundColor: AppColor.dark,
-                visualDensityY: -4,
-              ),
+              if (claims["role"] == "job_seeker")
+                AppButton(
+                  label: 'Edit',
+                  onPressed: () => setOpen(),
+                  backgroundColor: AppColor.light,
+                  foregroundColor: AppColor.dark,
+                  visualDensityY: -4,
+                ),
             ],
           ),
         ),

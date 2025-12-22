@@ -29,7 +29,7 @@ class PostNewJob extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
               child: PostNewJobForm(),
             ),
             Footer()
@@ -151,18 +151,49 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
           ),
           const Divider(thickness: 1, height: 16),
           const SizedBox(height: 10),
-          AppTextField(controller: _jobTitle, label: 'Job Title'),
+          const Text('Job Title'),
+          const SizedBox(height: 5),
+          AppInputField(
+            label: '',
+            controller: _jobTitle,
+            required: true,  
+            textSize: 16,
+            visualDensityY: 0,
+            validatorMessage: "Please enter title of the job",
+          ),
           const SizedBox(height: 10),
-          AppTextField(controller: _company, label: 'Company'),
+          const Text('Company'),
+          const SizedBox(height: 5),
+          AppInputField(
+            label: '',
+            controller: _company,
+            required: true,  
+            textSize: 16,
+            visualDensityY: 0,
+            validatorMessage: "This field is required.",
+          ),
           const SizedBox(height: 10),
-          AppTextField(controller: _location, label: 'Address'),
+          const Text('Job Location'),
+          const SizedBox(height: 5),
+          AppInputField(
+            label: '',
+            controller: _location,
+            required: true,  
+            textSize: 16,
+            visualDensityY: 0,
+            validatorMessage: "This field is required.",
+          ),
           const SizedBox(height: 10),
           Text('City/Municipality', textAlign: TextAlign.start, style: AppText.textSm),
-          const SizedBox(height: 7.0),
+          const SizedBox(height: 5.0),
           AppSelect<String>(
             items: caviteLocations,
             value: _selectedCitmun,
             getLabel: (item) => item,
+            visualDensityY: 1,
+            textSize: 16,
+            required: true,
+            borderColor: AppColor.muted,
             onChanged: (value) {
               setState(() {
                 _selectedCitmun = value;
@@ -171,48 +202,110 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
             },
           ),
           const SizedBox(height: 10),
-          AppDropdownSelect(items: types, label: 'Job Type', initialValue: _jobType, placeholder: 'Select Type', onChanged: (value) { setState(() { _jobType = value; });}),
+          Text('Job Type', textAlign: TextAlign.start, style: AppText.textSm),
+          const SizedBox(height: 5.0),
+          AppSelect<String>(
+            items: types,
+            value: _jobType,
+            getLabel: (item) => item,
+            visualDensityY: 1,
+            textSize: 16,
+            borderColor: AppColor.muted,
+            required: true,
+            onChanged: (value) {
+              setState(() {
+                _jobType = value;
+              });
+            },
+          ),
           const SizedBox(height: 10),
-          // AppDropdownSelect(items: visibilities, label: 'Visibility', initialValue: _visibility, placeholder: 'Select Visibility', onChanged: (value) { setState(() { _visibility = value; });}),
-          // const SizedBox(height: 10),
-          AppTextField(controller: _salary, label: 'Salary'),
+          const Text('Salary/Compensation'),
+          const SizedBox(height: 5),
+          AppInputField(
+            label: 'specify in Philippine Peso',
+            controller: _salary,
+            required: true,  
+            textSize: 16,
+            visualDensityY: 0,
+            numericOnly: true,
+            validatorMessage: "This field is required.",
+          ),
           const SizedBox(height: 10),
-          AppTextField(controller: _description, label: 'Job Description', maxLine: 4),
+          const Text('Job Description'),
+          const SizedBox(height: 5),
+          AppInputField(
+            label: '',
+            controller: _description,
+            textSize: 16,
+            visualDensityY: 0,
+            maxLine: 4,
+          ),
           const SizedBox(height: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('Required Skills for the Job:'),
               const SizedBox(height: 10),
-
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (int i = 0; i < selectedSkills.length; i += 2)
-                    Row(
-                      children: [
-                        for (int j = i; j < i + 2 && j < selectedSkills.length; j++)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8, bottom: 8),
-                            child: AppBadge(
-                              text: selectedSkills[j],
-                              color: AppColor.primary,
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                            ),
-                          ),
-                      ],
+                  if (selectedSkills.isEmpty)
+                    Center(
+                      child: Text(
+                        "No selected skill for the job.",
+                        style: AppText.textMuted,
+                      ),
                     ),
+
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final double itemWidth = (constraints.maxWidth - 8) / 2;
+
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: List.generate(selectedSkills.length, (index) {
+                          final skill = selectedSkills[index];
+
+                          return SizedBox(
+                            width: itemWidth,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedSkills.removeAt(index);
+                                });
+                              },
+                              child: AppBadge(
+                                text: skill,
+                                color: AppColor.primary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                isCenter: true,
+                              ),
+                            ),
+                          );
+                        }),
+                      );
+                    },
+                  ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 10),
           AppSelect(
+            placeholder: "Select a skill",
             items: skills,
+            visualDensityY: 1,
+            textSize: 16,
+            borderColor: AppColor.muted,
             onChanged: (value) {
               if (value != null && !selectedSkills.contains(value)) {
                 setState(() {
                   selectedSkills.add(value);
+
                 });
               }
             },
@@ -237,7 +330,6 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
               ),
             ],
           )
-          // RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),
         ],
       ),
     );

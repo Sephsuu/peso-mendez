@@ -32,7 +32,7 @@ class PersonalInformationForm extends StatefulWidget {
 
 class _PersonalInformationFormState extends State<PersonalInformationForm> {
   final _formKey = GlobalKey<FormState>();
-  final List<String> genders = ['Male', 'Female', 'Other'];
+  final List<String> genders = ['Male', 'Female', 'Others'];
   final List<String> civilStatus = ['Single', 'Married', 'Widowed'];
   final List<String> disabilities = ['N/A', 'Visual', 'Hearing', 'Speech', 'Physical', 'Mental', 'Others'];
   final List<String> employmentStatus = ['Employed', 'Unemployed'];
@@ -48,15 +48,18 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
   final TextEditingController _religion = TextEditingController();
   final TextEditingController _presentAddress = TextEditingController();
   final TextEditingController _citmun = TextEditingController();
+  final TextEditingController _civilStatus = TextEditingController();
+  final TextEditingController _sex = TextEditingController();
+  final TextEditingController _disability = TextEditingController();
   final TextEditingController _clientele = TextEditingController();
   final TextEditingController _tin = TextEditingController();
-  String? _sex;
-  String? _civilStatus;
-  String? _disability;
+  String? _selectedSex;
+  String? _selectedDisability;
   String? _employmentStatus;
   String? _employmentType;
   String? _isOfw;
   String? _isFormerOfw;
+  String? _selectedCivilStatus;
   String? _selectedCitmun;
   String? _selectedClientele;
   DateTime? _selectedDate; 
@@ -96,9 +99,9 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
         "religion": _religion.text.trim(),
         "presentAddress": _presentAddress.text.trim(),
         "tin": _tin.text.trim(),
-        "sex": _sex,
-        "civilStatus": _civilStatus,
-        "disability": _disability,
+        "sex": _sex.text.trim(),               // FIXED
+        "civilStatus": _civilStatus.text.trim(), // FIXED
+        "disability": _disability.text.trim(), // FIXED
         "employmentStatus": _employmentStatus,
         "employmentType": _employmentType,
         "isOfw": _isOfw,
@@ -169,21 +172,46 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                           child: Text('Personal Information', textAlign: TextAlign.center, style: AppText.textXl.merge(AppText.textPrimary).merge(AppText.fontSemibold)),
                         ),
                         const SizedBox(height: 20.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _surname, placeholder: "Surname"),
+                        AppInputField(
+                          label: 'Last Name',
+                          controller: _surname,
+                          required: true,
+                          visualDensityY: 0,
+                          textSize: 16,
+                          validatorMessage: "Please enter your last name.",
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _firstName, placeholder: "First Name"),
+                        AppInputField(
+                          label: 'First Name',
+                          controller: _firstName,
+                          required: true,
+                          visualDensityY: 0,
+                          textSize: 16,
+                          validatorMessage: "Please enter your last name.",
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholder(controller: _middleName, placeholder: "Middle Name"),
+                        AppInputField(
+                          label: 'Last Name',
+                          controller: _middleName,
+                          visualDensityY: 0,
+                          textSize: 16,
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholder(controller: _suffix, placeholder: "Suffix"),
+                        AppInputField(
+                          label: 'Suffix',
+                          controller: _suffix,
+                          visualDensityY: 0,
+                          textSize: 16,
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterTextareaFieldPlaceholderRequired(controller: _presentAddress, placeholder: "Present Address (House No./Barangay/Municipality/Province)"),
-                        const SizedBox(height: 15),
                         AppSelect<String>(
                           items: caviteLocations,
                           value: _selectedCitmun,
                           placeholder: "City/Municipality",
                           getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
                           onChanged: (value) {
                             setState(() {
                               _selectedCitmun = value;
@@ -191,6 +219,14 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                             });
                           },
                           required: true,
+                        ),
+                        const SizedBox(height: 15),
+                        AppInputField(
+                          label: 'Present Address (House No./Barangay/Municipality/Province)',
+                          controller: _presentAddress,
+                          visualDensityY: 0,
+                          textSize: 16,
+                          maxLine: 3,
                         ),
                         const SizedBox(height: 15.0),
                         DateTimeFormField(
@@ -212,100 +248,108 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                           },
                           onChanged: (DateTime? value) {
                             setState(() {
-                              _selectedDate = value; // 👈 save selected date
+                              _selectedDate = value;
                             });
-                            print('Selected date: $_selectedDate');
                           },
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterDrowdownSelectRequired(
+                        AppSelect<String>(
                           items: civilStatus,
-                          initialValue: _civilStatus,
-                          placeholder: 'Civil Status',
+                          value: _selectedCivilStatus,
+                          placeholder: "Civil Status",
+                          getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
                           onChanged: (value) {
                             setState(() {
-                              _civilStatus = value;
+                              _selectedCivilStatus = value;
+                              _civilStatus.text = value ?? "";
                             });
                           },
+                          required: true,
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterDrowdownSelectRequired(
+                        AppSelect<String>(
                           items: genders,
-                          initialValue: _sex,
-                          placeholder: 'Sex',
+                          value: _selectedSex,
+                          placeholder: "Sex",
+                          getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
                           onChanged: (value) {
                             setState(() {
-                              _sex = value;
+                              _selectedSex = value;
+                              _sex.text = value ?? "";
                             });
                           },
+                          required: true,
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(controller: _religion, placeholder: "Religion"),
+                        AppInputField(
+                          label: 'Religion',
+                          controller: _religion,
+                          visualDensityY: 0,
+                          textSize: 16,
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholder(controller: _tin, placeholder: "TIN Number", obscureText: true, obscuringCharacter: 'X',),
+                        AppInputField(
+                          label: 'TIN Number',
+                          controller: _tin,
+                          visualDensityY: 0,
+                          textSize: 16,
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterDrowdownSelect(items: disabilities, initialValue: _disability, placeholder: 'Disability', onChanged: (value) { setState(() { _disability = value; }); }),
+                        AppSelect<String>(
+                          items: disabilities,
+                          value: _selectedDisability,
+                          placeholder: "Disability",
+                          getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedDisability = value;
+                              _disability.text = value ?? "";
+                            });
+                          },
+                          required: true,
+                        ),
                         const SizedBox(height: 15.0),
-                        DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                            labelText: 'Employment Status',
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                            ),
-                          ),
-                          initialValue: _employmentStatus,
-                          items: employmentStatus.map((gender) {
-                            return DropdownMenuItem<String>(
-                              value: gender,
-                              child: Text(gender),
-                            );
-                          }).toList(),
+                        AppSelect(
+                          items: employmentStatus, 
+                          placeholder: "Employment Status",
+                          getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
                           onChanged: (String? newValue) {
                             setState(() {
                               _employmentStatus = newValue;
                               _employmentType = null;
                             });
                           },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'This field is required';
-                            }
-                            return null;
-                          },
+                          required: true,
+                          validatorMessage: "This field is required.",
                         ),
                         const SizedBox(height: 15.0),
-                        DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                            labelText: 'Employment Type',
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                          ),
+                        AppSelect(
+                          items: _employmentStatus == "Employed" ? employedTypes : unemployedTypes, 
+                          placeholder: "Employment Type",
                           value: _employmentType,
-                          items: (_employmentStatus == 'Employed'
-                                  ? employedTypes
-                                  : _employmentStatus == 'Unemployed'
-                                      ? unemployedTypes
-                                      : [])
-                              .map((type) => DropdownMenuItem<String>(
-                                    value: type,
-                                    child: Text(type),
-                                  ))
-                              .toList(),
-                          onChanged: (String? newType) {
+                          getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
+                          onChanged: (String? newValue) {
                             setState(() {
-                              _employmentType = newType;
+                              _employmentType = newValue;
                             });
                           },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select employment type';
-                            }
-                            return null;
-                          },
+                          required: true,
+                          validatorMessage: "This field is required.",
                         ),
                         const SizedBox(height: 15),
                         AppSelect<String>(
@@ -313,6 +357,9 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                           value: _selectedClientele,
                           placeholder: "Clientele",
                           getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
                           onChanged: (value) {
                             setState(() {
                               _selectedClientele = value;
@@ -322,9 +369,35 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                           required: true,
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterDrowdownSelect(items: isOfw, initialValue: _isOfw, placeholder: 'Are you an OFW', onChanged: (value) { setState(() { _isOfw = value; }); }),
+                        AppSelect<String>(
+                          items: const ["Yes", "No"],
+                          placeholder: "Are you an OFW?",
+                          getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
+                          onChanged: (value) {
+                            setState(() {
+                              _isOfw = value;
+                            });
+                          },
+                          required: true,
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterDrowdownSelect(items: isFormerOfw, initialValue: _isFormerOfw, placeholder: 'Are you a former OFW', onChanged: (value) { setState(() { _isFormerOfw = value; }); }),
+                        AppSelect<String>(
+                          items: const ["Yes", "No"],
+                          placeholder: "Are you a former OFW?",
+                          getLabel: (item) => item,
+                          visualDensityY: 1,
+                          textSize: 16,
+                          borderColor: AppColor.muted,
+                          onChanged: (value) {
+                            setState(() {
+                              _isFormerOfw = value;
+                            });
+                          },
+                          required: true,
+                        ),
                         const SizedBox(height: 20.0),
                         RegisterNextButton(registerUser: _nextForm),
                       ],

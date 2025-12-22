@@ -20,14 +20,11 @@ class AppSelect<T> extends StatelessWidget {
   final Color borderColor;
   final Color fillColor;
   final double? width;
-
   final double textSize;
   final bool hideIcon;
-
   final bool required;
-
-  // ⭐ NEW: visualDensityY
   final double visualDensityY;
+  final String validatorMessage;
 
   const AppSelect({
     super.key,
@@ -46,8 +43,7 @@ class AppSelect<T> extends StatelessWidget {
     this.textSize = 14.0,
     this.hideIcon = false,
     this.required = false,
-
-    // ⭐ default same as AppInputField
+    this.validatorMessage = "This fields is required.",  
     this.visualDensityY = -2.0,
   });
 
@@ -65,7 +61,7 @@ class AppSelect<T> extends StatelessWidget {
         // ⭐ REQUIRED VALIDATOR
         validator: (val) {
           if (required && val == null) {
-            return "This field is required";
+            return validatorMessage;
           }
           return null;
         },

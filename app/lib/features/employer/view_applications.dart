@@ -1,3 +1,4 @@
+import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
@@ -110,12 +111,12 @@ class ViewApplications extends HookWidget {
       applications.value,
     ]);
 
-
-    if (loading.value) return const Loader();
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
+      body: loading.value
+        ? const Loader()
+        : SingleChildScrollView(
         child: Column(
           children: [
             Padding(
@@ -306,6 +307,7 @@ class ViewApplicationsTable extends StatelessWidget {
                     items: statuses,
                     value: selectedStatusMap.value[appId] ?? application["status"],
                     placeholder: "Status",
+                    borderColor: AppColor.muted,
                     getLabel: (item) => item,
                     onChanged: (value) async {
                       bool? confirmed = await showDialog(
@@ -327,7 +329,7 @@ class ViewApplicationsTable extends StatelessWidget {
                           ],
                         ),
                       );
-
+                      if (!context.mounted) return;
                       if (confirmed == true) {
                         selectedStatusMap.value = {
                           ...selectedStatusMap.value,
@@ -344,6 +346,7 @@ class ViewApplicationsTable extends StatelessWidget {
                     value: selectedPlacementMap.value[appId] ?? application["placement"],
                     placeholder: "Placement",
                     getLabel: (item) => item,
+                    borderColor: AppColor.muted,
                     onChanged: (value) async {
                       bool? confirmed = await showDialog(
                         context: context,
@@ -364,13 +367,12 @@ class ViewApplicationsTable extends StatelessWidget {
                           ],
                         ),
                       );
-
+                      if (!context.mounted) return;
                       if (confirmed == true) {
                         selectedPlacementMap.value = {
                           ...selectedPlacementMap.value,
                           appId: value,
                         };
-
                         _updatePlacement(context, appId, value!);
                       }
                     },
@@ -418,8 +420,9 @@ class ViewApplicationsTable extends StatelessWidget {
 
                 /// ACTION --------
                 DataCell(
-                  GestureDetector(
-                    onTap: () {
+                  AppButton(
+                    label: "View Profile",
+                    onPressed: () {
                       navigateTo(
                         context,
                         EditProfile(
@@ -430,10 +433,8 @@ class ViewApplicationsTable extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Text(
-                      'View',
-                      style: AppText.textPrimary,
-                    ),
+                    backgroundColor: AppColor.primary,
+                    visualDensityY: -2,
                   ),
                 ),
               ],

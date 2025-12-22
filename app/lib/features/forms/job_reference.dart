@@ -15,12 +15,12 @@ const caviteLocations = ["Alfonso","Amadeo","Bacoor City","Carmona","Cavite City
 
 class JobReferenceForm extends StatefulWidget {
   final int userId;
-  final bool fromProfile; // ✅ added same as in PersonalInformationForm
+  final bool fromProfile; 
 
   const JobReferenceForm({
     super.key,
     required this.userId,
-    this.fromProfile = false, // ✅ default value
+    this.fromProfile = false, 
   });
 
   @override
@@ -35,7 +35,6 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
   String? _selectedLocation2;
   String? _selectedLocation3;
 
-
   final TextEditingController _occupation1 = TextEditingController();
   final TextEditingController _occupation2 = TextEditingController();
   final TextEditingController _occupation3 = TextEditingController();
@@ -44,6 +43,7 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
   final TextEditingController _location3 = TextEditingController();
   String? _occupationType;
   String? _locationType;
+  
 
   @override
   void dispose() {
@@ -166,80 +166,64 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                           ),
                         ),
                         const SizedBox(height: 20.0),
-
-                        DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 10.0),
-                            labelText: 'Occupation Type',
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Color.fromARGB(255, 193, 193, 193)),
-                            ),
-                          ),
-                          initialValue: _occupationType,
-                          items: occupationTypes.map((item) {
-                            return DropdownMenuItem<String>(
-                              value: item,
-                              child: Text(item),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
+                        AppSelect<String>(
+                          items: occupationTypes,
+                          value: _occupationType,
+                          placeholder: "Occupation Type",
+                          getLabel: (item) => item,
+                          required: true,
+                          borderColor: AppColor.muted,
+                          textSize: 16,
+                          visualDensityY: 0,
+                          validatorMessage: "This field is required.",
+                          onChanged: (value) {
                             setState(() {
-                              _occupationType = newValue;
+                              _occupationType = value;
                             });
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'This field is required';
-                            }
-                            return null;
                           },
                         ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(
-                            controller: _occupation1,
-                            placeholder: "Preferred Occupation 1"),
+                        AppInputField(
+                          label: "Preferred Occupation 1",
+                          controller: _occupation1,
+                          required: true,
+                          textSize: 16,
+                          visualDensityY: 0,
+                          validatorMessage: "This field is required.",
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(
-                            controller: _occupation2,
-                            placeholder: "Preferred Occupation 2"),
+                        AppInputField(
+                          label: "Preferred Occupation 2",
+                          controller: _occupation2,
+                          required: true,
+                          textSize: 16,
+                          visualDensityY: 0,
+                          validatorMessage: "This field is required.",
+                        ),
                         const SizedBox(height: 15.0),
-                        RegisterTextFieldPlaceholderRequired(
-                            controller: _occupation3,
-                            placeholder: "Preferred Occupation 3"),
+                        AppInputField(
+                          label: "Preferred Occupation 3",
+                          controller: _occupation3,
+                          required: true,
+                          textSize: 16,
+                          visualDensityY: 0,
+                          validatorMessage: "This field is required.",
+                        ),
                         const SizedBox(height: 30.0),
-                        DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 10.0),
-                            labelText: 'Location Type',
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Color.fromARGB(255, 193, 193, 193)),
-                            ),
-                          ),
-                          initialValue: _locationType,
-                          items: locationTypes.map((item) {
-                            return DropdownMenuItem<String>(
-                              value: item,
-                              child: Text(item),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
+                        AppSelect<String>(
+                          items: locationTypes,
+                          value: _locationType,
+                          placeholder: "Location Type",
+                          getLabel: (item) => item,
+                          required: true,
+                          borderColor: AppColor.muted,
+                          textSize: 16,
+                          visualDensityY: 0,
+                          validatorMessage: "This field is required.",
+                          onChanged: (value) {
                             setState(() {
-                              _locationType = newValue;
+                              _locationType = value;
                             });
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'This field is required';
-                            }
-                            return null;
                           },
                         ),
                         const SizedBox(height: 15.0),
@@ -247,72 +231,78 @@ class _JobReferenceFormState extends State<JobReferenceForm> {
                           ? AppInputField(
                               label: "Preferred Work Location 1",
                               controller: _location1,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "This field is required";
-                                }
-                                return null;
-                              },
+                              textSize: 16,
+                              visualDensityY: 0,
+                              required: true,
+                              validatorMessage: "This field is required",
                             )
                           : AppSelect<String>(
                               items: caviteLocations,
                               value: _selectedLocation1,
                               placeholder: "Preferred Work Location 1",
                               getLabel: (item) => item,
+                              textSize: 16,
+                              visualDensityY: 0,
                               onChanged: (value) {
                                 setState(() {
                                   _selectedLocation1 = value;
                                   _location1.text = value ?? "";
                                 });
                               },
+                              required: true,
+                              validatorMessage: "This field is required",
                             ),
                         const SizedBox(height: 15.0),
                         _locationType == "Overseas"
                           ? AppInputField(
                               label: "Preferred Work Location 2",
                               controller: _location2,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "This field is required";
-                                }
-                                return null;
-                              },
+                              textSize: 16,
+                              visualDensityY: 0,
+                              required: true,
+                              validatorMessage: "This field is required",
                             )
                           : AppSelect<String>(
                               items: caviteLocations,
                               value: _selectedLocation2,
                               placeholder: "Preferred Work Location 2",
                               getLabel: (item) => item,
+                              textSize: 16,
+                              visualDensityY: 0,
                               onChanged: (value) {
                                 setState(() {
                                   _selectedLocation2 = value;
                                   _location2.text = value ?? "";
                                 });
                               },
+                              required: true,
+                              validatorMessage: "This field is required",
                             ),
                         const SizedBox(height: 15.0),
                         _locationType == "Overseas"
                           ? AppInputField(
                               label: "Preferred Work Location 3",
                               controller: _location3,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "This field is required";
-                                }
-                                return null;
-                              },
+                              textSize: 16,
+                              visualDensityY: 0,
+                              required: true,
+                              validatorMessage: "This field is required",
                             )
                           : AppSelect<String>(
                               items: caviteLocations,
                               value: _selectedLocation3,
                               placeholder: "Preferred Work Location 3",
                               getLabel: (item) => item,
+                              textSize: 16,
+                              visualDensityY: 0,
                               onChanged: (value) {
                                 setState(() {
                                   _selectedLocation3 = value;
                                   _location3.text = value ?? "";
                                 });
                               },
+                              required: true,
+                              validatorMessage: "This field is required",
                             ),
                         const SizedBox(height: 15.0),
                         RegisterNextButton(registerUser: _nextForm),

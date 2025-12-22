@@ -178,6 +178,8 @@ class _EducationalBackgroundState extends State<EducationalBackgroundForm> {
                           value: _highestEducation,
                           placeholder: "Highest Educational Attainment",
                           getLabel: (item) => item,
+                          borderColor: AppColor.muted,
+                          visualDensityY: 0,
                           onChanged: (value) {
                             setState(() {
                               _highestEducation = value;

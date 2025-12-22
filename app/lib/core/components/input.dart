@@ -14,13 +14,11 @@ class AppInputField extends StatelessWidget {
   final void Function(String)? onChanged;
   final bool? isEnabled;
   final int? maxLine;
-
   final double textSize;
   final double visualDensityY;
-
   final bool numericOnly;
-
   final bool required;
+  final String validatorMessage;
 
   const AppInputField({
     super.key,
@@ -38,6 +36,7 @@ class AppInputField extends StatelessWidget {
     this.visualDensityY = -2,
     this.numericOnly = false,
     this.required = false,
+    this.validatorMessage = "This field is required.",
   });
 
   @override
@@ -54,7 +53,7 @@ class AppInputField extends StatelessWidget {
 
       validator: (value) {
         if (required && (value == null || value.trim().isEmpty)) {
-          return "This field is required";
+          return validatorMessage;
         }
         if (validator != null) return validator!(value);
         return null;

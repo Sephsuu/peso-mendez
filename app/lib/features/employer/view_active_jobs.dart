@@ -87,11 +87,12 @@ class ViewActiveJobs extends HookWidget {
       } return null;
     }, [selectedJob.value, jobs.value]);
 
-    if (loading.value) return const Loader();
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
+      body: loading.value 
+        ? const Loader()
+        : SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         child: Column(
           children: [
@@ -112,7 +113,7 @@ class ViewActiveJobs extends HookWidget {
             const Footer()
           ],
         ),
-      ),
+      )
     );
   }
 }
