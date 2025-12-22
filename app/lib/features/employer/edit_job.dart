@@ -1,13 +1,24 @@
+import 'package:app/core/components/badge.dart';
+import 'package:app/core/components/button.dart';
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/job_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
+const caviteLocations = [
+  "Alfonso","Amadeo","Bacoor City","Carmona","Cavite City","Cavite Province",
+  "City of General Trias","Dasmariñas City","General Emilio Aguinaldo",
+  "General Mariano Alvarez","Imus City","Indang","Kawit","Magallanes",
+  "Maragondon","Mendez","Naic","Noveleta","Rosario","Silang",
+  "Tagaytay City","Tanza","Ternate","Trece Martires City"
+];
 
 class EditJob extends HookWidget {
   final Map<String, dynamic> job;
@@ -19,7 +30,30 @@ class EditJob extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loading = useState(true);
     final updateJob = useState<Map<String, dynamic>>(job);
+    final selectedSkills = useState<List<String>>([]);
+    final selectedCitmun = useState<String?>(job["citmun"]);
+
+    useEffect(() {
+      Future<void> fetchData() async {
+        try {
+          final data = await JobService.getJobSkills(job["id"]);
+          selectedSkills.value = data.map<String>((e) => e["skill"]).toList();
+          loading.value = false;
+        } catch (e) {
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context,
+            message: "$e",
+            backgroundColor: AppColor.danger,
+          );
+        }
+      }
+
+      fetchData();
+      return null;
+    }, []);
 
     void onFieldChanged(String key, dynamic value) {
       updateJob.value = {
@@ -28,221 +62,196 @@ class EditJob extends HookWidget {
       };
     }
 
-    // Handles job update
-    void handleUpdate() async {
+    Future<void> handleUpdate() async {
       try {
         final data = await JobService.updateJob(updateJob.value);
         if (data.isNotEmpty) {
+          // await JobService.updateJobSkills(
+          //   updateJob.value["id"],
+          //   selectedSkills.value,
+          // );
           if (!context.mounted) return;
           AppSnackbar.show(
-            context, 
+            context,
             message: "Job updated successfully.",
-            backgroundColor: AppColor.success
+            backgroundColor: AppColor.success,
           );
           navigateTo(context, const EmployerDashboard());
         }
       } catch (e) {
         if (!context.mounted) return;
         AppSnackbar.show(
-          context, 
+          context,
           message: "$e",
-          backgroundColor: AppColor.danger
+          backgroundColor: AppColor.danger,
         );
       }
     }
 
+    if (loading.value) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
-      appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
+      appBar: AppNavigationBar(
+        title: 'Mendez PESO Job Portal',
+        onMenuPressed: (context) {
+          Scaffold.of(context).openDrawer();
+        },
+      ),
       endDrawer: const OffcanvasNavigation(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const EditJobHeader(),
+            Text('✏️ Edit Job Post',
+                style: AppText.textXl.merge(AppText.fontSemibold)),
             const SizedBox(height: 20),
-            EditJobForm(job: updateJob.value, onFieldChanged: onFieldChanged),
+            const Text('Job title'),
+            const SizedBox(height: 5),
+            AppInputField(
+              label: '',
+              initialValue: updateJob.value["title"],
+              required: true,
+              visualDensityY: 0,
+              validatorMessage: "This field is required.",
+              onChanged: (v) => onFieldChanged("title", v),
+            ),
+            const SizedBox(height: 10),
+            const Text('Company'),
+            const SizedBox(height: 5),
+            AppInputField(
+              label: '',
+              initialValue: updateJob.value["company"],
+              required: true,
+              visualDensityY: 0,
+              validatorMessage: "This field is required.",
+              onChanged: (v) => onFieldChanged("company", v),
+            ),
+            const SizedBox(height: 10),
+          const Text('Job Location'),
+          const SizedBox(height: 5),
+            AppInputField(
+              label: '',
+              initialValue: updateJob.value["location"],
+              required: true,
+              visualDensityY: 0,
+              validatorMessage: "This field is required.",
+              onChanged: (v) => onFieldChanged("location", v),
+            ),
+            const SizedBox(height: 10),
+            Text('City/Municipality', style: AppText.textSm),
+            const SizedBox(height: 5),
+            AppSelect<String>(
+              items: caviteLocations,
+              value: selectedCitmun.value,
+              getLabel: (e) => e,
+              visualDensityY: 2,
+              onChanged: (v) {
+                if (v != null) {
+                  selectedCitmun.value = v;
+                  onFieldChanged("citmun", v);
+                }
+              },
+            ),
+            const SizedBox(height: 10),
+            Text('Job Type', style: AppText.textSm),
+            const SizedBox(height: 5),
+            AppSelect<String>(
+              items: const ["Full-Time", "Part-Time"],
+              value: updateJob.value["type"],
+              getLabel: (e) => e,
+              visualDensityY: 2,
+              onChanged: (v) {
+                if (v != null) onFieldChanged("type", v);
+              },
+            ),
+            const SizedBox(height: 10),
+            const Text('Salary'),
+            const SizedBox(height: 5),
+            AppInputField(
+              label: 'Salary',
+              numericOnly: true,
+              initialValue: updateJob.value["salary"].toString(),
+              onChanged: (v) {
+                final n = double.tryParse(v);
+                if (n != null) onFieldChanged("salary", n);
+              },
+            ),
+            const SizedBox(height: 10),
+            const Text('Job Description'),
+            const SizedBox(height: 5),
+            AppInputField(
+              label: 'Job Description',
+              initialValue: updateJob.value["description"],
+              maxLine: 4,
+              onChanged: (v) => onFieldChanged("description", v),
+            ),
             const SizedBox(height: 20),
-            EditJobButtons(handleUpdate: handleUpdate),
+
+            const Text('Required Skills'),
+            const SizedBox(height: 10),
+
+            if (selectedSkills.value.isEmpty)
+              Text("No selected skill for the job.",
+                  style: AppText.textMuted),
+
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final width = (constraints.maxWidth - 8) / 2;
+
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children:
+                      List.generate(selectedSkills.value.length, (index) {
+                    return SizedBox(
+                      width: width,
+                      child: GestureDetector(
+                        onTap: () {
+                          selectedSkills.value =
+                              [...selectedSkills.value]..removeAt(index);
+                        },
+                        child: AppBadge(
+                          text: selectedSkills.value[index],
+                          color: AppColor.primary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                );
+              },
+            ),
+
+            const SizedBox(height: 30),
+
+            Row(
+              children: [
+                AppButton(
+                  label: '💾 Save Changes',
+                  onPressed: handleUpdate,
+                  backgroundColor: AppColor.success,
+                ),
+                const SizedBox(width: 10),
+                AppButton(
+                  label: 'Cancel',
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  backgroundColor: AppColor.secondary,
+                ),
+              ],
+            ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class EditJobHeader extends StatelessWidget {
-  const EditJobHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text('✏️ Edit Job Post', style: AppText.textXl.merge(AppText.fontSemibold)),
-        GestureDetector(
-          child: Text('⬅️ Back', style: AppText.textPrimary,),
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class EditJobForm extends StatelessWidget {
-  final Map<String, dynamic> job;
-  final void Function(String fieldName, dynamic value) onFieldChanged;
-
-  const EditJobForm({
-    super.key,
-    required this.job,
-    required this.onFieldChanged
-  });
-  @override
-  Widget build(BuildContext context) {
-    final List<String> jobTypes = ["Full-Time", "Part-Time"];
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextFormField(
-          initialValue: job["title"],
-          decoration: const InputDecoration(
-            labelText: 'Job Title',
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            border: OutlineInputBorder(),  // Adds a default outline border
-          ),
-          onChanged: (value) => onFieldChanged("title", value),
-        ),
-        const SizedBox(height: 15),
-        TextFormField(
-          initialValue: job["company"],
-          decoration: const InputDecoration(
-            labelText: 'Company',
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            border: OutlineInputBorder(),  // Adds a default outline border
-          ),
-          onChanged: (value) => onFieldChanged("company", value),
-        ),
-        const SizedBox(height: 15),
-        TextFormField(
-          initialValue: job["location"],
-          decoration: const InputDecoration(
-            labelText: 'Job Location',
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            border: OutlineInputBorder(),  // Adds a default outline border
-          ),
-          onChanged: (value) => onFieldChanged("location", value),
-        ),
-        const SizedBox(height: 15),
-        DropdownButtonFormField<String>(
-          decoration: const InputDecoration(
-            labelText: 'Job Type',
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            border: OutlineInputBorder(),
-          ),
-          value: job["type"],  // current selected value
-          items: jobTypes.map((item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: (value) {
-            if (value != null) {
-              onFieldChanged("type", value);
-            }
-          },
-        ),
-        const SizedBox(height: 15),
-        TextFormField(
-          initialValue: job["salary"].toString(),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(
-              RegExp(r'^\d*\.?\d{0,2}$'), // numbers + optional decimal up to 2 places
-            ),
-          ],
-          decoration: const InputDecoration(
-            labelText: 'Job Salary',
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) {
-            // Empty → treat as 0 or null
-            if (value.trim().isEmpty) {
-              onFieldChanged("salary", 0);
-              return;
-            }
-
-            // Parse numeric value
-            final numeric = double.tryParse(value.replaceAll(",", ""));
-            if (numeric != null) {
-              onFieldChanged("salary", numeric);
-            }
-          },
-        ),
-        const SizedBox(height: 15),
-        TextFormField(
-          maxLines: 3,
-          initialValue: job["description"],
-          decoration: const InputDecoration(
-            labelText: 'Job Description',
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            border: OutlineInputBorder(),  // Adds a default outline border
-          ),
-          onChanged: (value) => onFieldChanged("description", value),
-        ),
-      ],
-    );
-  }
-}
-
-class EditJobButtons extends StatelessWidget {
-  final VoidCallback handleUpdate;
-
-  const EditJobButtons({
-    super.key,
-    required this.handleUpdate,
-  }); 
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: AppColor.light,
-            backgroundColor: AppColor.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4)
-            )
-          ),
-          onPressed: handleUpdate, 
-          child: const Text("💾 Save Changes")
-        ),
-        const SizedBox(width: 10),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: AppColor.light,
-            backgroundColor: AppColor.secondary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4)
-            )
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          }, 
-          child: const Text("Cancel")
-        ),
-      ],
     );
   }
 }
