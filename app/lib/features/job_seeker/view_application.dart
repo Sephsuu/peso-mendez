@@ -156,11 +156,11 @@ class ViewApplicationCover extends StatelessWidget {
       width: double.infinity,  // full width
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,    // gradient start point
-          end: Alignment.bottomRight,  // gradient end point
+          begin: Alignment.topLeft,   
+          end: Alignment.bottomRight, 
           colors: [
-            Color.fromARGB(255, 32, 64, 192),               // start color
-            Color.fromARGB(255, 104, 129, 255),              // end color
+            Color.fromARGB(255, 32, 64, 192),           
+            Color.fromARGB(255, 104, 129, 255),             
           ],
         ),
       ),

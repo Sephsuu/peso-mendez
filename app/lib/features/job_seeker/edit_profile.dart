@@ -38,7 +38,7 @@ class EditProfile extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
-    final activeClaim = employerClaim ?? claims; // ✅ Use employerClaim if available
+    final activeClaim = employerClaim ?? claims; 
 
     final open = useState(false);
     final section = useState('Credentials');

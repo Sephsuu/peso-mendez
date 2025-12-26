@@ -246,12 +246,13 @@ class Credentials extends HookWidget {
               Text('Account Created:', style: AppText.fontBold),
               Text(formatDateTime(credentials.value['created_at'])),
               const SizedBox(height: 100),
-              Center(
-                child: AppButton(
-                  label: "Change Password", 
-                  onPressed: () => navigateTo(context, ChangePassword(userId: claims['id']))
+              if (claims["role"] == "job_seeker")
+                Center(
+                  child: AppButton(
+                    label: "Change Password", 
+                    onPressed: () => navigateTo(context, ChangePassword(userId: claims['id']))
+                  ),
                 ),
-              ),
               const SizedBox(height: 20),
             ],
           ),
@@ -430,6 +431,7 @@ class ResumeCard extends HookWidget {
                         : () async {
                             await pickFile();
                             if (pickedFile.value != null) {
+                              if (!context.mounted) return;
                               showDialog(
                                 context: context,
                                 builder: (_) => AppModal(

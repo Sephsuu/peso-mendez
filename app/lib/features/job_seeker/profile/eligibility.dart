@@ -101,21 +101,23 @@ class Eligibility extends HookWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Please fill out your eligibilities to continue.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
+              if (claims["role"] == "job_seeker")
+                const Text(
+                  'Please fill out your eligibilities to continue.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
                 ),
-              ),
               const SizedBox(height: 24),
-              AppButton(
-                label: 'Fill Out Information',
-                backgroundColor: AppColor.primary,
-                foregroundColor: AppColor.light,
-                onPressed: () => navigateTo(context, EligibilityPRCForm(userId: claims['id'], fromProfile: true)), // opens modal form
-              ),
+              if (claims["role"] == "job_seeker")
+                AppButton(
+                  label: 'Fill Out Information',
+                  backgroundColor: AppColor.primary,
+                  foregroundColor: AppColor.light,
+                  onPressed: () => navigateTo(context, EligibilityPRCForm(userId: claims['id'], fromProfile: true)), // opens modal form
+                ),
             ],
           ),
         ),
