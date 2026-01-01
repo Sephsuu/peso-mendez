@@ -1,6 +1,9 @@
 
 import express from 'express';
 import * as userQuery from '../queries/user.query.js';
+import { generateResumePDF } from '../utils/genereateResume.js';
+import fs from "fs";
+import path from "path";
 
 const router = express.Router();
 
@@ -55,7 +58,6 @@ router.get('/get-credentials', async (req, res) => {
 		res.status(500).json({ error: err.message });
 	}
 })
-
 
 router.get('/get-personal-information', async (req, res) => {
 	const { id } = req.query;
@@ -142,6 +144,51 @@ router.get('/get-other-skills', async (req, res) => {
 	try {
 		const query = await userQuery.getUserOtherSkills(id);
 		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
+router.get('/generate-resume', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const resumePath = path.join(
+            process.cwd(),
+            "uploads",
+            "job-seeker-resume",
+            `${id}_resume.pdf`
+        );
+
+        if (fs.existsSync(resumePath)) {
+            fs.unlinkSync(resumePath);
+        }
+
+		const credentials = await userQuery.getUserCredentials(id);
+		const personal_information = await userQuery.getUserPersonalInformation(id);
+		const job_reference = await userQuery.getUserJobReference(id);
+		const language_proficiency = await userQuery.getUserLanguageProcefiency(id);
+		const educational_background = await userQuery.getUserEducationalBackground(id);
+		const tech_voc = await userQuery.getUserTechVocTrainings(id);
+		const eligibility = await userQuery.getUserEligibility(id);
+		const professional_license = await userQuery.getUserProfessionalLicense(id);
+		const work_experience = await userQuery.getUserWorkExperience(id);
+		const other_skills = await userQuery.getUserOtherSkills(id);
+
+		const resume = {
+			credentials,
+			personal_information,
+			job_reference,
+			language_proficiency,
+			educational_background,
+			tech_voc,
+			eligibility,
+			professional_license,
+			work_experience,
+			other_skills,
+		};
+
+		generateResumePDF(resume, id, res);
+
 	} catch (err) {
 		res.status(500).json({ error: err.message });
 	}

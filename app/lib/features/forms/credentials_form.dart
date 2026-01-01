@@ -121,8 +121,9 @@ class _RegisterFormState extends State<RegisterForm> {
           } else { 
             AppSnackbar.show(
               context, 
-              message: 'You are successfully registered. Please fill up the following forms.',
-              backgroundColor: AppColor.success
+              message: 'Please check your email and verify your account.',
+              backgroundColor: AppColor.success,
+              durationSeconds: 10,
             );
             navigateTo(context, PersonalInformationForm(userId: res["userId"])); 
           }

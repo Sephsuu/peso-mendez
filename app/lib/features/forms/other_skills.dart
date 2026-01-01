@@ -52,6 +52,12 @@ class _OtherSkillsFormState extends State<OtherSkillsForm> {
           });
         }
         if (!mounted) return;
+        AppSnackbar.show(
+            context,
+            message:
+                'Skills updated successfully.',
+            backgroundColor: AppColor.success,
+          );
         widget.fromProfile ? Navigator.pop(context) : navigateTo(context, const Login());
       } catch (e) {
         if (!mounted) return;

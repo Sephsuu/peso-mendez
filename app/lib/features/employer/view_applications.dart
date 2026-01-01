@@ -9,12 +9,13 @@ import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/_endpoint.dart';
 import 'package:app/core/services/application_service.dart';
+import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 final placements = ["Hired (Local - Private)","Hired (Local - Government)","Hired (Overseas)","Not Hired","Undergone Training","Provided Livelihood","Not Applicable"];
 final statuses = ["Sent", "Reviewed", "Interview", "Rejected", "Hired"];
@@ -240,9 +241,40 @@ class ViewApplicationsTable extends StatelessWidget {
     }
   }
 
+  void viewResume(int userId, BuildContext context) async {
+    try {
+      await UserService.generateResume(userId);
+      print("JEOB $userId");
+      final rawUrl = "$BASE_URL/uploads/job-seeker-resume/${userId}_resume.pdf";
+
+      final viewerUrl = "https://docs.google.com/gview?embedded=true&url=$rawUrl";
+      if (!context.mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Scaffold(
+            appBar: AppBar(title: const Text("Applicant Resume")),
+            body: InAppWebView(
+              initialUrlRequest: URLRequest(
+                url: WebUri(viewerUrl),
+              ),
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      AppSnackbar.show(
+        context,
+        message: "Applicant resume is not available.",
+        backgroundColor: AppColor.danger,
+      );
+    }
+  }
+
   void _updatePlacement(BuildContext context, int id, String placement) async {
     try {
       final data = await ApplicationService.updateApplicationPlacement(id, placement);
+      
       if (data.isNotEmpty) {
         if (!context.mounted) return;
         AppSnackbar.show(
@@ -383,30 +415,7 @@ class ViewApplicationsTable extends StatelessWidget {
                   application["document_path"] != null &&
                           application["document_path"].toString().isNotEmpty
                       ? GestureDetector(
-                          onTap: () async {
-                            final String filePath =
-                                application["document_path"];
-                            final String fullUrl = filePath.startsWith("http")
-                                ? filePath
-                                : "$BASE_URL/$filePath";
-
-                            final Uri uri = Uri.parse(fullUrl);
-
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            } else {
-                              if (context.mounted) {
-                                AppSnackbar.show(
-                                  context,
-                                  message: "Cannot open document",
-                                  backgroundColor: AppColor.danger,
-                                );
-                              }
-                            }
-                          },
+                          onTap: () => viewResume(application["job_seeker_id"], context),
                           child: const Text(
                             'View Resume',
                             style: TextStyle(

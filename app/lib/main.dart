@@ -526,7 +526,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _getPage() {
     switch (_currentPage) {
       case PageType.home:
-        return const EducationalBackgroundForm(userId: 13);
+        return const Login();
       case PageType.register:
         return const Register();
       case PageType.login:

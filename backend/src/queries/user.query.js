@@ -144,7 +144,7 @@ export async function getUserOtherSkills(id) {
     return rows ?? [];
 } 
 
-export async function registerUser(fullName, email, contactNumber, username, password, role) {
+export async function registerUser(fullName, email, contactNumber, username, password, role, verificationToken, tokenExpiry) {
     const checkQuery = `
         SELECT 1 FROM users WHERE email = ? OR username = ? LIMIT 1
     `;
@@ -159,8 +159,8 @@ export async function registerUser(fullName, email, contactNumber, username, pas
 
     const insertQuery = `
         INSERT INTO users
-        (full_name, email, contact, username, password, role, created_at, is_active, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (full_name, email, contact, username, password, role, created_at, is_active, status, is_verified, verification_token, verification_token_expires)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, false, ?, ?)
     `;
 
     const [result] = await pool.query(insertQuery, [
@@ -173,9 +173,38 @@ export async function registerUser(fullName, email, contactNumber, username, pas
         now,
         1,         
         'active',   
+        verificationToken,
+        tokenExpiry
     ]);
 
     return result.insertId;
+}
+
+export async function findByVerificationToken(token) {
+    const [rows] = await pool.query(
+        `
+        SELECT id, verification_token_expires
+        FROM users
+        WHERE verification_token = ?
+        `,
+        [token]
+    );
+
+    return rows.length ? rows[0] : null;
+}
+
+export async function verifyUser(userId) {
+    await pool.query(
+        `
+        UPDATE users
+        SET
+            is_verified = true,
+            verification_token = NULL,
+            verification_token_expires = NULL
+        WHERE id = ?
+        `,
+        [userId]
+    );
 }
 
 export async function createPersonalinformation(personalInfo) {

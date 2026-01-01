@@ -1,4 +1,6 @@
 import pool from "../../db.js"
+import fs from "fs";
+import path from "path";
 
 export async function getAllUserIds() {
     const [rows]  = await pool.query(
@@ -72,4 +74,19 @@ export async function getUserByVerification(id) {
     );
 
     return rows.length > 0 ? [rows[0].employer_id] : null;
+}
+
+export function findResumeFile(userId) {
+    const resumePath = path.join(
+        process.cwd(),
+        "uploads",
+        "job-seeker-resume",
+        `${userId}_resume.pdf`
+    );
+
+    if (!fs.existsSync(resumePath)) {
+        return null;
+    }
+
+    return resumePath;
 }

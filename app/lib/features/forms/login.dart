@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/_endpoint.dart';
+import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/services/token_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
@@ -47,11 +49,45 @@ class LoginForm extends StatefulWidget {
   State<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _LoginFormState extends State<LoginForm> with RouteAware {
   final _formKey = GlobalKey<FormState>();
+  final _emailOrUsername = TextEditingController();
+  final _password = TextEditingController();
+  final _secureStorage = const FlutterSecureStorage();
 
-  final TextEditingController _emailOrUsername = TextEditingController();
-  final TextEditingController _password = TextEditingController();
+  bool _claimsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadClaims();
+  }
+
+  Future<void> _loadClaims() async {
+    try {
+      final claims = await AuthService.getClaims();
+
+      if (!mounted) return;
+
+      final role = claims['role'];
+
+      if (role == 'job_seeker') {
+        navigateTo(context, const JobSeekerDashboard());
+      } else if (role == 'employer') {
+        navigateTo(context, const EmployerDashboard());
+      } else if (role == 'admin') {
+        navigateTo(context, const AdminDashboard());
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) {
+        setState(() {
+          _claimsLoaded = true;
+        });
+      }
+    }
+  }
+
 
   @override
   void dispose() {
@@ -60,7 +96,6 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  final _secureStorage = const FlutterSecureStorage();
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -125,15 +160,25 @@ class _LoginFormState extends State<LoginForm> {
 
             if (role == 'job_seeker') {
               if (!mounted) return;
-              navigateTo(context, const JobSeekerDashboard());
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const JobSeekerDashboard()),
+                (route) => false,
+              );
             } else if (role == 'employer') {
               if (!mounted) return;
-              navigateTo(context, const EmployerDashboard());
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const EmployerDashboard()),
+                (route) => false,
+              );
             } else if (role == 'admin') {
               if (!mounted) return;
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const AdminDashboard(),
-              ));
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const AdminDashboard()),
+                (route) => false,
+              );
             }
           } else {
             if (!mounted) return;
@@ -163,6 +208,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       color: const Color.fromARGB(255, 244, 244, 244),
       padding: const EdgeInsets.only(top: 50.0, left: 10.0, right: 10.0, bottom: 250.0),
@@ -183,45 +229,25 @@ class _LoginFormState extends State<LoginForm> {
                 const SizedBox(height: 20.0),
                 Text('E-mail Address or Username', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                TextFormField(
+                AppInputField(
+                  label: '',
                   controller: _emailOrUsername,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    labelText: null,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    isDense: true
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email or username';
-                    }
-                    return null;
-                  },
+                  required: true,
+                  visualDensityY: 0,
+                  textSize: 16,
+                  validatorMessage: "Please fill out this field.",
                 ),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: 12.0),
                 Text('Password', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                TextFormField(
+                AppInputField(
+                  label: '',
                   controller: _password,
+                  required: true,
+                  visualDensityY: 0,
+                  textSize: 16,
+                  validatorMessage: "Please fill out this field.",
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    labelText: null,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    isDense: true
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 20.0),
                 SizedBox(

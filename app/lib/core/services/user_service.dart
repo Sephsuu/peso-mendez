@@ -1,4 +1,7 @@
 import 'package:app/core/services/_endpoint.dart';
+import 'package:http/http.dart' as http;
+import 'dart:typed_data';
+
 
 class UserService {
   static const String url = "$BASE_URL/users";
@@ -100,6 +103,18 @@ class UserService {
       '$url/get-other-skills?id=$id',
       method: 'GET'
     );
+  }
+
+  static Future<Uint8List> generateResume(int id) async {
+    final response = await http.get(
+      Uri.parse('$BASE_URL/users/generate-resume?id=$id'),
+    );
+
+    if (response.statusCode == 200) {
+      return response.bodyBytes; // ✅ PDF bytes
+    } else {
+      throw Exception('Failed to generate resume');
+    }
   }
 
   static Future<Map<String, dynamic>> createPersonalInformation(Map<String, dynamic> personalInfo) async {

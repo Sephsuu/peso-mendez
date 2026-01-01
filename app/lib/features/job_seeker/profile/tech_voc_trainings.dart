@@ -43,7 +43,7 @@ class TechVocTrainings extends HookWidget {
         if (!context.mounted) return;
         AppSnackbar.show(
           context, 
-          message: 'Credential updated successfully!',
+          message: 'TechVoc updated successfully!',
           backgroundColor: AppColor.success
         );
       } catch (e) { 
