@@ -100,7 +100,8 @@ class Credentials extends HookWidget {
           AppSnackbar.show(
             context,
             message: "You do not complete all required information to generate a resume.",
-            backgroundColor: AppColor.danger,
+            backgroundColor: AppColor.primary,
+            durationSeconds: 8
           );
           return;
         }

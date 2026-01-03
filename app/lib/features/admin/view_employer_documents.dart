@@ -1,3 +1,4 @@
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/loader.dart';
@@ -139,6 +140,7 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
             final data = await VerificationService.updateVerificationStatus(
               id,
               "approved",
+              verification?["note"],
             );
 
             // ✔ SUCCESS
@@ -181,7 +183,35 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
       context: context,
       builder: (_) => AppModal(
         title: "Reject Documents",
-        message: "Are you sure you want to reject this employer’s documents?",
+        message: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 🔥 important
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please state the reason why employer accreditation was rejected.',
+              ),
+              const SizedBox(height: 12),
+              AppInputField(
+                label: 'Reason',
+                initialValue: verification?['note'] ?? '',
+                visualDensityY: 0,
+                textSize: 16,
+                onChanged: (val) {
+                  setState(() {
+                    verification = {
+                      ...(verification ?? {}), // ✅ safe spread
+                      'note': val,
+                    };
+                  });
+                },
+              ),
+
+            ],
+          ),
+        ),
+
         confirmLabel: "Reject",
         confirmBackground: AppColor.danger,
         confirmForeground: AppColor.light,
@@ -193,9 +223,9 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
             final data = await VerificationService.updateVerificationStatus(
               id,
               "rejected",
+              verification?["note"],
             );
 
-            // ✔ SUCCESS
             if (data.isNotEmpty) {
               if (!mounted) return;
               AppSnackbar.show(
@@ -204,7 +234,7 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
                 backgroundColor: AppColor.danger,
               );
             } 
-            // ❌ FAIL BACKEND RESPONSE
+
             else {
               if (!mounted) return;
               AppSnackbar.show(
@@ -214,7 +244,6 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
               );
             }
           } catch (e) {
-            // ❌ ERROR / EXCEPTION
             if (!mounted) return;
             AppSnackbar.show(
               context,
@@ -318,6 +347,13 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
 
                   // STATUS BADGE
                   buildStatusBadge(verification?["status"] ?? "pending"),
+
+                  const SizedBox(height: 10),
+                  if (verification?["status"] == "rejected")
+                    Text("Reason:", style: AppText.fontSemibold),
+                  if (verification?["status"] == "rejected")
+                    Text(verification?["note"] ?? "Reason not specified."),
+                  const SizedBox(height: 10),
 
                   const SizedBox(height: 20),
 

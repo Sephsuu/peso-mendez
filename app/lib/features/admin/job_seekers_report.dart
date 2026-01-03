@@ -144,55 +144,61 @@ class JobSeekersTable extends StatelessWidget {
       return const Loader();
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTableTheme(
-        data: DataTableThemeData(
-          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
-          headingTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+    return Scrollbar(
+      thumbVisibility: true, 
+      thickness: 8,
+      radius: const Radius.circular(8),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 24),
+        scrollDirection: Axis.horizontal,
+        child: DataTableTheme(
+          data: DataTableThemeData(
+            headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+            headingTextStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
-        ),
-        child: DataTable(
-          headingRowHeight: 40,
-          dataRowMinHeight: 30,
-          dataRowMaxHeight: 40,
-          border: TableBorder.all(
-            color: const Color.fromARGB(255, 191, 191, 191),
-            width: 1,
-          ),
-          columns: const [
-            DataColumn(label: Text('#')),
-            DataColumn(label: Text('Full Name')),
-            DataColumn(label: Text('E-mail Address')),
-            DataColumn(label: Text('Username')),
-            DataColumn(label: Text('Contact')),
-            DataColumn(label: Text('Gender')),
-            DataColumn(label: Text('Clientele')),
-            DataColumn(label: Text('Highest Education')),
-            DataColumn(label: Text('City/Municipality')),
-            DataColumn(label: Text('Registered At')),
-          ], 
-          rows: jobSeekers.asMap().entries.map((entry) {
-          final index = entry.key;
-          final user = entry.value;         
+          child: DataTable(
+            headingRowHeight: 40,
+            dataRowMinHeight: 30,
+            dataRowMaxHeight: 40,
+            border: TableBorder.all(
+              color: const Color.fromARGB(255, 191, 191, 191),
+              width: 1,
+            ),
+            columns: const [
+              DataColumn(label: Text('#')),
+              DataColumn(label: Text('Full Name')),
+              DataColumn(label: Text('E-mail Address')),
+              DataColumn(label: Text('Username')),
+              DataColumn(label: Text('Contact')),
+              DataColumn(label: Text('Gender')),
+              DataColumn(label: Text('Clientele')),
+              DataColumn(label: Text('Highest Education')),
+              DataColumn(label: Text('City/Municipality')),
+              DataColumn(label: Text('Registered At')),
+            ], 
+            rows: jobSeekers.asMap().entries.map((entry) {
+            final index = entry.key;
+            final user = entry.value;         
 
-          return DataRow(
-            cells: [
-              DataCell(Text((index + 1).toString())),  
-              DataCell(Text(user["full_name"] ?? 'N/A')),
-              DataCell(Text(user["email"] ?? 'N/A')),
-              DataCell(Text(user["username"] ?? 'N/A')),
-              DataCell(Text(user["contact"] ?? 'N/A')),
-              DataCell(Text(user["sex"] ?? 'N/A')),
-              DataCell(Text(user["clientele"] ?? 'N/A')),
-              DataCell(Text(user["highest_education"] ?? 'N/A')),
-              DataCell(Text(user["citmun"] ?? 'N/A')),
-              DataCell(Text(user["created_at"] ?? 'N/A')),
-            ],
-          );
-        }).toList(),
+            return DataRow(
+              cells: [
+                DataCell(Text((index + 1).toString())),  
+                DataCell(Text(user["full_name"] ?? 'N/A')),
+                DataCell(Text(user["email"] ?? 'N/A')),
+                DataCell(Text(user["username"] ?? 'N/A')),
+                DataCell(Text(user["contact"] ?? 'N/A')),
+                DataCell(Text(user["sex"] ?? 'N/A')),
+                DataCell(Text(user["clientele"] ?? 'N/A')),
+                DataCell(Text(user["highest_education"] ?? 'N/A')),
+                DataCell(Text(user["citmun"] ?? 'N/A')),
+                DataCell(Text(formatDateOnly(user["created_at"]))),
+              ],
+            );
+          }).toList(),
+          ),
         ),
       ),
     );

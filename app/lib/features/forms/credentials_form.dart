@@ -1,5 +1,6 @@
 import 'package:app/core/components/input.dart';
 import 'package:app/core/components/navigation.dart';
+import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
 import 'package:app/core/services/auth_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -130,10 +131,13 @@ class _RegisterFormState extends State<RegisterForm> {
         } 
       } catch (e) {
         if (!mounted) return;
+
+        final error = e as Map<String, dynamic>;
+
         AppSnackbar.show(
-          context, 
-          message: 'Error $e',
-          backgroundColor: AppColor.danger
+            context,
+            message: 'Error ${error["error"]}',
+            backgroundColor: AppColor.danger,
         );
       }
     }
@@ -222,34 +226,21 @@ class _RegisterFormState extends State<RegisterForm> {
                 const SizedBox(height: 8.0),
                 Text('I am a:', textAlign: TextAlign.start, style: AppText.textSm),
                 const SizedBox(height: 7.0),
-                DropdownButtonFormField<String>(
-                  initialValue: _role,
-                  items: roles.map((role) {
-                    return DropdownMenuItem<String>(
-                      value: role['value'],       
-                      child: Text(role['label']!),
-                    );
-                  }).toList(),
+                AppSelect<String>(
+                  items: roles.map((role) => role['value']!).toList(),
+                  placeholder: "Select Role",
+                  getLabel: (item) =>
+                      roles.firstWhere((role) => role['value'] == item)['label']!,
+                  visualDensityY: 1,
+                  textSize: 16,
+                  borderColor: AppColor.muted,
+                  value: _role,
                   onChanged: (value) {
-                    setState(() {
-                      _role = value;
-                    });
+                      setState(() {
+                          _role = value;
+                      });
                   },
-                  decoration: const InputDecoration(
-                    labelText: 'Select Role',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color.fromARGB(255, 193, 193, 193))
-                    ),
-                    isDense: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a role';
-                    }
-                    return null; // Add this to explicitly indicate validation passed
-                  },
+                  required: true,
                 ),
                 const SizedBox(height: 20.0),
                 RegisterNextButton(registerUser: _submitForm),

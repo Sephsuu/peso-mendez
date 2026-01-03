@@ -80,7 +80,7 @@ class EmployersReport extends HookWidget {
 
     void updateVerificationStatus(int id, String status) async {
       try {
-        final data = await VerificationService.updateVerificationStatus(id, status);
+        final data = await VerificationService.updateVerificationStatus(id, status, '');
         if (data.isNotEmpty) {
           if (!context.mounted) return;
           AppSnackbar.show(
@@ -214,65 +214,106 @@ class EmployersTable extends StatelessWidget {
       return const Loader();
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTableTheme(
-        data: DataTableThemeData(
-          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
-          headingTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        child: DataTable(
-          headingRowHeight: 40,
-          dataRowMinHeight: 30,
-          dataRowMaxHeight: 40,
-          border: TableBorder.all(
-            color: const Color.fromARGB(255, 191, 191, 191),
-            width: 1,
-          ),
-          columns:  [
-            const DataColumn(label: Text('#')),
-            const DataColumn(label: Text('Full Name')),
-            const DataColumn(label: Text('E-mail Address')),
-            const DataColumn(label: Text('Username')),
-            const DataColumn(label: Text('Contact')),
-            const DataColumn(label: Text('Employer Type')),
-            const DataColumn(label: Text('Gender')),
-            const DataColumn(label: Text('Highest Education')),
-            const DataColumn(label: Text('City/Municipality')),
-            const DataColumn(label: Text('Registered At')),
-            const DataColumn(label: Text('Actions')),
-          ], 
-          rows: employers.asMap().entries.map((entry) {
-            int index = entry.key;
-            var item = entry.value;
-            return DataRow(
-              cells: [
-                DataCell(Text((index + 1).toString())),
-                DataCell(Text(item["full_name"] ?? 'N/A')),
-                DataCell(Text(item["email"] ?? 'N/A')),
-                DataCell(Text(item["username"] ?? 'N/A')),
-                DataCell(Text(item["contact"] ?? 'N/A')),
-                DataCell(Text(item["employer_type"] ?? 'N/A')),
-                DataCell(Text(item["sex"] ?? 'N/A')),
-                DataCell(Text(item["highest_education"] ?? 'N/A')),
-                DataCell(Text(item["citmun"] ?? 'N/A')),
-                DataCell(Text(item["created_at"] ?? 'N/A')),
-                DataCell(
-                  AppButton(
-                    label: 'View Documents',
-                    backgroundColor: AppColor.primary,
-                    onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["id"])),
-                    visualDensityY: -3,
-                  ),
+    if (employers.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.business_outlined,
+                size: 48,
+                color: AppColor.muted,
+              ),
+              SizedBox(height: 12),
+              Text(
+                "No employers found",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
-              ]
-            );
-          }).toList()
+              ),
+              SizedBox(height: 6),
+              Text(
+                "Try changing the filter or check again later.",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColor.muted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
-      )
+      );
+    }
+
+    return Scrollbar(
+      thumbVisibility: true, 
+      thickness: 8,
+      radius: const Radius.circular(8),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 24),
+        scrollDirection: Axis.horizontal,
+        child: DataTableTheme(
+          data: DataTableThemeData(
+            headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+            headingTextStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          child: DataTable(
+            headingRowHeight: 40,
+            dataRowMinHeight: 30,
+            dataRowMaxHeight: 40,
+            border: TableBorder.all(
+              color: const Color.fromARGB(255, 191, 191, 191),
+              width: 1,
+            ),
+            columns:  const [
+              DataColumn(label: Text('#')),
+              DataColumn(label: Text('Full Name')),
+              DataColumn(label: Text('E-mail Address')),
+              DataColumn(label: Text('Username')),
+              DataColumn(label: Text('Contact')),
+              DataColumn(label: Text('Employer Type')),
+              DataColumn(label: Text('Gender')),
+              DataColumn(label: Text('Highest Education')),
+              DataColumn(label: Text('City/Municipality')),
+              DataColumn(label: Text('Registered At')),
+              DataColumn(label: Text('Actions')),
+            ], 
+            rows: employers.asMap().entries.map((entry) {
+              int index = entry.key;
+              var item = entry.value;
+              return DataRow(
+                cells: [
+                  DataCell(Text((index + 1).toString())),
+                  DataCell(Text(item["full_name"] ?? 'N/A')),
+                  DataCell(Text(item["email"] ?? 'N/A')),
+                  DataCell(Text(item["username"] ?? 'N/A')),
+                  DataCell(Text(item["contact"] ?? 'N/A')),
+                  DataCell(Text(item["employer_type"] ?? 'N/A')),
+                  DataCell(Text(item["sex"] ?? 'N/A')),
+                  DataCell(Text(item["highest_education"] ?? 'N/A')),
+                  DataCell(Text(item["citmun"] ?? 'N/A')),
+                  DataCell(Text(formatDateOnly(item["created_at"]))),
+                  DataCell(
+                    AppButton(
+                      label: 'View Documents',
+                      backgroundColor: AppColor.primary,
+                      onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["id"])),
+                      visualDensityY: -3,
+                    ),
+                  ),
+                ]
+              );
+            }).toList()
+          ),
+        )
+      ),
     );
   }
 }

@@ -176,11 +176,26 @@ class DashboardHeader extends StatelessWidget {
         else
           Padding(
             padding: const EdgeInsets.all(8),
-            child: Text(
-              'Verification Status: ${employerVerification['status'].toUpperCase()}',
-              style: AppText.textMd.merge(AppText.fontSemibold),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min, 
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Verification Status: ${employerVerification['status'].toUpperCase()}',
+                    textAlign: TextAlign.center,
+                    style: AppText.textMd.merge(AppText.fontSemibold),
+                  ),
+                  if (employerVerification['status'] == "rejected")
+                    Text(
+                      'Reason: ${employerVerification["note"] ?? "Reason not specified."}',
+                      textAlign: TextAlign.center,
+                      style: AppText.textDanger,
+                    ),
+                ],
+              ),
             ),
-          ),
+          )
       ],
     );
   }

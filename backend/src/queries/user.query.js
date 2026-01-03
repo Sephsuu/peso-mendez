@@ -61,7 +61,7 @@ export async function getUserProfileStrength(id) {
         }
     }
 
-    return strength / tables.length;
+    return (strength + 0.1) / tables.length;
 }
 
 export async function getUserCredentials(id) {
@@ -583,10 +583,10 @@ export async function deleteOtherSkills(userId) {
 }
 
 
-export async function deactivateUser(id) {
+export async function deactivateUser(id, note) {
     await pool.query(
-        `UPDATE users SET status = "inactive" WHERE id = ?`,
-        [id]
+        `UPDATE users SET status = "inactive", note = ? WHERE id = ?`,
+        [note, id]
     );
     const [rows] = await pool.query(
         `SELECT * FROM users WHERE id = ?`,

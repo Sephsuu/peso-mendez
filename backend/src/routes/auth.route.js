@@ -45,6 +45,7 @@ router.post('/login', async (req, res) => {
       token,
       message: `Welcome ${user.full_name}`,
       status: user.status,
+      note: user.note,
       user: {
         id: user.id,
         full_name: user.full_name,
@@ -61,11 +62,9 @@ router.post("/register", async (req, res) => {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
-        // 🔐 Generate verification token
         const verificationToken = crypto.randomBytes(32).toString("hex");
         const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-        // 👤 Register user (NOT verified yet)
         const userId = await registerUser(
             fullName,
             email,
@@ -77,7 +76,6 @@ router.post("/register", async (req, res) => {
             tokenExpiry
         );
 
-        // 📧 Send verification email
         await sendVerificationEmail(email, verificationToken);
 
         /* ===== YOUR EXISTING ADMIN NOTIFICATIONS (UNCHANGED) ===== */

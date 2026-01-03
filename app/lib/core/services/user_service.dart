@@ -277,10 +277,11 @@ class UserService {
     );
   }
 
-  static Future<Map<String, dynamic>> deactivateUser(int id) async {
+  static Future<Map<String, dynamic>> deactivateUser(int id, String reason) async {
     return await request(
       '$url/deactivate?id=$id',
       method: 'PATCH',
+      body: { "note": reason }
     );
   }
 

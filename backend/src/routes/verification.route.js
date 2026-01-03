@@ -85,8 +85,9 @@ router.post('/create', async (req, res) => {
 
 router.patch('/update-status', async (req, res) => {
     const { id, status } = req.query;
+    const { note } = req.body;
     try {
-        const query = await verificationQuery.updateStatus(id, status);
+        const query = await verificationQuery.updateStatus(id, status, note);
 
         const userIds = await helper.getUserByVerification(id);    
         const tokens = await tokenQuery.getTokensByUserIds(userIds);

@@ -101,12 +101,12 @@ export async function createOrUpdateVerification(verification) {
 }
 
 
-export async function updateStatus(id, updatedStatus) {
+export async function updateStatus(id, updatedStatus, note) {
     const [rows] = await pool.query(
         `UPDATE employer_verification 
-        SET status = ?
+        SET status = ?, note = ?
         WHERE id = ?`,
-        [updatedStatus, id]
+        [updatedStatus, note, id]
     );
 
     const [result] = await pool.query(
@@ -114,7 +114,7 @@ export async function updateStatus(id, updatedStatus) {
         [id]
     )
 
-    return result[0] ?? {};
+    return result[0] ?? { message: "Something went wrong" };
 }
 
 export async function getEmployersWithVerification() {

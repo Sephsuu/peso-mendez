@@ -9,6 +9,13 @@ String formatDateTime(String isoString) {
   return dateFormat.format(dateTime.toLocal()); // convert to local timezone
 }
 
+String formatDateOnly(String isoString) {
+  final dateTime = DateTime.parse(isoString); 
+  final dateFormat = DateFormat("MMMM d, y"); 
+  return dateFormat.format(dateTime.toLocal()); // convert to local timezone
+}
+
+
 String formatAnnouncementDate(String dateString) {
   final date = DateTime.parse(dateString);
   final now = DateTime.now();
@@ -143,5 +150,3 @@ class PdfExporter {
   }
 
 }
-
-

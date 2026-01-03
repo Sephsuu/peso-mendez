@@ -73,10 +73,11 @@ class VerificationService {
     );
   }
 
-  static Future<Map<String, dynamic>> updateVerificationStatus(id, status) async {
+  static Future<Map<String, dynamic>> updateVerificationStatus(id, status, String note) async {
     return await request(
       '$url/update-status?id=$id&status=$status',
       method: 'PATCH',
+      body: { "note": note }
     );
   }
 }

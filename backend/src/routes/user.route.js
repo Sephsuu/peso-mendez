@@ -187,6 +187,8 @@ router.get('/generate-resume', async (req, res) => {
 			other_skills,
 		};
 
+		console.log(resume);
+
 		generateResumePDF(resume, id, res);
 
 	} catch (err) {
@@ -409,8 +411,9 @@ router.patch('/update-other-skills', async (req, res) => {
 
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;
+	const { note } = req.body
 	try {
-		const user = await userQuery.deactivateUser(id);
+		const user = await userQuery.deactivateUser(id, note);
 		res.json(user);
 	} catch (err) {
 		res.status(500).json({ error: err.message });

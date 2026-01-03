@@ -1,9 +1,11 @@
 import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/badge.dart';
 import 'package:app/core/components/button.dart';
+import 'package:app/core/components/input.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
@@ -104,10 +106,13 @@ class ManageUsers extends HookWidget {
               ),
             ),
             const SizedBox(height: 10),
-            UsersTable(
-              users: activeUsers, 
-              loading: loading.value,
-              setReload: setReload,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: UsersTable(
+                users: activeUsers, 
+                loading: loading.value,
+                setReload: setReload,
+              ),
             ),
             const SizedBox(height: 50),
           ],
@@ -117,7 +122,7 @@ class ManageUsers extends HookWidget {
   }
 }
 
-class UsersTable extends StatelessWidget {
+class UsersTable extends StatefulWidget {
   final List<Map<String, dynamic>> users;
   final bool loading;
   final VoidCallback setReload;
@@ -128,158 +133,30 @@ class UsersTable extends StatelessWidget {
     required this.loading,
     required this.setReload,
   });
-  
+
   @override
-  Widget build(BuildContext context) {
-
-    if (loading) {
-      return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
-    }
-
-    void deactivateUser(Map<String, dynamic> user) async {
-      try {
-        final res = await UserService.deactivateUser(user["id"]);
-        if (res.isNotEmpty) {
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('User successfully deactivated.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-          setReload();
-        }
-        if (!context.mounted) return;
-      } catch (e) { showAlertError(context, "Error $e"); }
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTableTheme(
-        data: DataTableThemeData(
-          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
-          headingTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        child: DataTable(
-          headingRowHeight: 40,
-          dataRowMinHeight: 30,
-          dataRowMaxHeight: 40,
-          border: TableBorder.all(
-            color: const Color.fromARGB(255, 191, 191, 191),
-            width: 1,
-          ),
-          columns: const [
-            DataColumn(label: Text('#')),
-            DataColumn(label: Text('Full Name')),
-            DataColumn(label: Text('E-mail Address')),
-            DataColumn(label: Text('Contact Number')),
-            DataColumn(label: Text('Username')),
-            DataColumn(label: Text('Role')),
-            DataColumn(label: Text('Status')),
-            DataColumn(label: Text('Registered At')),
-            DataColumn(label: Text('Actions')),
-          ], 
-          rows: users.asMap().entries.map((entry) {
-            int index = entry.key;     
-            var user = entry.value;
-
-            return DataRow(
-              cells: [
-                DataCell(Text((index + 1).toString())),        
-                DataCell(Text(user["full_name"] ?? 'N/A')),
-                DataCell(Text(user["email"] ?? 'N/A')),
-                DataCell(Text(user["contact"] ?? 'N/A')),
-                DataCell(Text(user["username"] ?? 'N/A')),
-                DataCell(
-                  user["role"] == 'job_seeker' ? (
-                    const AppBadge(
-                      text: 'Job Seeker', 
-                      color: Color.fromARGB(255, 205, 238, 250),
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      fontColor: AppColor.dark,
-                    )
-                  ) : (
-                    const AppBadge(
-                      text: 'Employer', 
-                      color: Color.fromARGB(255, 215, 215, 215),
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      fontColor: AppColor.dark,
-                    )
-                  )
-                ),
-                DataCell(
-                  user["status"] == 'active' ? (
-                    const AppBadge(
-                      text: 'Active', 
-                      color: AppColor.success,
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                    )
-                  ) : (
-                    const AppBadge(
-                      text: 'Inactive', 
-                      color: AppColor.danger,
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                    )
-                  )
-                ),
-                DataCell(Text(user["created_at"].toString())),
-                DataCell(
-                  AppButton(
-                    label: 'Deactivate', 
-                    onPressed: () {
-                      showDialog(
-                        context: context, 
-                        builder: (context) {
-                          return AppModal(
-                            title: 'Are you sure to deactivate user: ${user["full_name"]}',
-                            onConfirm: () => deactivateUser(user),
-                            confirmForeground: AppColor.light,
-                            confirmBackground: AppColor.danger
-                          );
-                        }
-                      );
-                    },
-                    visualDensityY: -4,
-                    foregroundColor: AppColor.light,
-                    backgroundColor: AppColor.danger,
-                    textSize: 12,
-                    isDisabled: user['status'] == 'inactive',
-                  )
-                ),
-              ]
-            );
-          }).toList(),
-        ),
-      )
-    );
-  }
+  State<UsersTable> createState() => _UsersTableState();
 }
 
-class DeactivatedUsersTable extends StatelessWidget {
-  final List<Map<String, dynamic>> users;
-  final bool loading;
-  final VoidCallback setReload;
-
-  const DeactivatedUsersTable({
-    super.key,
-    required this.users,
-    required this.loading,
-    required this.setReload,
-  });
+class _UsersTableState extends State<UsersTable> {
+  final TextEditingController _reason = TextEditingController();
   
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    if (loading) {
+    if (widget.loading) {
       return const Padding(padding: EdgeInsets.only(top: 50),child: CircularProgressIndicator(color: AppColor.info, strokeWidth: 6));
     }
 
     void deactivateUser(Map<String, dynamic> user) async {
       try {
-        final res = await UserService.deactivateUser(user["id"]);
+        final res = await UserService.deactivateUser(user["id"], _reason.text);
         if (res.isNotEmpty) {
           if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
@@ -288,112 +165,139 @@ class DeactivatedUsersTable extends StatelessWidget {
               duration: Duration(seconds: 2),
             ),
           );
-          setReload();
+          widget.setReload();
         }
         if (!context.mounted) return;
       } catch (e) { showAlertError(context, "Error $e"); }
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTableTheme(
-        data: DataTableThemeData(
-          headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
-          headingTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+    return Scrollbar(
+      thumbVisibility: true, 
+      thickness: 8,
+      radius: const Radius.circular(8),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 24),
+        scrollDirection: Axis.horizontal,
+        child: DataTableTheme(
+          data: DataTableThemeData(
+            headingRowColor: WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+            headingTextStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
-        ),
-        child: DataTable(
-          headingRowHeight: 40,
-          dataRowMinHeight: 30,
-          dataRowMaxHeight: 40,
-          border: TableBorder.all(
-            color: const Color.fromARGB(255, 191, 191, 191),
-            width: 1,
-          ),
-          columns: const [
-            DataColumn(label: Text('#')),
-            DataColumn(label: Text('Full Name')),
-            DataColumn(label: Text('E-mail Address')),
-            DataColumn(label: Text('Contact Number')),
-            DataColumn(label: Text('Username')),
-            DataColumn(label: Text('Role')),
-            DataColumn(label: Text('Status')),
-            DataColumn(label: Text('Registered At')),
-            DataColumn(label: Text('Actions')),
-          ], 
-          rows: users.asMap().entries.map((entry) {
-            int index = entry.key;     
-            var user = entry.value;
+          child: DataTable(
+            headingRowHeight: 40,
+            dataRowMinHeight: 30,
+            dataRowMaxHeight: 40,
+            border: TableBorder.all(
+              color: const Color.fromARGB(255, 191, 191, 191),
+              width: 1,
+            ),
+            columns: const [
+              DataColumn(label: Text('#')),
+              DataColumn(label: Text('Full Name')),
+              DataColumn(label: Text('E-mail Address')),
+              DataColumn(label: Text('Contact Number')),
+              DataColumn(label: Text('Username')),
+              DataColumn(label: Text('Role')),
+              DataColumn(label: Text('Status')),
+              DataColumn(label: Text('Registered At')),
+              DataColumn(label: Text('Actions')),
+            ], 
+            rows: widget.users.asMap().entries.map((entry) {
+              int index = entry.key;     
+              var user = entry.value;
 
-            return DataRow(
-              cells: [
-                DataCell(Text((index + 1).toString())),        
-                DataCell(Text(user["full_name"] ?? 'N/A')),
-                DataCell(Text(user["email"] ?? 'N/A')),
-                DataCell(Text(user["contact"] ?? 'N/A')),
-                DataCell(Text(user["username"] ?? 'N/A')),
-                DataCell(
-                  user["role"] == 'job_seeker' ? (
-                    const AppBadge(
-                      text: 'Job Seeker', 
-                      color: Color.fromARGB(255, 205, 238, 250),
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      fontColor: AppColor.dark,
+              return DataRow(
+                cells: [
+                  DataCell(Text((index + 1).toString())),        
+                  DataCell(Text(user["full_name"] ?? 'N/A')),
+                  DataCell(Text(user["email"] ?? 'N/A')),
+                  DataCell(Text(user["contact"] ?? 'N/A')),
+                  DataCell(Text(user["username"] ?? 'N/A')),
+                  DataCell(
+                    user["role"] == 'job_seeker' ? (
+                      const AppBadge(
+                        text: 'Job Seeker', 
+                        color: Color.fromARGB(255, 205, 238, 250),
+                        padding: EdgeInsets.symmetric(horizontal: 5),
+                        fontColor: AppColor.dark,
+                      )
+                    ) : (
+                      const AppBadge(
+                        text: 'Employer', 
+                        color: Color.fromARGB(255, 215, 215, 215),
+                        padding: EdgeInsets.symmetric(horizontal: 5),
+                        fontColor: AppColor.dark,
+                      )
                     )
-                  ) : (
-                    const AppBadge(
-                      text: 'Employer', 
-                      color: Color.fromARGB(255, 215, 215, 215),
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      fontColor: AppColor.dark,
+                  ),
+                  DataCell(
+                    user["status"] == 'active' ? (
+                      const AppBadge(
+                        text: 'Active', 
+                        color: AppColor.success,
+                        padding: EdgeInsets.symmetric(horizontal: 5),
+                      )
+                    ) : (
+                      const AppBadge(
+                        text: 'Inactive', 
+                        color: AppColor.danger,
+                        padding: EdgeInsets.symmetric(horizontal: 5),
+                      )
                     )
-                  )
-                ),
-                DataCell(
-                  user["status"] == 'active' ? (
-                    const AppBadge(
-                      text: 'Active', 
-                      color: AppColor.success,
-                      padding: EdgeInsets.symmetric(horizontal: 5),
+                  ),
+                  DataCell(Text(formatDateOnly(user["created_at"]))),
+                  DataCell(
+                    AppButton(
+                      label: 'Deactivate', 
+                      onPressed: () {
+                        showDialog(
+                          context: context, 
+                          builder: (context) {
+                            return AppModal(
+                              title: 'Are you sure to deactivate user: ${user["full_name"]}',
+                              onConfirm: () => deactivateUser(user),
+                              confirmForeground: AppColor.light,
+                              confirmBackground: AppColor.danger,
+                              message: SizedBox(
+                                width: double.maxFinite,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Please state the reason why user was deactivated.',
+                                    ),
+                                    const SizedBox(height: 12),
+                                    AppInputField(
+                                      label: 'Reason',
+                                      initialValue: user['note'] ?? '',
+                                      visualDensityY: 0,
+                                      textSize: 16,
+                                      controller: _reason,
+                                    ),
+
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        );
+                      },
+                      visualDensityY: -4,
+                      foregroundColor: AppColor.light,
+                      backgroundColor: AppColor.danger,
+                      textSize: 12,
+                      isDisabled: user['status'] == 'inactive',
                     )
-                  ) : (
-                    const AppBadge(
-                      text: 'Inactive', 
-                      color: AppColor.danger,
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                    )
-                  )
-                ),
-                DataCell(Text(user["created_at"].toString())),
-                DataCell(
-                  AppButton(
-                    label: 'Deactivate', 
-                    onPressed: () {
-                      showDialog(
-                        context: context, 
-                        builder: (context) {
-                          return AppModal(
-                            title: 'Are you sure to deactivate user: ${user["full_name"]}',
-                            onConfirm: () => deactivateUser(user),
-                            confirmForeground: AppColor.light,
-                            confirmBackground: AppColor.danger
-                          );
-                        }
-                      );
-                    },
-                    visualDensityY: -4,
-                    foregroundColor: AppColor.light,
-                    backgroundColor: AppColor.danger,
-                    textSize: 12,
-                    isDisabled: user['status'] == 'inactive',
-                  )
-                ),
-              ]
-            );
-          }).toList(),
-        ),
+                  ),
+                ]
+              );
+            }).toList(),
+          ),
+        )
       )
     );
   }

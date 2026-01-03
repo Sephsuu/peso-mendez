@@ -12,6 +12,7 @@ import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/application_service.dart';
 import 'package:app/core/services/job_service.dart';
+import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
 import 'package:app/features/employer/edit_job.dart';
@@ -32,6 +33,7 @@ class ViewJob extends HookWidget {
     final claims = useClaimsHook(context);
     final job = useState<Map<String, dynamic>>({});
     final jobSkills = useState<List<String>>([]);
+    final profileStrength = useState<double>(0);
     final loading = useState(true);
     final isSaved = useState(false);
     final isApplied = useState(false);
@@ -40,9 +42,11 @@ class ViewJob extends HookWidget {
       void fetchData() async {
         if (claims.isNotEmpty) {
           final data = await JobService.getJobById(jobId);
+          final res = await UserService.getUserProfileStrength(claims['id']);
           job.value = data;
           final jobSkillsRes = await JobService.getJobSkills(jobId);
           jobSkills.value = jobSkillsRes.map((e) => e['skill']).cast<String>().toList();
+          profileStrength.value = res;
           final saved = await JobService.getSavedJobByUserJob(claims['id'], jobId);
           final applied = await ApplicationService.getApplicationByJobAndUser(jobId, claims['id']);
           isSaved.value = saved.isNotEmpty;
@@ -54,26 +58,47 @@ class ViewJob extends HookWidget {
       return null;
     }, [claims, isSaved.value, isApplied.value]);
 
-    void saveJob() async {
+    void toggleSaveJob() async {
       try {
-        final res = await JobService.saveJob(claims['id'], job.value['id']);
-        if (res.isNotEmpty) {
+        if (isSaved.value) {
+          await JobService.unsaveJob(claims['id'], job.value['id']);
+
           if (!context.mounted) return;
           AppSnackbar.show(
-            context, 
-            message: 'Job successfully saved',
-            backgroundColor: AppColor.success
+            context,
+            message: 'Job removed from saved list',
+            backgroundColor: AppColor.warning,
           );
+
+          isSaved.value = false;
+        } else {
+          await JobService.saveJob(claims['id'], job.value['id']);
+
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context,
+            message: 'Job successfully saved',
+            backgroundColor: AppColor.success,
+          );
+
+          isSaved.value = true;
         }
-        isSaved.value = !isSaved.value;
-      } catch (e) { 
+      } catch (e) {
         if (!context.mounted) return;
-        showAlertError(context, 'Error $e'); 
+        showAlertError(context, 'Failed to update saved jobs');
       }
     }
 
+
     void applyJob() async {
       try {
+        if (profileStrength.value < 0.79) {
+          return AppSnackbar.show(
+            context, 
+            message: 'Please accomplish all form for you to apply jobs.',
+            backgroundColor: AppColor.primary,
+            durationSeconds: 8          );
+        }
         final application = await ApplicationService.getApplicationByJobAndUser(job.value["id"], claims['id']);
         if (application.isEmpty) {
           final applySuccess = await ApplicationService.createApplication(job.value["id"], claims['id']);
@@ -123,7 +148,7 @@ class ViewJob extends HookWidget {
               job: job.value,
               isApplied: isApplied.value,
               isSaved: isSaved.value,
-              saveJob: saveJob,
+              toggleSaveJob: toggleSaveJob,
               applyJob: applyJob, unapplyJob: unapplyJob,
             ),
             JobDescriptionCard(
@@ -148,7 +173,7 @@ class ViewApplicationCover extends StatelessWidget {
   final bool isSaved;
   final void Function() applyJob;
   final void Function() unapplyJob;
-  final void Function() saveJob;
+  final void Function() toggleSaveJob;
   
   const ViewApplicationCover({
     super.key,
@@ -158,7 +183,7 @@ class ViewApplicationCover extends StatelessWidget {
     required this.applyJob,
     required this.unapplyJob,
     required this.isSaved,
-    required this.saveJob
+    required this.toggleSaveJob
   });
 
   @override
@@ -231,35 +256,46 @@ class ViewApplicationCover extends StatelessWidget {
                 children: [
                   isSaved
                       ? AppButton(
-                          label: 'Saved',
-                          onPressed: () {},
+                          label: 'Unsave Job',
                           backgroundColor: AppColor.warning,
                           foregroundColor: AppColor.dark,
                           visualDensityY: -2,
-                        )
-                      : AppButton(
-                          label: 'Save Job',
                           onPressed: () {
                             showDialog(
                               context: context,
-                              builder: (context) {
-                                return AppModal(
-                                  title:
-                                      'Save job ${job["title"]} at ${job["location"]}?',
-                                  titleStyle:
-                                      AppText.fontSemibold.merge(AppText.textLg),
-                                  confirmLabel: "Save Job",
-                                  confirmBackground: AppColor.primary,
-                                  confirmForeground: AppColor.light,
-                                  onConfirm: saveJob,
-                                );
-                              },
+                              builder: (_) => AppModal(
+                                title: 'Remove saved job?',
+                                message:
+                                    'Do you want to remove ${job["title"]} from your saved jobs?',
+                                confirmLabel: 'Unsave',
+                                confirmBackground: AppColor.warning,
+                                confirmForeground: AppColor.dark,
+                                onConfirm: toggleSaveJob,
+                              ),
                             );
                           },
+                        )
+                      : AppButton(
+                          label: 'Save Job',
                           foregroundColor: AppColor.dark,
                           backgroundColor: AppColor.light,
                           visualDensityY: -2,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AppModal(
+                                title: 'Save job ${job["title"]}?',
+                                message:
+                                    'Save ${job["title"]} at ${job["location"]} for later review.',
+                                confirmLabel: 'Save Job',
+                                confirmBackground: AppColor.primary,
+                                confirmForeground: AppColor.light,
+                                onConfirm: toggleSaveJob,
+                              ),
+                            );
+                          },
                         ),
+
                   const SizedBox(width: 10),
                   isApplied
                       ? AppButton(

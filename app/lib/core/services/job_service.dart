@@ -75,6 +75,13 @@ class JobService {
     );
   }
 
+  static Future<Map<String, dynamic>> unsaveJob(int userId, int jobId) async {
+    return await request(
+      '$url/unsave-job?userId=$userId&jobId=$jobId',
+      method: 'POST',
+    );
+  }
+
   static Future<Map<String, dynamic>> updateJob(Map<String, dynamic> job) async {
     return await request(
       '$url/update',

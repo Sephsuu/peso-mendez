@@ -12,6 +12,7 @@ import 'package:app/core/services/notification_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/theme/colors.dart';
 import 'package:app/core/theme/typography.dart';
+import 'package:app/features/job_seeker/view_saved_jobs.dart';
 import 'package:app/features/shared/job_listing.dart';
 import 'package:app/features/job_seeker/all_applications.dart';
 import 'package:app/features/job_seeker/edit_profile.dart';
@@ -536,8 +537,18 @@ class SavedJobsCard extends HookWidget {
             children: [
               Text('Saved Jobs', style: AppText.textLg.merge(AppText.fontSemibold)),
               GestureDetector(
-                child: Text('Sea All', style: AppText.textXs.merge(AppText.textPrimary)),
-                onTap: () => {},
+                child: Text('See All', style: AppText.textSm.merge(AppText.textPrimary)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SavedJobsPage(
+                        savedJobs: savedJobs.value,
+                        claims: claims,
+                      )
+                    ),
+                  );
+                },
               )
             ],
           ),

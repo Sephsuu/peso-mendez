@@ -150,6 +150,17 @@ router.post('/save-job', async (req, res) => {
     }
 });
 
+router.post('/unsave-job', async (req, res) => {
+    const { userId, jobId } = req.query;
+    try {
+        const job = await jobQuery.unsaveJob(userId, jobId);
+
+        return res.json(job);
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.patch('/update', async (req, res) => {
     try {
         const {

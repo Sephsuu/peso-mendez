@@ -125,6 +125,15 @@ export async function saveJob(userid, jobId) {
     return result;
 }
 
+export async function unsaveJob(userId, jobId) {
+    const [result] = await pool.query(
+        `DELETE FROM saved_jobs WHERE user_id = ? AND job_id = ?`,
+        [userId, jobId]
+    );
+
+    return result;
+}
+
 export async function updateJob(jobId, title, company, location, type, salary, visibility, description) {
     const [rows] = await pool.query(
         "UPDATE jobs SET title = ?, company = ?, location = ?, type = ?, salary = ?, visibility = ?, description = ? WHERE id = ?",
@@ -146,8 +155,4 @@ export async function deleteJob(jobId) {
     );
 
     return rows[0];
-}
-
-export async function unsaveJob(userId, jobId) {
-    
 }

@@ -139,7 +139,13 @@ class _LoginFormState extends State<LoginForm> with RouteAware {
               builder: (context) {
                 return AppModal(
                   title: 'Account is currently deactivated.',
-                  message: 'Try to contact PESO Mendez administrator to recover your account.',
+                  message: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Reason:', style: AppText.fontSemibold),
+                      Text(responseData["note"] ?? "Reason not specified.", style: AppText.textDanger)
+                    ],
+                  ),
                   titleStyle: AppText.fontSemibold.merge(AppText.textLg),
                   confirmLabel: "I understand.",
                   confirmBackground: AppColor.primary,
