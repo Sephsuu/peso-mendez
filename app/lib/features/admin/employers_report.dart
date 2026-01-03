@@ -254,7 +254,7 @@ class EmployersTable extends StatelessWidget {
       thickness: 8,
       radius: const Radius.circular(8),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: scrollableTablePadding),
         scrollDirection: Axis.horizontal,
         child: DataTableTheme(
           data: DataTableThemeData(

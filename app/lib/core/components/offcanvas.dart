@@ -7,6 +7,7 @@ import 'package:app/core/theme/colors.dart';
 import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
+import 'package:app/features/employer/view_active_jobs.dart';
 import 'package:app/features/forms/login.dart';
 import 'package:app/features/shared/about.dart';
 import 'package:app/features/shared/contact.dart';
@@ -34,7 +35,7 @@ class OffcanvasNavigation extends HookWidget {
           const EmployerDashboard() : const AdminDashboard() 
       },
       { "name": "About", "href": const About() },
-      { "name": "Job Listing", "href": const JobListing() },
+      { "name": "Job Listing", "href": claims["role"] != "employer" ? const JobListing() : const ViewActiveJobs() },
       { "name": "Messages", "href": const Conversations() },
       { "name": "Announcements", "href": const Announcements() },
       { "name": "Notifications", "href": const Notifications() },

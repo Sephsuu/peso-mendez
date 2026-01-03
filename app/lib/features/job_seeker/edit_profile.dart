@@ -59,24 +59,27 @@ class EditProfile extends HookWidget {
         child: Column(
           children: [
             // ✅ Horizontal buttons for each section
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: profileSections.map((item) {
-                  return AppButton(
-                    label: item,
-                    onPressed: () => section.value = item,
-                    backgroundColor: section.value == item
-                        ? AppColor.primary
-                        : const Color.fromARGB(255, 197, 216, 252),
-                    foregroundColor: section.value == item
-                        ? AppColor.light
-                        : AppColor.secondary,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    visualDensityY: -2,
-                    borderRadius: 0,
-                  );
-                }).toList(),
+            Scrollbar(
+              thumbVisibility: true, // Makes scrollbar always visible
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: profileSections.map((item) {
+                    return AppButton(
+                      label: item,
+                      onPressed: () => section.value = item,
+                      backgroundColor: section.value == item
+                          ? AppColor.primary
+                          : const Color.fromARGB(255, 197, 216, 252),
+                      foregroundColor: section.value == item
+                          ? AppColor.light
+                          : AppColor.secondary,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      visualDensityY: -2,
+                      borderRadius: 0,
+                    );
+                  }).toList(),
+                ),
               ),
             ),
 

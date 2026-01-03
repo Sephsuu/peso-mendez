@@ -108,54 +108,60 @@ class CitmunChart extends HookWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             child: SizedBox(
               height: 350,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: data.value.length * 120,
-                  child: BarChart(
-                    BarChartData(
-                      borderData: FlBorderData(show: false),
-                      barGroups: List.generate(data.value.length, (i) {
-                        final total = data.value[i]["total"];
-                        return BarChartGroupData(
-                          x: i,
-                          barRods: [
-                            BarChartRodData(
-                              toY: total.toDouble(),
-                              width: 30,
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ],
-                        );
-                      }),
-                      titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(
-                          sideTitles:
-                              SideTitles(showTitles: true, reservedSize: 40),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 80,
-                            getTitlesWidget: (value, _) {
-                              final index = value.toInt();
-                              if (index < 0 || index >= data.value.length) {
-                                return const SizedBox();
-                              }
+              child: Scrollbar(
+                thumbVisibility: true, 
+                thickness: 8,
+                radius: const Radius.circular(8),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: scrollableTablePadding),
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: data.value.length * 120,
+                    child: BarChart(
+                      BarChartData(
+                        borderData: FlBorderData(show: false),
+                        barGroups: List.generate(data.value.length, (i) {
+                          final total = data.value[i]["total"];
+                          return BarChartGroupData(
+                            x: i,
+                            barRods: [
+                              BarChartRodData(
+                                toY: total.toDouble(),
+                                width: 30,
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ],
+                          );
+                        }),
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            sideTitles:
+                                SideTitles(showTitles: true, reservedSize: 40),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 80,
+                              getTitlesWidget: (value, _) {
+                                final index = value.toInt();
+                                if (index < 0 || index >= data.value.length) {
+                                  return const SizedBox();
+                                }
 
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: RotatedBox(
-                                  quarterTurns: 1,
-                                  child: Text(
-                                    data.value[index]["citmun"],
-                                    style: const TextStyle(fontSize: 12),
-                                    textAlign: TextAlign.center,
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: RotatedBox(
+                                    quarterTurns: 1,
+                                    child: Text(
+                                      data.value[index]["citmun"],
+                                      style: const TextStyle(fontSize: 12),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),

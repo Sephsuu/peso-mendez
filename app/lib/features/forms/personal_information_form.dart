@@ -191,7 +191,7 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
                         ),
                         const SizedBox(height: 15.0),
                         AppInputField(
-                          label: 'Last Name',
+                          label: 'Middle Name',
                           controller: _middleName,
                           visualDensityY: 0,
                           textSize: 16,

@@ -4,6 +4,7 @@ import 'package:app/core/components/card.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/announcement_service.dart';
 import 'package:app/core/services/user_service.dart';
 import 'package:app/core/services/verification_service.dart';
@@ -210,30 +211,36 @@ class EmployerVerificationQueue extends HookWidget {
                     ),
                   ),
                 )
-              : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Employer Name')),
-                      DataColumn(label: Text('Email')),
-                      DataColumn(label: Text('Status')),
-                      DataColumn(label: Text('Actions')),
-                    ],
-                    rows: verifications.value.map((item) {
-                      return DataRow(cells: [
-                        DataCell(Text(item['full_name'] ?? '—')),
-                        DataCell(Text(item['email'] ?? '—')),
-                        DataCell(Text(item['status'] ?? '—')),
-                        DataCell(Row(children: [
-                          AppButton(
-                            label: 'View Documents',
-                            backgroundColor: AppColor.primary,
-                            onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["employer_id"])),
-                            visualDensityY: -3,
-                          ),
-                        ])),
-                      ]);
-                    }).toList(),
+              : Scrollbar(
+                  thumbVisibility: true, 
+                  thickness: 8,
+                  radius: const Radius.circular(8),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: scrollableTablePadding),
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Employer Name')),
+                        DataColumn(label: Text('Email')),
+                        DataColumn(label: Text('Status')),
+                        DataColumn(label: Text('Actions')),
+                      ],
+                      rows: verifications.value.map((item) {
+                        return DataRow(cells: [
+                          DataCell(Text(item['full_name'] ?? '—')),
+                          DataCell(Text(item['email'] ?? '—')),
+                          DataCell(Text(item['status'] ?? '—')),
+                          DataCell(Row(children: [
+                            AppButton(
+                              label: 'View Documents',
+                              backgroundColor: AppColor.primary,
+                              onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["employer_id"])),
+                              visualDensityY: -3,
+                            ),
+                          ])),
+                        ]);
+                      }).toList(),
+                    ),
                   ),
                 ),
         ],

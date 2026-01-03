@@ -432,7 +432,12 @@ class YourApplicationsCard extends HookWidget {
                 )
               ),
             )
-          : SingleChildScrollView(
+          : Scrollbar(
+            thumbVisibility: true, 
+            thickness: 8,
+            radius: const Radius.circular(8),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: scrollableTablePadding),
               scrollDirection: Axis.horizontal,
               child: DataTableTheme(
                 data: DataTableThemeData(
@@ -487,7 +492,8 @@ class YourApplicationsCard extends HookWidget {
                   }).toList()
                 ),
               )
-            )
+            ),
+          )
         ],
       )
     );
@@ -576,7 +582,12 @@ class SavedJobsCard extends HookWidget {
                 ),
               ),
             )
-          : SingleChildScrollView(
+          : Scrollbar(
+            thumbVisibility: true, 
+            thickness: 8,
+            radius: const Radius.circular(8),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: scrollableTablePadding),
               scrollDirection: Axis.horizontal,
               child: DataTableTheme(
                 data: DataTableThemeData(
@@ -631,7 +642,8 @@ class SavedJobsCard extends HookWidget {
                   }).toList()
                 ),
               )
-            )
+            ),
+          )
         ],
       )
     );

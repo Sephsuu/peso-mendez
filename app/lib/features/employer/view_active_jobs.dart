@@ -242,107 +242,113 @@ class ViewActiveJobsTable extends StatelessWidget {
     }
 
     // ✅ Otherwise, show the data table
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTableTheme(
-        data: DataTableThemeData(
-          headingRowColor:
-              WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
-          headingTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+    return Scrollbar(
+      thumbVisibility: true, 
+      thickness: 8,
+      radius: const Radius.circular(8),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: scrollableTablePadding),
+        scrollDirection: Axis.horizontal,
+        child: DataTableTheme(
+          data: DataTableThemeData(
+            headingRowColor:
+                WidgetStateProperty.all(const Color.fromARGB(255, 215, 215, 215)),
+            headingTextStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
-        ),
-        child: DataTable(
-          headingRowHeight: 40,
-          dataRowMinHeight: 30,
-          dataRowMaxHeight: 40,
-          border: TableBorder.all(
-            color: const Color.fromARGB(255, 191, 191, 191),
-            width: 1,
-          ),
-          columns: const [
-            DataColumn(label: Text('Title')),
-            DataColumn(label: Text('Company')),
-            DataColumn(label: Text('Location')),
-            DataColumn(label: Text('Type')),
-            DataColumn(label: Text('Salary')),
-            // DataColumn(label: Text('Visibility')),
-            DataColumn(label: Text('Date Posted')),
-            DataColumn(label: Text('Actions')),
-          ],
-          rows: jobs.map((job) {
-            return DataRow(
-              cells: [
-                DataCell(Text(job['title'] ?? 'N/A')),
-                DataCell(Text(job['company']?.toString() ?? 'N/A')),
-                DataCell(Text(job['location'] ?? 'N/A')),
-                DataCell(Text(job['type'] ?? 'N/A')),
-                DataCell(Text(formatToPeso(job['salary']))),
-                // DataCell(
-                //   AppBadge(
-                //     text: job["visibility"],
-                //     color: job["visibility"] == 'Lite'
-                //         ? const Color.fromARGB(255, 52, 32, 0)
-                //         : job["visibility"] == 'Branded'
-                //             ? const Color.fromARGB(255, 150, 150, 150)
-                //             : const Color.fromARGB(255, 156, 101, 0),
-                //     padding: const EdgeInsets.symmetric(horizontal: 10),
-                //   ),
-                // ),
-                DataCell(Text(job['posted_on'] ?? 'N/A')),
-                DataCell(
-                  Row(
-                    children: [
-                      AppButton(
-                        label: 'View',
-                        onPressed: () =>
-                            navigateTo(context, ViewJob(jobId: job['id'])),
-                        backgroundColor: AppColor.primary,
-                        visualDensityY: -3,
-                        textSize: 12,
-                      ),
-                      const SizedBox(width: 10),
-                      AppButton(
-                        label: 'Update',
-                        onPressed: () =>
-                            navigateTo(context, EditJob(job: job)),
-                        backgroundColor: AppColor.success,
-                        visualDensityY: -3,
-                        textSize: 12,
-                      ),
-                      const SizedBox(width: 10),
-                      AppButton(
-                        label: 'Delete',
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AppModal(
-                                title:
-                                    'Are you sure to delete job: ${job["title"]}',
-                                titleStyle:
-                                    AppText.fontSemibold.merge(AppText.textLg),
-                                message:
-                                    'Warning: This action is irreversible.',
-                                confirmLabel: "Confirm",
-                                confirmBackground: AppColor.danger,
-                                confirmForeground: AppColor.light,
-                                onConfirm: () => handleDelete(job["id"]),
-                              );
-                            },
-                          );
-                        },
-                        backgroundColor: AppColor.danger,
-                        visualDensityY: -3,
-                        textSize: 12,
-                      ),
-                    ],
+          child: DataTable(
+            headingRowHeight: 40,
+            dataRowMinHeight: 30,
+            dataRowMaxHeight: 40,
+            border: TableBorder.all(
+              color: const Color.fromARGB(255, 191, 191, 191),
+              width: 1,
+            ),
+            columns: const [
+              DataColumn(label: Text('Title')),
+              DataColumn(label: Text('Company')),
+              DataColumn(label: Text('Location')),
+              DataColumn(label: Text('Type')),
+              DataColumn(label: Text('Salary')),
+              // DataColumn(label: Text('Visibility')),
+              DataColumn(label: Text('Date Posted')),
+              DataColumn(label: Text('Actions')),
+            ],
+            rows: jobs.map((job) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(job['title'] ?? 'N/A')),
+                  DataCell(Text(job['company']?.toString() ?? 'N/A')),
+                  DataCell(Text(job['location'] ?? 'N/A')),
+                  DataCell(Text(job['type'] ?? 'N/A')),
+                  DataCell(Text(formatToPeso(job['salary']))),
+                  // DataCell(
+                  //   AppBadge(
+                  //     text: job["visibility"],
+                  //     color: job["visibility"] == 'Lite'
+                  //         ? const Color.fromARGB(255, 52, 32, 0)
+                  //         : job["visibility"] == 'Branded'
+                  //             ? const Color.fromARGB(255, 150, 150, 150)
+                  //             : const Color.fromARGB(255, 156, 101, 0),
+                  //     padding: const EdgeInsets.symmetric(horizontal: 10),
+                  //   ),
+                  // ),
+                  DataCell(Text(job['posted_on'] ?? 'N/A')),
+                  DataCell(
+                    Row(
+                      children: [
+                        AppButton(
+                          label: 'View',
+                          onPressed: () =>
+                              navigateTo(context, ViewJob(jobId: job['id'])),
+                          backgroundColor: AppColor.primary,
+                          visualDensityY: -3,
+                          textSize: 12,
+                        ),
+                        const SizedBox(width: 10),
+                        AppButton(
+                          label: 'Update',
+                          onPressed: () =>
+                              navigateTo(context, EditJob(job: job)),
+                          backgroundColor: AppColor.success,
+                          visualDensityY: -3,
+                          textSize: 12,
+                        ),
+                        const SizedBox(width: 10),
+                        AppButton(
+                          label: 'Delete',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AppModal(
+                                  title:
+                                      'Are you sure to delete job: ${job["title"]}',
+                                  titleStyle:
+                                      AppText.fontSemibold.merge(AppText.textLg),
+                                  message:
+                                      'Warning: This action is irreversible.',
+                                  confirmLabel: "Confirm",
+                                  confirmBackground: AppColor.danger,
+                                  confirmForeground: AppColor.light,
+                                  onConfirm: () => handleDelete(job["id"]),
+                                );
+                              },
+                            );
+                          },
+                          backgroundColor: AppColor.danger,
+                          visualDensityY: -3,
+                          textSize: 12,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          }).toList(),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

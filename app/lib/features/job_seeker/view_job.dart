@@ -41,22 +41,33 @@ class ViewJob extends HookWidget {
     useEffect(() {
       void fetchData() async {
         if (claims.isNotEmpty) {
+          loading.value = true;
+
           final data = await JobService.getJobById(jobId);
           final res = await UserService.getUserProfileStrength(claims['id']);
-          job.value = data;
           final jobSkillsRes = await JobService.getJobSkills(jobId);
-          jobSkills.value = jobSkillsRes.map((e) => e['skill']).cast<String>().toList();
+
+          job.value = data;
+          jobSkills.value =
+              jobSkillsRes.map((e) => e['skill']).cast<String>().toList();
           profileStrength.value = res;
-          final saved = await JobService.getSavedJobByUserJob(claims['id'], jobId);
-          final applied = await ApplicationService.getApplicationByJobAndUser(jobId, claims['id']);
+
+          final saved =
+              await JobService.getSavedJobByUserJob(claims['id'], jobId);
+          final applied =
+              await ApplicationService.getApplicationByJobAndUser(jobId, claims['id']);
+
           isSaved.value = saved.isNotEmpty;
           isApplied.value = applied.isNotEmpty;
+
           loading.value = false;
         }
       }
+
       fetchData();
       return null;
-    }, [claims, isSaved.value, isApplied.value]);
+    }, [claims, jobId]); // ✅ ONLY STABLE DEPENDENCIES
+
 
     void toggleSaveJob() async {
       try {
@@ -88,7 +99,6 @@ class ViewJob extends HookWidget {
         showAlertError(context, 'Failed to update saved jobs');
       }
     }
-
 
     void applyJob() async {
       try {
@@ -526,7 +536,6 @@ class JobDetailsCard extends StatelessWidget {
               //     )
               //   ],
               // ),
-              const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(

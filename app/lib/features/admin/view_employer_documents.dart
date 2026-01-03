@@ -133,7 +133,7 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
         confirmBackground: AppColor.success,
         confirmForeground: AppColor.light,
         onConfirm: () async {
-          Navigator.pop(context); // Close modal
+          Navigator.pop(context); 
           setState(() => approving = true);
 
           try {

@@ -131,12 +131,9 @@ class _RegisterFormState extends State<RegisterForm> {
         } 
       } catch (e) {
         if (!mounted) return;
-
-        final error = e as Map<String, dynamic>;
-
         AppSnackbar.show(
             context,
-            message: 'Error ${error["error"]}',
+            message: 'Error ${e}',
             backgroundColor: AppColor.danger,
         );
       }

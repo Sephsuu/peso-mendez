@@ -296,159 +296,148 @@ class ViewApplicationsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTableTheme(
-        data: DataTableThemeData(
-          headingRowColor: WidgetStateProperty.all(
-            const Color.fromARGB(255, 215, 215, 215),
+    return Scrollbar(
+      thumbVisibility: true, 
+      thickness: 8,
+      radius: const Radius.circular(8),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: scrollableTablePadding),
+        scrollDirection: Axis.horizontal,
+        child: DataTableTheme(
+          data: DataTableThemeData(
+            headingRowColor: WidgetStateProperty.all(
+              const Color.fromARGB(255, 215, 215, 215),
+            ),
+            headingTextStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
-          headingTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        child: DataTable(
-          headingRowHeight: 40,
-          dataRowMinHeight: 30,
-          dataRowMaxHeight: 40,
-          border: TableBorder.all(
-            color: const Color.fromARGB(255, 191, 191, 191),
-            width: 1,
-          ),
-          columns: const [
-            DataColumn(label: Text('Applicant')),
-            DataColumn(label: Text('Job Title')),
-            DataColumn(label: Text('Job Location')),
-            DataColumn(label: Text('Status')),
-            DataColumn(label: Text("Placement")),
-            DataColumn(label: Text('Applied On')),
-            DataColumn(label: Text('Resume')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: applications.map((application) {
-            final appId = application['id'];
+          child: DataTable(
+            headingRowHeight: 40,
+            dataRowMinHeight: 30,
+            dataRowMaxHeight: 40,
+            border: TableBorder.all(
+              color: const Color.fromARGB(255, 191, 191, 191),
+              width: 1,
+            ),
+            columns: const [
+              DataColumn(label: Text('Applicant')),
+              DataColumn(label: Text('Job Title')),
+              DataColumn(label: Text('Job Location')),
+              DataColumn(label: Text('Status')),
+              DataColumn(label: Text("Placement")),
+              DataColumn(label: Text('Applied On')),
+              DataColumn(label: Text('Action')),
+            ],
+            rows: applications.map((application) {
+              final appId = application['id'];
 
-            return DataRow(
-              cells: [
-                DataCell(Text(application['full_name'] ?? 'N/A')),
-                DataCell(Text(application['title']?.toString() ?? 'N/A')),
-                DataCell(Text(application['location'] ?? 'N/A')),
-                DataCell(
-                  AppSelect<String>(
-                    items: statuses,
-                    value: selectedStatusMap.value[appId] ?? application["status"],
-                    placeholder: "Status",
-                    borderColor: AppColor.muted,
-                    getLabel: (item) => item,
-                    onChanged: (value) async {
-                      bool? confirmed = await showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text("Confirm Change"),
-                          content: Text(
-                            "Are you sure you want to change status to \"$value\"?",
+              return DataRow(
+                cells: [
+                  DataCell(Text(application['full_name'] ?? 'N/A')),
+                  DataCell(Text(application['title']?.toString() ?? 'N/A')),
+                  DataCell(Text(application['location'] ?? 'N/A')),
+                  DataCell(
+                    AppSelect<String>(
+                      items: statuses,
+                      value: selectedStatusMap.value[appId] ?? application["status"],
+                      placeholder: "Status",
+                      borderColor: AppColor.muted,
+                      getLabel: (item) => item,
+                      onChanged: (value) async {
+                        bool? confirmed = await showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text("Confirm Change"),
+                            content: Text(
+                              "Are you sure you want to change status to \"$value\"?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text("Confirm"),
+                              ),
+                            ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text("Cancel"),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text("Confirm"),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (!context.mounted) return;
-                      if (confirmed == true) {
-                        selectedStatusMap.value = {
-                          ...selectedStatusMap.value,
-                          appId: value,
-                        };
-                        _updateStatus(context, appId, value!);
-                      }
-                    },
+                        );
+                        if (!context.mounted) return;
+                        if (confirmed == true) {
+                          selectedStatusMap.value = {
+                            ...selectedStatusMap.value,
+                            appId: value,
+                          };
+                          _updateStatus(context, appId, value!);
+                        }
+                      },
+                    ),
                   ),
-                ),
-                DataCell(
-                  AppSelect<String>(
-                    items: placements,
-                    value: selectedPlacementMap.value[appId] ?? application["placement"],
-                    placeholder: "Placement",
-                    getLabel: (item) => item,
-                    borderColor: AppColor.muted,
-                    onChanged: (value) async {
-                      bool? confirmed = await showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text("Confirm Change"),
-                          content: Text(
-                            "Are you sure you want to change placement to \"$value\"?",
+                  DataCell(
+                    AppSelect<String>(
+                      items: placements,
+                      value: selectedPlacementMap.value[appId] ?? application["placement"],
+                      placeholder: "Placement",
+                      getLabel: (item) => item,
+                      borderColor: AppColor.muted,
+                      onChanged: (value) async {
+                        bool? confirmed = await showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text("Confirm Change"),
+                            content: Text(
+                              "Are you sure you want to change placement to \"$value\"?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text("Confirm"),
+                              ),
+                            ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text("Cancel"),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text("Confirm"),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (!context.mounted) return;
-                      if (confirmed == true) {
-                        selectedPlacementMap.value = {
-                          ...selectedPlacementMap.value,
-                          appId: value,
-                        };
-                        _updatePlacement(context, appId, value!);
-                      }
-                    },
+                        );
+                        if (!context.mounted) return;
+                        if (confirmed == true) {
+                          selectedPlacementMap.value = {
+                            ...selectedPlacementMap.value,
+                            appId: value,
+                          };
+                          _updatePlacement(context, appId, value!);
+                        }
+                      },
+                    ),
                   ),
-                ),
-                DataCell(Text(formatDateTime(application['applied_on']))),
-                DataCell(
-                  application["document_path"] != null &&
-                          application["document_path"].toString().isNotEmpty
-                      ? GestureDetector(
-                          onTap: () => viewResume(application["job_seeker_id"], context),
-                          child: const Text(
-                            'View Resume',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
+                  DataCell(Text(formatDateTime(application['applied_on']))),
+                  /// ACTION --------
+                  DataCell(
+                    AppButton(
+                      label: "View Profile",
+                      onPressed: () {
+                        navigateTo(
+                          context,
+                          EditProfile(
+                            employerClaim: {
+                              "id": application['job_seeker_id'],
+                              "role": "employer"
+                            },
                           ),
-                        )
-                      : const Text('No Resume'),
-                ),
-
-                /// ACTION --------
-                DataCell(
-                  AppButton(
-                    label: "View Profile",
-                    onPressed: () {
-                      navigateTo(
-                        context,
-                        EditProfile(
-                          employerClaim: {
-                            "id": application['job_seeker_id'],
-                            "role": "employer"
-                          },
-                        ),
-                      );
-                    },
-                    backgroundColor: AppColor.primary,
-                    visualDensityY: -2,
+                        );
+                      },
+                      backgroundColor: AppColor.primary,
+                      visualDensityY: -2,
+                    ),
                   ),
-                ),
-              ],
-            );
-          }).toList(),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

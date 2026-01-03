@@ -3,6 +3,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+const scrollableTablePadding = 24.0;
+
 String formatDateTime(String isoString) {
   final dateTime = DateTime.parse(isoString); 
   final dateFormat = DateFormat("MMMM d, y 'at' h:mm a"); 
