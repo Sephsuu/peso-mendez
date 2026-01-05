@@ -1,16 +1,17 @@
 import admin from "firebase-admin";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
-// Fix __dirname in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
 
-// Read service account JSON file
-const serviceAccount = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "service-account-key.json"), "utf8")
-);
+if (!serviceAccountJson) {
+  throw new Error("Missing FIREBASE_SERVICE_ACCOUNT env var");
+}
+
+const serviceAccount = JSON.parse(serviceAccountJson);
+
+// Fix escaped newlines in the private key (common in env vars)
+if (serviceAccount.private_key) {
+  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

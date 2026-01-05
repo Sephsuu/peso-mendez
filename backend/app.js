@@ -19,7 +19,7 @@ import reportRoute from './src/routes/report.route.js'
 const secret = 'your-static-development-secret-key-here';
 
 const app = express();
-const PORT = 3005;
+const PORT = process.env.PORT || 3005;
 
 // --- Resolve __dirname (ES module compatible) ---
 const __filename = fileURLToPath(import.meta.url);
@@ -53,7 +53,7 @@ app.use('/messages', messageRoute);
 app.use('/tokens', tokenRoute);
 app.use('/reports', reportRoute);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📂 Serving uploads from: ${path.join(__dirname, '../uploads')}`);
 });
