@@ -73,6 +73,21 @@ class VerificationService {
     );
   }
 
+  static Future<Map<String, dynamic>> updateVerification(
+    int id,
+    Map<String, dynamic> verification,
+  ) async {
+    return await request(
+      '$url/update',
+      method: 'POST',
+      body: {
+        ...verification,
+        "id": id, 
+      },
+    );
+  }
+
+
   static Future<Map<String, dynamic>> updateVerificationStatus(id, status, String note) async {
     return await request(
       '$url/update-status?id=$id&status=$status',

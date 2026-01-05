@@ -413,23 +413,26 @@ class YourApplicationsCard extends HookWidget {
           ),
           const SizedBox(height: 5.0),
           applications.value.isEmpty ?
-            Card(
-              color: const Color.fromARGB(255, 211, 255, 235),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  children: [
-                    Text("You haven't applied to any jobs yet.\nStart applying to jobs from the job listings page!", style: AppText.textSuccess),
-                    const SizedBox(height: 10.0),
-                    AppButton(
-                      label: 'Browse Jobs', 
-                      onPressed: () => navigateTo(context, const JobListing()),
-                      foregroundColor: AppColor.light,
-                      textSize: 12,
-                      visualDensityY: -2,
-                    ),
-                  ],
-                )
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                color: const Color.fromARGB(255, 227, 238, 255),
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    children: [
+                      Text("You haven't applied to any jobs yet.\nStart applying to jobs from the job listings page!", style: AppText.textPrimary),
+                      const SizedBox(height: 10.0),
+                      AppButton(
+                        label: 'Browse Jobs', 
+                        onPressed: () => navigateTo(context, const JobListing()),
+                        foregroundColor: AppColor.light,
+                        textSize: 12,
+                        visualDensityY: -2,
+                      ),
+                    ],
+                  )
+                ),
               ),
             )
           : Scrollbar(
@@ -563,12 +566,12 @@ class SavedJobsCard extends HookWidget {
             SizedBox(
               width: double.infinity,
               child: Card(
-                color: const Color.fromARGB(255, 211, 255, 235),
+                color: const Color.fromARGB(255, 227, 238, 255),
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Column(
                     children: [
-                      Text("You haven't saved any jobs yet.\nSave jobs to review them later!", style: AppText.textSuccess),
+                      Text("You haven't saved any jobs yet.\nSave jobs to review them later!", style: AppText.textPrimary),
                       const SizedBox(height: 10.0),
                       AppButton(
                         label: 'Browse Jobs', 

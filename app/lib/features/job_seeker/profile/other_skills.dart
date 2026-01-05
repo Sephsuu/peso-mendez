@@ -308,7 +308,7 @@ class OtherSkills extends HookWidget {
                                 const EdgeInsets.only(right: 8, bottom: 8),
                             child: AppBadge(
                               text: user.value[j]['skill'],
-                              color: AppColor.primary,
+                              backgroundColor: AppColor.primary,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 5, vertical: 2),
                             ),

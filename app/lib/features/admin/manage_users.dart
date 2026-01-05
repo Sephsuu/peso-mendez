@@ -220,16 +220,16 @@ class _UsersTableState extends State<UsersTable> {
                     user["role"] == 'job_seeker' ? (
                       const AppBadge(
                         text: 'Job Seeker', 
-                        color: Color.fromARGB(255, 205, 238, 250),
+                        backgroundColor: Color.fromARGB(255, 205, 238, 250),
                         padding: EdgeInsets.symmetric(horizontal: 5),
-                        fontColor: AppColor.dark,
+                        foregroundColor: AppColor.dark,
                       )
                     ) : (
                       const AppBadge(
                         text: 'Employer', 
-                        color: Color.fromARGB(255, 215, 215, 215),
+                        backgroundColor: Color.fromARGB(255, 215, 215, 215),
                         padding: EdgeInsets.symmetric(horizontal: 5),
-                        fontColor: AppColor.dark,
+                        foregroundColor: AppColor.dark,
                       )
                     )
                   ),
@@ -237,13 +237,13 @@ class _UsersTableState extends State<UsersTable> {
                     user["status"] == 'active' ? (
                       const AppBadge(
                         text: 'Active', 
-                        color: AppColor.success,
+                        backgroundColor: AppColor.success,
                         padding: EdgeInsets.symmetric(horizontal: 5),
                       )
                     ) : (
                       const AppBadge(
                         text: 'Inactive', 
-                        color: AppColor.danger,
+                        backgroundColor: AppColor.danger,
                         padding: EdgeInsets.symmetric(horizontal: 5),
                       )
                     )

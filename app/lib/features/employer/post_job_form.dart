@@ -277,7 +277,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
                               },
                               child: AppBadge(
                                 text: skill,
-                                color: AppColor.primary,
+                                backgroundColor: AppColor.primary,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 8,

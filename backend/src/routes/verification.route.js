@@ -83,6 +83,70 @@ router.post('/create', async (req, res) => {
     }
 })
 
+router.post("/update", async (req, res) => {
+    try {
+        const body = req.body || {};
+
+        const verificationId = body.id;
+        const employerId = body.employerId;
+
+        if (!verificationId && !employerId) {
+        return res.status(400).json({ error: "Missing id or employerId" });
+        }
+
+        const updatePayload = {
+        ...body,
+        status: "pending",
+        note: "", // optional: clear old rejection note on resubmit
+        };
+
+        delete updatePayload.full_name;
+        delete updatePayload.created_at;
+        delete updatePayload.updated_at;
+
+        const updated = verificationId
+        ? await verificationQuery.updateVerificationById(verificationId, updatePayload)
+        : await verificationQuery.updateVerificationByEmployerId(employerId, updatePayload);
+
+        if (!updated) {
+        return res.status(404).json({ error: "Verification not found" });
+        }
+
+        const userIds = await helper.getUserIdsByRole("admin");
+        const tokens = await tokenQuery.getTokensByRole("admin");
+
+        for (const id of userIds) {
+        await notificationQuery.createNotification({
+            recipient_id: id,
+            recipient_role: "admin",
+            sender_id: null,
+            type: "VERIFICATION",
+            content: `Employer ${updated.full_name} re-submitted accreditation documents.`,
+        });
+        }
+
+        if (tokens.length > 0) {
+        const payload = {
+            tokens,
+            notification: {
+            title: "Employer accreditation",
+            body: `Employer ${updated.full_name} re-submitted accreditation documents.`,
+            },
+            data: { screen: "verification" },
+        };
+
+        const response = await admin.messaging().sendEachForMulticast(payload);
+            console.log("FCM RESPONSE:", JSON.stringify(response, null, 2));
+        }
+
+        return res.json(updated);
+    } catch (err) {
+        console.error("UPDATE VERIFICATION ERROR:", err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+
 router.patch('/update-status', async (req, res) => {
     const { id, status } = req.query;
     const { note } = req.body;

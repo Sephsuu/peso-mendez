@@ -60,7 +60,7 @@ router.post(
       for (const field of documentFields) {
         payload[field] = req.files[field]
           ? `uploads/employer-documents/${req.files[field][0].filename}`
-          : "";
+          : null;
       }
 
       res.json({

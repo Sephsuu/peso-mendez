@@ -12,7 +12,7 @@ export async function getAllUserIds() {
 
 export async function getUserIdsByRole(role) {
     const [rows]  = await pool.query(
-        `SELECT id FROM users WHERE role=? AND status="active"`,
+        `SELECT id FROM users WHERE role= ? AND status="active"`,
         [role]
     )
 

@@ -52,5 +52,13 @@ class AuthService {
     navigateTo(context, const Login());
   }
 
+  static Future<Map<String, dynamic>> forgotPassword(String email) async {
+    return await request(
+      '$url/forgot-password',
+      method: 'POST',
+      body: { "email": email }
+    );
+  }
+
   
 }

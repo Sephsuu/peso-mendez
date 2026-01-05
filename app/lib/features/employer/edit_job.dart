@@ -217,7 +217,7 @@ class EditJob extends HookWidget {
                         },
                         child: AppBadge(
                           text: selectedSkills.value[index],
-                          color: AppColor.primary,
+                          backgroundColor: AppColor.primary,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 8,

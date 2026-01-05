@@ -12,6 +12,8 @@ import * as notificationQuery from "../queries/notifications.query.js";
 import admin from '../middlewares/firebase.js'
 import { sendVerificationEmail } from '../utils/mailer.js';
 import crypto from "crypto";
+import { sendResetEmail, generateResetToken } from "../utils/mailer.js";
+import pool from "../../db.js"; // mysql2 pool
 
 const router = express.Router();
 
@@ -149,7 +151,7 @@ router.get("/verify-email", async (req, res) => {
 });
 
 router.get('/get-claims', authenticateToken, (req, res) => {
-  res.json(req.user);
+    res.json(req.user);
 });
 
 router.post('/update-password', async (req, res) => {
@@ -197,6 +199,77 @@ router.get("/test-email", async (req, res) => {
     }
 });
 
+router.post("/forgot-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: "Email is required" });
 
+        const [rows] = await pool.query("SELECT id, email FROM users WHERE email = ? LIMIT 1", [email]);
+
+        // prevent email enumeration
+        if (rows.length === 0) {
+        return res.json({ success: true, message: "If that email exists, a reset link was sent." });
+        }
+
+        const rawToken = generateResetToken(); // or crypto.randomBytes(32).toString("hex")
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+        await pool.query(
+        `UPDATE users
+        SET reset_password_token = ?, reset_password_expires = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+        WHERE id = ?`,
+        [hashedToken, rows[0].id]
+        );
+
+        await sendResetEmail(email, rawToken);
+
+        return res.json({ success: true, message: "If that email exists, a reset link was sent." });
+    } catch (e) {
+        console.error("FORGOT PASSWORD ERROR:", e);
+        return res.status(500).json({ error: "Server error" });
+    }
+});
+
+router.post("/reset-password", async (req, res) => {
+    try {
+        const { email, token, newPassword } = req.body;
+
+        if (!email || !token || !newPassword) {
+            return res.status(400).json({ error: "email, token, newPassword are required" });
+        }
+        if (newPassword.length < 8) {
+            return res.status(400).json({ error: "Password must be at least 8 characters" });
+        }
+
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        const [rows] = await pool.query(
+            `SELECT id FROM users
+            WHERE email = ?
+                AND reset_password_token = ?
+                AND reset_password_expires > NOW()
+            LIMIT 1`,
+            [email, hashedToken]
+        );
+
+        if (rows.length === 0) {
+        return res.status(400).json({ error: "Invalid or expired token" });
+        }
+
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+
+        await pool.query(
+        `UPDATE users
+        SET password = ?, reset_password_token = NULL, reset_password_expires = NULL
+        WHERE id = ?`,
+        [passwordHash, rows[0].id]
+        );
+
+        return res.json({ success: true, message: "Password reset successfully" });
+    } catch (e) {
+        console.error("RESET PASSWORD ERROR:", e);
+        return res.status(500).json({ error: "Server error" });
+    }
+});
 
 export default router;

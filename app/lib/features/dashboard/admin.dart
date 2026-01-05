@@ -4,6 +4,7 @@ import 'package:app/core/components/card.dart';
 import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
+import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/announcement_service.dart';
 import 'package:app/core/services/user_service.dart';
@@ -179,6 +180,7 @@ class EmployerVerificationQueue extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final claims = useClaimsHook(context);
     final reload = useState(false);
     final verifications = useState<List<Map<String, dynamic>>>([]);
 
@@ -234,7 +236,7 @@ class EmployerVerificationQueue extends HookWidget {
                             AppButton(
                               label: 'View Documents',
                               backgroundColor: AppColor.primary,
-                              onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["employer_id"])),
+                              onPressed: () => navigateTo(context, ViewEmployerDocuments(claims: claims)),
                               visualDensityY: -3,
                             ),
                           ])),

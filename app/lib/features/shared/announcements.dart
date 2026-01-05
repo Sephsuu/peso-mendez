@@ -1,4 +1,5 @@
 import 'package:app/core/components/button.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
@@ -18,25 +19,9 @@ class Announcements extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
+    final loading = useState(true);
     final announcements = useState<List<Map<String, dynamic>>>([]);
 
-    // 🎨 Badge color based on audience
-    Color getAudienceColor(String audience) {
-      switch (audience.toLowerCase()) {
-        case "all":
-          return Colors.blue;
-        case "job_seeker":
-          return Colors.green;
-        case "employer":
-          return Colors.purple;
-        case "admin":
-          return Colors.orange;
-        default:
-          return Colors.grey;
-      }
-    }
-
-    // 🔤 Format audience → ALL, JOB SEEKER, etc.
     String formatAudience(String value) {
       return value.replaceAll("_", " ").toUpperCase();
     }
@@ -54,6 +39,7 @@ class Announcements extends HookWidget {
           }
 
           announcements.value = data;
+          loading.value = false;
         } catch (e) {
           if (!context.mounted) return;
           AppSnackbar.show(
@@ -74,7 +60,9 @@ class Announcements extends HookWidget {
         onMenuPressed: (context) => Scaffold.of(context).openDrawer(),
       ),
       endDrawer: const OffcanvasNavigation(),
-      body: Padding(
+      body: loading.value
+        ? const Loader()
+        : Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,11 +80,33 @@ class Announcements extends HookWidget {
             // 🗒️ Announcements list
             Expanded(
               child: announcements.value.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No announcements found.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.campaign_outlined,
+                              size: 60,
+                              color: AppColor.muted,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No notifications yet',
+                              style: AppText.textMd.merge(AppText.fontSemibold),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'You will see updates here once they arrive.',
+                              style: AppText.textSm.copyWith(color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
                     )
                   : ListView.builder(
                       itemCount: announcements.value.length,
@@ -125,9 +135,13 @@ class Announcements extends HookWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     AppBadge(
-                                      text: formatAudience(item['target_audience'] ?? ""),
-                                      color: getAudienceColor(item['target_audience'] ?? ""),
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      text: formatAudience(
+                                          item['target_audience'] ?? ''),
+                                      backgroundColor: AppColor.light,
+                                      foregroundColor: AppColor.primary,
+                                      borderColor: AppColor.primary,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
                                       fontSize: 10,
                                       borderRadius: 8,
                                       isCenter: false,
@@ -136,21 +150,24 @@ class Announcements extends HookWidget {
                                 ),
                                 const SizedBox(height: 6),
 
-                                // 📄 Content (ellipsis after 2 lines)
+                                // 📄 Content preview
                                 Text(
-                                  item['content'] ?? 'No content available.',
+                                  item['content'] ??
+                                      'No content available.',
                                   style: AppText.textXs,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 10),
 
-                                // 📅 Footer row
+                                // 📅 Footer
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      formatAnnouncementDate(item['posted_on']),
+                                      formatAnnouncementDate(
+                                          item['posted_on']),
                                       style: AppText.textXs.copyWith(
                                         color: Colors.grey[600],
                                       ),
@@ -158,9 +175,12 @@ class Announcements extends HookWidget {
                                     AppButton(
                                       label: 'View More',
                                       textSize: 10,
+                                      backgroundColor:
+                                          AppColor.primary,
                                       onPressed: () => navigateTo(
                                         context,
-                                        ViewAnnouncement(announcement: item),
+                                        ViewAnnouncement(
+                                            announcement: item),
                                       ),
                                       visualDensityY: -4,
                                     ),
@@ -173,6 +193,7 @@ class Announcements extends HookWidget {
                       },
                     ),
             ),
+          
           ],
         ),
       ),

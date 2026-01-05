@@ -53,18 +53,39 @@ export async function getApplicationsByUser(userId) {
 }
 
 export async function getApplicationByJobAndUser(jobId, userId) {
-    const [rows] = await pool.query(
-      `SELECT a.id, a.status AS applicationStatus, a.applied_on,
-        j.id as job_id, j.title, j.company, j.location, j.salary, j.type, j.description, j.visibility, j.posted_on, j.status, j.employer_id,
-        u.full_name, u.email, u.contact FROM applications a
-        JOIN jobs j ON a.job_id = j.id
-        JOIN users u ON j.employer_id = u.id
-        WHERE a.job_id = ? AND a.job_seeker_id`,
-      [jobId, userId]
-    )
+  const [rows] = await pool.query(
+    `
+    SELECT 
+      a.id,
+      a.status AS applicationStatus,
+      a.applied_on,
+      j.id AS job_id,
+      j.title,
+      j.company,
+      j.location,
+      j.salary,
+      j.type,
+      j.description,
+      j.visibility,
+      j.posted_on,
+      j.status AS job_status,
+      j.employer_id,
+      u.full_name,
+      u.email,
+      u.contact
+    FROM applications a
+    JOIN jobs j ON a.job_id = j.id
+    JOIN users u ON j.employer_id = u.id
+    WHERE a.job_id = ? 
+      AND a.job_seeker_id = ?
+    LIMIT 1
+    `,
+    [jobId, userId]
+  );
 
-    return rows[0] ?? {};
+  return rows[0] ?? {};
 }
+
 
 export async function getApplicationsByEmployer(employerId) {
     const [rows] = await pool.query(

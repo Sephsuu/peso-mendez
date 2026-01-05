@@ -20,7 +20,7 @@ export async function getAnnouncementsByRole(role) {
 
     if (role !== 'all') {
         const [result] = await pool.query(
-            `SELECT * FROM announcements WHERE target_audience = ? ORDER BY posted_on DESC`,
+            `SELECT * FROM announcements WHERE target_audience = ? OR target_audience = "all" ORDER BY posted_on DESC`,
             [role]
         );
         rows = result;

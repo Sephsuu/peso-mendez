@@ -278,6 +278,51 @@ class _LoginFormState extends State<LoginForm> with RouteAware {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 10),
+                Center(
+                  child: GestureDetector(
+                    child: Text('Forgot Password.', style: AppText.textPrimary),
+                    onTap: () async {
+                      final email = _emailOrUsername.text.trim();
+
+                      if (!email.contains('@') && !email.contains('.')) {
+                        return AppSnackbar.show(
+                          context, 
+                          message: 'Please enter a valid email address.',
+                          backgroundColor: AppColor.danger
+                        );
+                      }
+
+                      if (email.isEmpty) {
+                        AppSnackbar.show(
+                          context,
+                          message: "Please enter your email.",
+                          backgroundColor: AppColor.danger,
+                        );
+                        return;
+                      }
+
+                      try {
+                        await AuthService.forgotPassword(email);
+
+                        if (!context.mounted) return;
+                        AppSnackbar.show(
+                          context,
+                          message: "If that email exists, a reset link was sent.",
+                          backgroundColor: AppColor.success,
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        AppSnackbar.show(
+                          context,
+                          message: "Failed to send reset email: $e",
+                          backgroundColor: AppColor.danger,
+                        );
+                      }
+                    },
+
+                  )
                 )
               ],
             ),

@@ -80,44 +80,74 @@ class Notifications extends HookWidget {
             ),
             const Divider(thickness: 1, height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: notifications.value.length,
-                itemBuilder: (context, index) {
-                  final notif = notifications.value[index];
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.notifications_active_outlined,
-                        color: AppColor.primary,
-                      ),
-                      title: Text(
-                        notif['type'],
-                        style: AppText.textXs.merge(AppText.fontSemibold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 4),
-                          Text(
-                            notif['content'],
-                            style: AppText.textXs,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            formatDateTime(notif['created_at']),
-                            style: AppText.textXs.copyWith(
-                              color: Colors.grey[600],
+              child: notifications.value.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.notifications_none,
+                              size: 60,
+                              color: AppColor.muted,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No notifications yet',
+                              style: AppText.textMd.merge(AppText.fontSemibold),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'You will see updates here once they arrive.',
+                              style: AppText.textSm.copyWith(color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                    )
+                  : ListView.builder(
+                      itemCount: notifications.value.length,
+                      itemBuilder: (context, index) {
+                        final notif = notifications.value[index];
+                        return Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.notifications_active_outlined,
+                              color: AppColor.primary,
+                            ),
+                            title: Text(
+                              notif['type'],
+                              style: AppText.textXs.merge(AppText.fontSemibold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text(
+                                  notif['content'],
+                                  style: AppText.textXs,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  formatDateTime(notif['created_at']),
+                                  style: AppText.textXs.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
+
           ],
         ),
       )

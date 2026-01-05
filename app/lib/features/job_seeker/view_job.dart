@@ -23,155 +23,249 @@ import 'package:intl/intl.dart';
 
 class ViewJob extends HookWidget {
   final int jobId;
-  const ViewJob({
-    super.key,
-    required this.jobId,
-  });
+  const ViewJob({super.key, required this.jobId});
 
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
+
     final job = useState<Map<String, dynamic>>({});
     final jobSkills = useState<List<String>>([]);
     final profileStrength = useState<double>(0);
+
     final loading = useState(true);
     final isSaved = useState(false);
     final isApplied = useState(false);
+    final applying = useState(false);
 
+    /// =========================
+    /// FETCH JOB DATA (SAFE)
+    /// =========================
     useEffect(() {
-      void fetchData() async {
-        if (claims.isNotEmpty) {
-          loading.value = true;
+      bool cancelled = false;
 
+      Future<void> fetchData() async {
+        if (claims.isEmpty) return;
+
+        loading.value = true;
+
+        // ✅ RESET STATE FIRST (prevents stale UI)
+        isSaved.value = false;
+        isApplied.value = false;
+
+        try {
           final data = await JobService.getJobById(jobId);
-          final res = await UserService.getUserProfileStrength(claims['id']);
-          final jobSkillsRes = await JobService.getJobSkills(jobId);
+          final res =
+              await UserService.getUserProfileStrength(claims['id']);
+          final jobSkillsRes =
+              await JobService.getJobSkills(jobId);
+
+          if (cancelled) return;
 
           job.value = data;
           jobSkills.value =
               jobSkillsRes.map((e) => e['skill']).cast<String>().toList();
           profileStrength.value = res;
 
-          final saved =
-              await JobService.getSavedJobByUserJob(claims['id'], jobId);
+          final saved = await JobService.getSavedJobByUserJob(
+              claims['id'], jobId);
           final applied =
-              await ApplicationService.getApplicationByJobAndUser(jobId, claims['id']);
+              await ApplicationService.getApplicationByJobAndUser(
+                  jobId, claims['id']);
+
+          if (cancelled) return;
 
           isSaved.value = saved.isNotEmpty;
           isApplied.value = applied.isNotEmpty;
-
-          loading.value = false;
+        } finally {
+          if (!cancelled) loading.value = false;
         }
       }
 
       fetchData();
-      return null;
-    }, [claims, jobId]); // ✅ ONLY STABLE DEPENDENCIES
 
+      return () {
+        cancelled = true;
+      };
+    }, [jobId, claims['id']]);
 
+    /// =========================
+    /// SAVE / UNSAVE JOB
+    /// =========================
     void toggleSaveJob() async {
       try {
         if (isSaved.value) {
-          await JobService.unsaveJob(claims['id'], job.value['id']);
-
-          if (!context.mounted) return;
-          AppSnackbar.show(
-            context,
-            message: 'Job removed from saved list',
-            backgroundColor: AppColor.warning,
-          );
-
+          await JobService.unsaveJob(
+              claims['id'], job.value['id']);
           isSaved.value = false;
-        } else {
-          await JobService.saveJob(claims['id'], job.value['id']);
 
-          if (!context.mounted) return;
+          if (context.mounted) {
+            AppSnackbar.show(
+              context,
+              message: 'Job removed from saved list',
+              backgroundColor: AppColor.warning,
+            );
+          }
+        } else {
+          if (profileStrength.value < 0.55) {
+            return showDialog(
+              context: context, 
+              builder: (context) {
+                return AppModal(
+                  title: 'Your profile strength must be atleast 60% in order to save jobs.',
+                  titleStyle: AppText.fontSemibold.merge(AppText.textLg),
+                  confirmLabel: "I understand.",
+                  confirmBackground: AppColor.primary,
+                  confirmForeground: AppColor.light,
+                );
+              }
+            );
+          }
+          await JobService.saveJob(
+          claims['id'], job.value['id']);
+          isSaved.value = true;
+
+          if (context.mounted) {
+            AppSnackbar.show(
+              context,
+              message: 'Job successfully saved',
+              backgroundColor: AppColor.success,
+            );
+          }
+        }
+      } catch (_) {
+        if (context.mounted) {
+          showAlertError(context, 'Failed to update saved jobs');
+        }
+      }
+    }
+
+    /// =========================
+    /// APPLY JOB (SAFE)
+    /// =========================
+    void applyJob() async {
+      if (applying.value) return;
+      applying.value = true;
+
+      try {
+        if (profileStrength.value < 0.75) {
+          return showDialog(
+            context: context, 
+            builder: (context) {
+              return AppModal(
+                title: 'Your profile strength must be 80% above in order to save jobs.',
+                titleStyle: AppText.fontSemibold.merge(AppText.textLg),
+                confirmLabel: "I understand.",
+                confirmBackground: AppColor.primary,
+                confirmForeground: AppColor.light,
+              );
+            }
+          );
+        }
+
+        final result =
+            await ApplicationService.createApplication(
+          job.value["id"],
+          claims['id'],
+        );
+
+        if (result.isNotEmpty && context.mounted) {
+          isApplied.value = true;
+
           AppSnackbar.show(
             context,
-            message: 'Job successfully saved',
+            message:
+                'Successfully applied for ${job.value["title"]}',
             backgroundColor: AppColor.success,
           );
-
-          isSaved.value = true;
         }
-      } catch (e) {
-        if (!context.mounted) return;
-        showAlertError(context, 'Failed to update saved jobs');
+      } catch (_) {
+        if (context.mounted) {
+          AppSnackbar.show(
+            context,
+            message: 'Failed to apply for job',
+            backgroundColor: AppColor.danger,
+          );
+        }
+      } finally {
+        applying.value = false;
       }
     }
 
-    void applyJob() async {
-      try {
-        if (profileStrength.value < 0.79) {
-          return AppSnackbar.show(
-            context, 
-            message: 'Please accomplish all form for you to apply jobs.',
-            backgroundColor: AppColor.primary,
-            durationSeconds: 8          );
-        }
-        final application = await ApplicationService.getApplicationByJobAndUser(job.value["id"], claims['id']);
-        if (application.isEmpty) {
-          final applySuccess = await ApplicationService.createApplication(job.value["id"], claims['id']);
-          if (applySuccess.isNotEmpty) {
-            if (!context.mounted) return;
-            AppSnackbar.show(
-              context, 
-              message: 'Successfully applied for job ${job.value["title"]}',
-              backgroundColor: AppColor.success
-            );
-            isApplied.value = !isApplied.value;
-          }
-        } else  {
-          if (!context.mounted) return;
-        }
-      } catch (e) { 
-        if (!context.mounted) return;
-        AppSnackbar.show(
-          context, 
-          message: '$e',
-          backgroundColor: AppColor.danger
-        );
-      }
-    }
-
+    /// =========================
+    /// UNAPPLY JOB (SAFE)
+    /// =========================
     void unapplyJob() async {
-      final applySuccess = await ApplicationService.deleteApplicationByJobUser(job.value["id"], claims['id']);
-      if (applySuccess.isNotEmpty) {
-        if (!context.mounted) return;
-        AppSnackbar.show(
-          context, 
-          message: 'Successfully unapplied for job ${job.value["title"]}',
-          backgroundColor: AppColor.success
+      if (applying.value) return;
+      applying.value = true;
+
+      try {
+        final result =
+            await ApplicationService.deleteApplicationByJobUser(
+          job.value["id"],
+          claims['id'],
         );
-        isApplied.value = !isApplied.value;
+
+        if (result.isNotEmpty && context.mounted) {
+          isApplied.value = false;
+
+          AppSnackbar.show(
+            context,
+            message:
+                'Successfully unapplied from ${job.value["title"]}',
+            backgroundColor: AppColor.success,
+          );
+        }
+      } catch (_) {
+        if (context.mounted) {
+          AppSnackbar.show(
+            context,
+            message: 'Failed to unapply',
+            backgroundColor: AppColor.danger,
+          );
+        }
+      } finally {
+        applying.value = false;
       }
     }
 
+    /// =========================
+    /// UI
+    /// =========================
     return Scaffold(
-      appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
+      appBar: AppNavigationBar(
+        title: 'Mendez PESO Job Portal',
+        onMenuPressed: (context) {
+          Scaffold.of(context).openDrawer();
+        },
+      ),
       endDrawer: const OffcanvasNavigation(),
-      body: !loading.value ? SingleChildScrollView(
-        child: Column(
-          children: [
-            ViewApplicationCover(
-              claims: claims,
-              job: job.value,
-              isApplied: isApplied.value,
-              isSaved: isSaved.value,
-              toggleSaveJob: toggleSaveJob,
-              applyJob: applyJob, unapplyJob: unapplyJob,
+      body: loading.value
+          ? const Loader()
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  ViewApplicationCover(
+                    claims: claims,
+                    job: job.value,
+                    isApplied: isApplied.value,
+                    isSaved: isSaved.value,
+                    toggleSaveJob: toggleSaveJob,
+                    applyJob: applyJob,
+                    unapplyJob: unapplyJob,
+                  ),
+                  JobDescriptionCard(
+                    description: job.value["description"],
+                    jobSkills: jobSkills.value,
+                  ),
+                  JobDetailsCard(job: job.value),
+                  if (claims['id'] != job.value['employer_id'])
+                    AboutCompanyCard(
+                        claims: claims, job: job.value),
+                  const Footer(),
+                ],
+              ),
             ),
-            JobDescriptionCard(
-              description: job.value["description"],
-              jobSkills: jobSkills.value,
-            ),
-            JobDetailsCard(job: job.value),
-            if (claims['id'] != job.value['employer_id'])
-              AboutCompanyCard(claims: claims, job: job.value),
-            const Footer()
-          ],
-        ),
-      ) : const Loader(),
     );
   }
 }
@@ -428,7 +522,7 @@ class JobDescriptionCard extends StatelessWidget {
                             padding: const EdgeInsets.only(right: 8, bottom: 8),
                             child: AppBadge(
                               text: jobSkills[j],
-                              color: AppColor.primary,
+                              backgroundColor: AppColor.primary,
                               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                             ),
                           ),

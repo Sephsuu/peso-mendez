@@ -4,6 +4,7 @@ import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/snackbar.dart';
+import 'package:app/core/hooks/use_claims.dart';
 import 'package:app/core/hooks/utils.dart';
 import 'package:app/features/admin/view_employer_documents.dart';
 import 'package:app/core/services/verification_service.dart';
@@ -21,6 +22,7 @@ class EmployersReport extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final claims = useClaimsHook(context);
     final loading = useState(true);
     final reload = useState(false);
     final find = useState('');
@@ -180,6 +182,7 @@ class EmployersReport extends HookWidget {
             ),
             const SizedBox(height: 10),
             EmployersTable(
+              claims: claims,
               activeTab: activeTab.value,
               loading: loading.value,
               employers: filteredEmployers.value,
@@ -193,6 +196,7 @@ class EmployersReport extends HookWidget {
 }
 
 class EmployersTable extends StatelessWidget {
+  final Map<String, dynamic> claims;
   final String activeTab;
   final List<Map<String, dynamic>> employers;
   final bool loading;
@@ -200,6 +204,7 @@ class EmployersTable extends StatelessWidget {
 
   const EmployersTable({
     super.key,
+    required this.claims,
     required this.activeTab,
     required this.employers,
     required this.loading,
@@ -304,7 +309,7 @@ class EmployersTable extends StatelessWidget {
                     AppButton(
                       label: 'View Documents',
                       backgroundColor: AppColor.primary,
-                      onPressed: () => navigateTo(context, ViewEmployerDocuments(employerId: item["id"])),
+                      onPressed: () => navigateTo(context, ViewEmployerDocuments(claims: claims)),
                       visualDensityY: -3,
                     ),
                   ),

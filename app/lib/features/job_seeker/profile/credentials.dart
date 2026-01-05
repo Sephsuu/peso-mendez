@@ -20,6 +20,7 @@ import 'package:app/core/components/navigation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path/path.dart' as path;
+import 'package:url_launcher/url_launcher.dart';
 class Credentials extends HookWidget {
   final Map<String, dynamic> claims;
   final bool open;
@@ -118,7 +119,36 @@ class Credentials extends HookWidget {
           context,
           MaterialPageRoute(
             builder: (_) => Scaffold(
-              appBar: AppBar(title: Text(claims["role"] == "job_seeker" ? "My Resume" : "Applicant Resume")),
+              appBar: AppBar(
+                title: Text(
+                  claims["role"] == "job_seeker"
+                      ? "My Resume"
+                      : "Applicant Resume",
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.download),
+                    tooltip: 'Download Resume',
+                    onPressed: () async {
+                      final uri = Uri.parse(rawUrl);
+
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } else {
+                        if (!context.mounted) return;
+                        AppSnackbar.show(
+                          context,
+                          message: "Unable to download file",
+                          backgroundColor: AppColor.danger,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
               body: InAppWebView(
                 initialUrlRequest: URLRequest(
                   url: WebUri(viewerUrl),
@@ -303,7 +333,7 @@ class Credentials extends HookWidget {
               Text('Role:', style: AppText.fontBold),
               const AppBadge(
                 text: 'Job Seeker', 
-                color: AppColor.primary,
+                backgroundColor: AppColor.primary,
                 isCenter: false,
                 padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               ),

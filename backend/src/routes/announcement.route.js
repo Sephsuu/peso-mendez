@@ -44,6 +44,44 @@ router.post('/create', async (req, res) => {
         
         let tokens;
         let userIds;
+        if (role == "all") {
+            userIds = await helper.getAllUserIds();
+            tokens = await tokenQuery.getAllTokens();
+
+            for (const id of userIds) {
+                await notificationQuery.createNotification({
+                    recipient_id: id,
+                    recipient_role: role,
+                    sender_id: null,
+                    type: "ANNOUNCEMENT",
+                    content: "A new announcement has been posted! Go check it out.",
+                })
+            }
+
+            if (tokens.length === 0) {
+                return res.json({
+                    success: true,
+                    message: "Announcement created but no FCM tokens found.",
+                    announcement: query
+                });
+            }
+
+            const payload = {
+                tokens: tokens,
+                notification: {
+                    title: "New Announcement",
+                    body: announcement.title || "A new announcement was posted",
+                },
+                data: {
+                    screen: "announcement",
+                    announcementId: String(query.id),
+                }
+            };
+
+            const response = await admin.messaging().sendEachForMulticast(payload);
+            console.log("FCM RESPONSE:", JSON.stringify(response, null, 2));
+            console.log("FCM ERROR DETAILS:", response.responses[0].error);
+        }
 
         if (role == "job_seeker") {
             userIds = await helper.getUserIdsByRole(role);

@@ -1,4 +1,20 @@
 import pool from "../../db.js";
+const TABLE = "employer_verification"; // ✅ change to your actual table name
+
+const ALLOWED_FIELDS = [
+  "status",
+  "note",
+  "letter_of_intent",
+  "company_profile",
+  "business_permit",
+  "mayors_permit",
+  "sec_registration",
+  "poea_dmw_registration",
+  "approved_job_order",
+  "job_vacancies",
+  "philjobnet_accreditation",
+  "dole_no_pending_case_certificate",
+];
 
 export async function getVerifications(role) {
     let rows;
@@ -115,6 +131,56 @@ export async function updateStatus(id, updatedStatus, note) {
     )
 
     return result[0] ?? { message: "Something went wrong" };
+}
+
+function buildUpdate(payload) {
+    const keys = Object.keys(payload).filter((k) => {
+        if (!ALLOWED_FIELDS.includes(k)) return false;
+        if (payload[k] === undefined) return false;
+        if (payload[k] === null) return false;
+        return true;
+    });
+
+    if (keys.length === 0) return null;
+
+    const setClause = keys.map((k) => `${k} = ?`).join(", ");
+    const values = keys.map((k) => payload[k]);
+
+    return { setClause, values };
+}
+
+export async function updateVerificationById(id, payload) {
+    const built = buildUpdate(payload);
+    if (!built) return null;
+
+    const { setClause, values } = built;
+
+    await pool.query(
+        `UPDATE ${TABLE} SET ${setClause}, updated_at = NOW() WHERE id = ?`,
+        [...values, id]
+    );
+
+    const [rows] = await pool.query(`SELECT * FROM ${TABLE} WHERE id = ? LIMIT 1`, [id]);
+    return rows?.[0] || null;
+}
+
+export async function updateVerificationByEmployerId(employerId, payload) {
+    const built = buildUpdate(payload);
+    if (!built) return null;
+
+    const { setClause, values } = built;
+
+    await pool.query(
+        `UPDATE ${TABLE} SET ${setClause}, updated_at = NOW() WHERE ${EMPLOYER_ID_COL} = ?`,
+        [...values, employerId]
+    );
+
+    // return the latest row for that employer
+    const [rows] = await pool.query(
+        `SELECT * FROM ${TABLE} WHERE ${EMPLOYER_ID_COL} = ? ORDER BY id DESC LIMIT 1`,
+        [employerId]
+    );
+    return rows?.[0] || null;
 }
 
 export async function getEmployersWithVerification() {
