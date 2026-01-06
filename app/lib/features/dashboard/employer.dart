@@ -199,70 +199,69 @@ class DashboardHeader extends StatelessWidget {
             ),
           )
         else
-          if (employerVerification["status"] == 'rejected' || employerVerification["status"] == 'pending')
-            SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Card(
-                  color: const Color.fromARGB(255, 227, 238, 255),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+          SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Card(
+                color: const Color.fromARGB(255, 227, 238, 255),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 20,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 20,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Verification Status: ${employerVerification['status'].toUpperCase()}',
-                          textAlign: TextAlign.center,
-                          style: AppText.textMd
-                              .merge(AppText.fontSemibold)
-                              .copyWith(
-                                color: employerVerification['status'] == 'approved'
-                                    ? Colors.green
-                                    : employerVerification['status'] == 'rejected'
-                                        ? AppColor.danger
-                                        : AppColor.primary, // pending
-                              ),
-                        ),
-
-                        // ❌ REJECTED → show reason
-                        if (employerVerification['status'] == "rejected") ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            'Reason: ${employerVerification["note"] ?? "Reason not specified."}',
-                            textAlign: TextAlign.center,
-                            style: AppText.textSm.copyWith(color: Colors.black),
-                          ),
-                        ],
-
-                        // ✅ PENDING → show button
-                        if (employerVerification['status'] == 'pending') ...[
-                          const SizedBox(height: 12),
-                          AppButton(
-                            label: 'View Documents',
-                            onPressed: () => navigateTo(
-                              context,
-                              ViewEmployerDocuments(
-                                claims: claims,
-                              ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Verification Status: ${employerVerification['status'].toUpperCase()}',
+                        textAlign: TextAlign.center,
+                        style: AppText.textMd
+                            .merge(AppText.fontSemibold)
+                            .copyWith(
+                              color: employerVerification['status'] == 'approved'
+                                  ? Colors.green
+                                  : employerVerification['status'] == 'rejected'
+                                      ? AppColor.danger
+                                      : AppColor.primary, // pending
                             ),
-                            visualDensityY: -2,
-                          ),
-                        ],
+                      ),
+
+                      // ❌ REJECTED → show reason
+                      if (employerVerification['status'] == "rejected") ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Reason: ${employerVerification["note"] ?? "Reason not specified."}',
+                          textAlign: TextAlign.center,
+                          style: AppText.textSm.copyWith(color: Colors.black),
+                        ),
                       ],
-                    ),
+
+                      // ✅ PENDING → show button
+                      if (employerVerification['status'] == 'pending' || employerVerification["status"] == "approved") ...[
+                        const SizedBox(height: 12),
+                        AppButton(
+                          label: 'View Documents',
+                          onPressed: () => navigateTo(
+                            context,
+                            ViewEmployerDocuments(
+                              claims: claims,
+                            ),
+                          ),
+                          visualDensityY: -2,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
-            )
+            ),
+          )
       ],
     );
   }
