@@ -8,7 +8,9 @@ import 'package:app/features/dashboard/admin.dart';
 import 'package:app/features/dashboard/employer.dart';
 import 'package:app/features/dashboard/job_seeker.dart';
 import 'package:app/features/employer/view_active_jobs.dart';
+import 'package:app/features/employer/view_employer_profile.dart';
 import 'package:app/features/forms/login.dart';
+import 'package:app/features/job_seeker/edit_profile.dart';
 import 'package:app/features/shared/about.dart';
 import 'package:app/features/shared/contact.dart';
 import 'package:app/features/shared/conversations.dart';
@@ -34,12 +36,18 @@ class OffcanvasNavigation extends HookWidget {
           const JobSeekerDashboard() : claims['role'] == 'employer' ?
           const EmployerDashboard() : const AdminDashboard() 
       },
+      { 
+        "name": "Profile", "href": claims['role'] == 'job_seeker' ?
+          const EditProfile() : claims['role'] == 'employer' ?
+          EmployerInformation(claims: claims,) : null 
+      },
       { "name": "About", "href": const About() },
       { "name": "Job Listing", "href": claims["role"] != "employer" ? const JobListing() : const ViewActiveJobs() },
       { "name": "Messages", "href": const Conversations() },
       { "name": "Announcements", "href": const Announcements() },
       { "name": "Notifications", "href": const Notifications() },
       { "name": "Contact", "href": const Contact() },
+
     ];
 
     void logout() async {

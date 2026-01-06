@@ -2,21 +2,36 @@ import pool from "../../db.js";
 
 export async function getJobs() {
     const [rows] = await pool.query(`
-        SELECT * FROM jobs 
-        WHERE status = "active" 
-        ORDER BY posted_on DESC`
-    );
+        SELECT j.*
+        FROM jobs j
+        INNER JOIN users u 
+            ON u.id = j.employer_id
+        WHERE j.status = 'active'
+        AND u.role = 'employer'
+        AND u.status = 'active'
+        AND u.is_active = 1
+        ORDER BY j.posted_on DESC;
+    `);
     return rows;
 }
 
 export async function getRecommendedJobs(userId) {
     const [rows] = await pool.query(
-        `SELECT DISTINCT j.*
+        `
+        SELECT DISTINCT j.*
         FROM jobs j
-        JOIN job_skills js ON j.id = js.job_id
-        JOIN other_skills os ON js.skill = os.skill
-        WHERE os.user_id = ? AND j.status = ?;`,
-        [userId, 'active']
+        INNER JOIN users u 
+            ON u.id = j.employer_id
+        INNER JOIN job_skills js 
+            ON j.id = js.job_id
+        INNER JOIN other_skills os 
+            ON js.skill = os.skill
+        WHERE os.user_id = ?
+          AND j.status = 'active'
+          AND u.status = 'active'
+        ORDER BY j.posted_on DESC
+        `,
+        [userId]
     )
 
     return rows ?? [];

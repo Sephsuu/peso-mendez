@@ -236,7 +236,7 @@ class EmployerVerificationQueue extends HookWidget {
                             AppButton(
                               label: 'View Documents',
                               backgroundColor: AppColor.primary,
-                              onPressed: () => navigateTo(context, ViewEmployerDocuments(claims: claims)),
+                              onPressed: () => navigateTo(context, ViewEmployerDocuments(claims: claims, employerId: item["employer_id"])),
                               visualDensityY: -3,
                             ),
                           ])),

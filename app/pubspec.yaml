@@ -54,6 +54,7 @@ dependencies:
   printing: ^5.11.0
   flutter_inappwebview: ^6.0.0
   app_links: ^6.4.1
+  open_file: ^3.3.2
 
   
 
@@ -64,6 +65,7 @@ dependencies:
   jwt_decoder: ^2.0.1
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
@@ -73,6 +75,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/peso-mendez.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

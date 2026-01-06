@@ -27,6 +27,8 @@ class ViewApplications extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
+    final userId = claims['id'];
+
     final loading = useState(true);
     final reload = useState(false);
     final applications = useState<List<Map<String, dynamic>>>([]);
@@ -59,23 +61,28 @@ class ViewApplications extends HookWidget {
     }
 
     useEffect(() {
-      void fetchData() async {
+      if (userId == null) return null;
+
+      () async {
+        loading.value = true;
         try {
-          final applicationsRes = await ApplicationService.getApplicationsByEmployer(claims["id"]);
+          final applicationsRes =
+              await ApplicationService.getApplicationsByEmployer(userId);
           applications.value = applicationsRes;
-          loading.value = false;
         } catch (e) {
           if (!context.mounted) return;
           AppSnackbar.show(
-            context, 
-            message: '$e',
-            backgroundColor: AppColor.danger
+            context,
+            message: e.toString(),
+            backgroundColor: AppColor.danger,
           );
+        } finally {
+          loading.value = false;
         }
-      }
-      fetchData();
+      }();
+
       return null;
-    }, [claims["id"], reload.value]);
+    }, [userId, reload.value]);
 
     useEffect(() {
       final jobs = applications.value.map((item) => item["title"].toString()).toSet().toList();

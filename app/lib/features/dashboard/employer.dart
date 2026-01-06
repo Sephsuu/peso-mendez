@@ -2,6 +2,7 @@ import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/card.dart';
 import 'package:app/core/components/footer.dart';
+import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
@@ -16,6 +17,7 @@ import 'package:app/features/employer/post_job_form.dart';
 import 'package:app/features/employer/view_active_jobs.dart';
 import 'package:app/features/employer/view_applications.dart';
 import 'package:app/features/shared/conversations.dart';
+import 'package:app/features/shared/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -25,73 +27,93 @@ class EmployerDashboard extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
-    // final refresh = useState<bool>(false);
+    final userId = claims['id'];
+
+    final loading = useState(true);
     final jobs = useState<List<Map<String, dynamic>>>([]);
     final applications = useState<List<Map<String, dynamic>>>([]);
     final employerVerification = useState<Map<String, dynamic>>({});
 
-    // Future<void> setRefresh() async {
-    //   refresh.value = !refresh.value;
-    //   // await Future.delayed(const Duration(milliseconds: 300));
-    // }
-
-    // Fetch use token and define claims of logged user
+    /* ---------------- FETCH VERIFICATION ---------------- */
     useEffect(() {
-      void fetchData() async {
-        try {
-          final data = await VerificationService.getVerificationByUser(claims['id']);
-          employerVerification.value = data;
-        } catch (e) {
-          if (!context.mounted) return;
-          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
-        }
-      }
-      fetchData();
-      return null;
-    }, [claims]);
+      if (userId == null) return null;
 
-    // Fetch jobs and existion application for the jobs created by logged employer
-    useEffect(() {
-      void fetchData() async {
+      () async {
         try {
-          final jobsRes = await JobService.getJobsByEmployer(claims["id"]);
-          final applicationsRes = await ApplicationService.getApplicationsByEmployer(claims["id"]);
-          jobs.value = jobsRes;
-          applications.value = applicationsRes;
-        } catch (e) {
+          employerVerification.value =
+              await VerificationService.getVerificationByUser(userId);
+        } catch (_) {
           if (!context.mounted) return;
-          showAlertError(context, "Failed to fetch user credential please logout and re-login.");
-        }
-      }
-      fetchData();
-      return null;
-    }, [claims["id"]]);
-
-    // Function for submitting application for employer
-    Future<void> submitVerification() async {
-      try {
-        final res = await VerificationService.createVerification({
-          'employerId': claims['id'],
-          'documents': 'TESTING',
-          'status': 'pending',
-          'role': 'employer'
-        });
-        if (res.isNotEmpty) {
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Document application successful. Please wait for admin respons.')),
+          showAlertError(
+            context,
+            "Failed to fetch verification. Please logout and re-login.",
           );
         }
-      } catch (e) {
+      }();
+
+      return null;
+    }, [userId]);
+
+    /* ---------------- FETCH JOBS + APPLICATIONS ---------------- */
+    useEffect(() {
+      if (userId == null) return null;
+
+      () async {
+        loading.value = true;
+        try {
+          jobs.value = await JobService.getJobsByEmployer(userId);
+          applications.value =
+              await ApplicationService.getApplicationsByEmployer(userId);
+        } catch (_) {
+          if (!context.mounted) return;
+          showAlertError(
+            context,
+            "Failed to fetch employer data. Please logout and re-login.",
+          );
+        } finally {
+          loading.value = false;
+        }
+      }();
+
+      return null;
+    }, [userId]);
+
+    /* ---------------- SUBMIT VERIFICATION ---------------- */
+    Future<void> submitVerification() async {
+      if (userId == null) return;
+
+      try {
+        final res = await VerificationService.createVerification({
+          'employerId': userId,
+          'documents': 'TESTING',
+          'status': 'pending',
+          'role': 'employer',
+        });
+
+        if (res.isNotEmpty && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Document submitted successfully. Please wait for admin review.',
+              ),
+            ),
+          );
+        }
+      } catch (_) {
         if (!context.mounted) return;
-        showAlertError(context, "Failed to fetch user credential please logout and re-login.");
+        showAlertError(
+          context,
+          "Failed to submit verification. Please try again.",
+        );
       }
     }
 
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),
       endDrawer: const OffcanvasNavigation(),
-      body: SingleChildScrollView(
+      body: loading.value 
+        ? const Loader()
+        : SingleChildScrollView(
         child: Column(
           children: [
             Padding(
@@ -344,15 +366,9 @@ class DashboardOtherContent extends StatelessWidget {
         const SizedBox(height: 10),
         const DashboardOtherContentCard(
           header: '🔔 Recent Notifications', 
-          paragraph: 'No notifications yet.', 
-          button: EmployerContentCardButton(text: 'View Notifications', page: EmployerDashboard())
+          paragraph: '', 
+          button: EmployerContentCardButton(text: 'View Notifications', page: Notifications())
         ),
-        // const SizedBox(height: 10),
-        // const DashboardOtherContentCard(
-        //   header: '⚖️ Compliance', 
-        //   paragraph: 'View templates and stay updated with labor laws.', 
-        //   button: EmployerContentCardButton(text: 'Go to Compliance Section', page: EmployerDashboard())
-        // ),
       ],
     );
   }

@@ -72,6 +72,9 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
   final TextEditingController _firstName = TextEditingController();
   final TextEditingController _middleName = TextEditingController();
   final TextEditingController _citmun = TextEditingController();
+  final TextEditingController _company_name = TextEditingController();
+  final TextEditingController _company_address = TextEditingController();
+  final TextEditingController _company_contact = TextEditingController();
 
   // NO LONGER A TEXT FIELD — NOW a dropdown
   String? _selectedEducation;
@@ -107,6 +110,9 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
         "citmun": _citmun.text.trim(),
         "highest_education": _selectedEducation, // NOW SELECT VALUE
         "employer_type": _selectedEmployerType,
+        "company_name": _company_name.text.trim(),
+        "company_address": _company_address.text.trim(),
+        "company_contact": _company_contact.text.trim(),
       };
 
       try {
@@ -165,6 +171,7 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    
                     SizedBox(
                       width: double.infinity,
                       child: Text(
@@ -178,23 +185,54 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
 
                     const SizedBox(height: 20),
 
+                    Text('Company Information', style: AppText.fontSemibold.merge(AppText.textLg)),
+                    const SizedBox(height: 15),
+
+                    AppInputField(
+                      label: "Company Name",
+                      controller: _company_name,
+                      visualDensityY: 0,
+                      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 15),
+
+                    AppInputField(
+                      label: "Company Address",
+                      controller: _company_address,
+                      visualDensityY: 0,
+                      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 15),
+
+                    AppInputField(
+                      label: "Company Contact",
+                      controller: _company_contact,
+                      visualDensityY: 0,
+                      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 20),
+
+                    Text('Company Representative (optional)', style: AppText.fontSemibold.merge(AppText.textLg)),
+                    const SizedBox(height: 15),
+
                     AppInputField(
                       label: "Surname",
                       controller: _surname,
-                      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+                      visualDensityY: 0,
                     ),
                     const SizedBox(height: 15),
 
                     AppInputField(
                       label: "First Name",
                       controller: _firstName,
-                      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+                      visualDensityY: 0,
                     ),
                     const SizedBox(height: 15),
 
                     AppInputField(
                       label: "Middle Name",
                       controller: _middleName,
+                      visualDensityY: 0,
                     ),
                     const SizedBox(height: 15),
 
@@ -207,7 +245,6 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
                       ),
                       mode: DateTimeFieldPickerMode.date,
                       onChanged: (val) => _selectedDate = val,
-                      validator: (v) => v == null ? "Required" : null,
                     ),
                     const SizedBox(height: 15),
 
@@ -216,6 +253,7 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
                       value: _selectedSex,
                       placeholder: "Sex",
                       getLabel: (item) => item,
+                      visualDensityY: 1,
                       onChanged: (v) => setState(() => _selectedSex = v),
                     ),
                     const SizedBox(height: 15),
@@ -225,6 +263,7 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
                       value: _selectedCitmun,
                       placeholder: "City / Municipality",
                       getLabel: (item) => item,
+                      visualDensityY: 1,
                       onChanged: (v) {
                         setState(() {
                           _selectedCitmun = v;
@@ -240,6 +279,7 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
                       value: _selectedEducation,
                       placeholder: "Highest Educational Attainment",
                       getLabel: (item) => item,
+                      visualDensityY: 1,
                       onChanged: (v) => setState(() => _selectedEducation = v),
                     ),
                     const SizedBox(height: 15),
@@ -248,6 +288,7 @@ class _EmployerInformationFormState extends State<EmployerInformationForm> {
                       items: employerTypes,
                       value: _selectedEmployerType,
                       placeholder: "Type of Employer",
+                      visualDensityY: 1,
                       getLabel: (item) => item,
                       onChanged: (v) => setState(() => _selectedEmployerType = v),
                     ),

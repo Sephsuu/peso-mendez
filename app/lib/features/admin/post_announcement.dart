@@ -48,7 +48,7 @@ class _PostAnnouncementFormState extends State<PostAnnouncementForm> {
   final TextEditingController _content = TextEditingController();
   String? _targetAudience;
 
-  List<String> audiences = ['All', 'Admin', 'Job Seeker', 'Employer'];
+  List<String> audiences = ['All', 'Job Seeker', 'Employer'];
 
   @override
   void dispose() {

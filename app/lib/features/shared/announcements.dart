@@ -19,6 +19,8 @@ class Announcements extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
+    final role = claims['role'];
+
     final loading = useState(true);
     final announcements = useState<List<Map<String, dynamic>>>([]);
 
@@ -26,33 +28,34 @@ class Announcements extends HookWidget {
       return value.replaceAll("_", " ").toUpperCase();
     }
 
-    // 🔄 Fetch announcements on load
+    /* ---------------- FETCH ANNOUNCEMENTS ---------------- */
     useEffect(() {
-      void fetchData() async {
+      if (role == null) return null;
+
+      () async {
+        loading.value = true;
         try {
-          List<Map<String, dynamic>> data = [];
-
-          if (claims['role'] == 'admin') {
-            data = await AnnouncementService.getAllAnnouncements();
+          if (role == 'admin') {
+            announcements.value =
+                await AnnouncementService.getAllAnnouncements();
           } else {
-            data = await AnnouncementService.getAnnouncementsByRole(claims['role']);
+            announcements.value =
+                await AnnouncementService.getAnnouncementsByRole(role);
           }
-
-          announcements.value = data;
-          loading.value = false;
         } catch (e) {
           if (!context.mounted) return;
           AppSnackbar.show(
             context,
-            message: '$e',
+            message: e.toString(),
             backgroundColor: AppColor.danger,
           );
+        } finally {
+          loading.value = false;
         }
-      }
+      }();
 
-      fetchData();
       return null;
-    }, [claims['role']]);
+    }, [role]);
 
     return Scaffold(
       appBar: AppNavigationBar(

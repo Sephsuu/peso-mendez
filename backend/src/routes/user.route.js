@@ -139,6 +139,16 @@ router.get('/get-work-experience', async (req, res) => {
 	}
 })
 
+router.get('/get-employer-information', async (req, res) => {
+	const { id } = req.query;
+	try {
+		const query = await userQuery.getEmployerInformation(id);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+})
+
 router.get('/get-other-skills', async (req, res) => {
 	const { id } = req.query;
 	try {
@@ -408,6 +418,15 @@ router.patch('/update-other-skills', async (req, res) => {
   }
 });
 
+router.post('/update-employer-information', async (req, res) => {
+	const user = req.body;
+	try {
+		const query = await userQuery.updateEmployerInformation(user);
+		res.json(query);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
 
 router.patch('/deactivate', async (req, res) => {
 	const { id } = req.query;

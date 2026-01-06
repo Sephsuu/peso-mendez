@@ -22,8 +22,12 @@ class AppNavigationBar extends StatelessWidget implements PreferredSizeWidget {
           const SizedBox(width: 10),
           Center(
             child: Text(
-              title,
-              style: AppText.fontBold.merge(AppText.textPrimary).merge(AppText.textSm),
+              title == 'Mendez Peso Job Portal'
+                  ? title
+                  : 'PESO Jobs-Mendez',
+              style: AppText.fontBold
+                  .merge(AppText.textPrimary)
+                  .merge(AppText.textSm),
             ),
           ),
         ],

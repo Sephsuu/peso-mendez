@@ -105,6 +105,13 @@ class UserService {
     );
   }
 
+  static Future<Map<String, dynamic>> getEmployerInformation(int id) async {
+    return await request(
+      '$url/get-employer-information?id=$id',
+      method: 'GET'
+    );
+  }
+
   static Future<Uint8List> generateResume(int id) async {
     final response = await http.get(
       Uri.parse('$BASE_URL/users/generate-resume?id=$id'),
@@ -273,6 +280,14 @@ class UserService {
     return await request(
       '$url/update-other-skills',
       method: 'PATCH',
+      body: user
+    );
+  }
+
+  static Future<Map<String, dynamic>> updateEmployerInformation(Map<String, dynamic> user) async {
+    return await request(
+      '$url/update-employer-information',
+      method: 'POST',
       body: user
     );
   }

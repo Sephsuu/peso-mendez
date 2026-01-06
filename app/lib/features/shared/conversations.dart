@@ -16,29 +16,34 @@ class Conversations extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loading = useState(true);
     final claims = useClaimsHook(context);
+    final userId = claims['id'];
+
+    final loading = useState(true);
     final conversations = useState<List<Map<String, dynamic>>>([]);
 
+    /* ---------------- FETCH CONVERSATIONS ---------------- */
     useEffect(() {
-      void fetchData() async {
+      if (userId == null) return null;
+
+      () async {
+        loading.value = true;
         try {
-          final res = await MessageService.getConversations(claims['id']);
-          conversations.value = res;
-          loading.value = false;
+          conversations.value =
+              await MessageService.getConversations(userId);
         } catch (e) {
           if (!context.mounted) return;
           showDialog(
-            context: context, 
-            builder: (context) {
-              return AppModal(
-                title: '$e'
-              );
-            }
+            context: context,
+            builder: (_) => AppModal(title: e.toString()),
           );
+        } finally {
+          loading.value = false;
         }
-      } fetchData(); return null;
-    }, [claims]);
+      }();
+
+      return null;
+    }, [userId]);
 
     String formatShortDate(String isoString) {
       final date = DateTime.parse(isoString).toLocal();
@@ -46,17 +51,13 @@ class Conversations extends HookWidget {
       final diff = now.difference(date);
 
       if (diff.inDays == 0) {
-        // Today → show time
         return DateFormat('h:mm a').format(date);
       } else if (diff.inDays == 1) {
-        // Yesterday
         return "Yesterday";
       } else if (diff.inDays < 7) {
-        // Within a week → show weekday
-        return DateFormat('EEE').format(date); // e.g., Mon, Tue
+        return DateFormat('EEE').format(date);
       } else {
-        // Else → show date
-        return DateFormat('MMM d').format(date); // e.g., Oct 20
+        return DateFormat('MMM d').format(date);
       }
     }
 

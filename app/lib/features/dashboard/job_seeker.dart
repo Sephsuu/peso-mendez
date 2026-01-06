@@ -1,4 +1,3 @@
-import 'package:app/core/components/alert.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/footer.dart';
 import 'package:app/core/components/loader.dart';
@@ -91,24 +90,26 @@ class ProfileStrengthCard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = claims['id'];
     final loading = useState(true);
-    final profileStrength = useState<double>(0);
+    final strength = useState<double>(0);
 
     useEffect(() {
+      if (userId == null) return null;
+
       () async {
         try {
-          final res = await UserService.getUserProfileStrength(claims['id']);
-          profileStrength.value = res;
+          strength.value =
+              await UserService.getUserProfileStrength(userId);
         } catch (_) {
-          if (context.mounted) {
-            showAlertError(context, "Failed to load profile strength");
-          }
+          // silent fail (optional)
         } finally {
           loading.value = false;
         }
       }();
+
       return null;
-    }, [claims]);
+    }, [userId]);
 
     return SizedBox(
       width: double.infinity,
@@ -116,7 +117,7 @@ class ProfileStrengthCard extends HookWidget {
         ? const Loader()
         : Card(
         color: Colors.white,
-        child: profileStrength.value == 0 
+        child: strength.value == 0 
           ? const Loader()
           : Column(
           children: [
@@ -135,7 +136,7 @@ class ProfileStrengthCard extends HookWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Profile Strength'),
-                    Text("${(profileStrength.value * 100 / 10).round() * 10}%")
+                    Text("${(strength.value * 100 / 10).round() * 10}%")
                   ],
                 ),
               ),
@@ -146,7 +147,7 @@ class ProfileStrengthCard extends HookWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4), // your desired radius
                 child: LinearProgressIndicator(
-                  value: profileStrength.value,
+                  value: strength.value,
                   backgroundColor: Colors.grey[300],
                   color: AppColor.primary,
                   minHeight: 18,
@@ -183,26 +184,25 @@ class NotificationsCard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = claims['id'];
     final loading = useState(true);
     final notifications = useState<List<Map<String, dynamic>>>([]);
 
     useEffect(() {
+      if (userId == null) return null;
+
       () async {
         try {
-          final res = await NotificationService.getRecentNotifications(
-            claims['id'],
-          );
-          notifications.value = res;
-        } catch (_) {
-          if (context.mounted) {
-            showAlertError(context, "Failed to load notifications");
-          }
-        } finally {
+          notifications.value =
+              await NotificationService.getRecentNotifications(userId);
+        } catch (_) {}
+        finally {
           loading.value = false;
         }
       }();
+
       return null;
-    }, [claims]);
+    }, [userId]);
 
     if (loading.value) {
       return const Loader();
@@ -308,53 +308,6 @@ class NotificationsCard extends HookWidget {
   }
 }
 
-
-// class GoToMessagesCard extends StatelessWidget {
-//   const GoToMessagesCard({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SizedBox(
-//       width: double.infinity,
-//       child: Card(
-//         color: Colors.white,
-//         child: Column(
-//           children: [
-//             SizedBox(
-//               width: double.infinity,
-//               child: Container(
-//                 padding: const EdgeInsets.all(10.0),
-//                 decoration: const BoxDecoration(
-//                   color: Color.fromARGB(255, 234, 234, 234),
-//                   borderRadius: BorderRadius.only(
-//                     topLeft: Radius.circular(16.0),
-//                     topRight: Radius.circular(16.0),
-//                   ),
-//                 ),
-//                 child: const Text('Messages'),
-//               ),
-//             ),
-//             const SizedBox(height: 10.0),
-//             Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 15.0),
-//               child: Text('Chat with employers regarding your applications.', style: AppText.textMuted.merge(AppText.textXs)),
-//             ),
-//             const SizedBox(height: 10.0),
-//             AppButton(
-//               label: 'Go To Messages', 
-//               onPressed: () => {},
-//               foregroundColor: AppColor.light,
-//               textSize: 12,
-//               visualDensityY: -2,
-//             ),
-//             const SizedBox(height: 20.0)
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 class YourApplicationsCard extends HookWidget {
   final Map<String, dynamic> claims;
   const YourApplicationsCard({
@@ -364,26 +317,25 @@ class YourApplicationsCard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = claims['id'];
     final loading = useState(true);
-    final applications = useState<List<Map<String, dynamic>>>([]);
+    final apps = useState<List<Map<String, dynamic>>>([]);
 
     useEffect(() {
+      if (userId == null) return null;
+
       () async {
         try {
-          final data = await ApplicationService.getApplicationsByUser(
-            claims['id'],
-          );
-          applications.value = data;
-        } catch (_) {
-          if (context.mounted) {
-            showAlertError(context, "Failed to load applications");
-          }
-        } finally {
+          apps.value =
+              await ApplicationService.getApplicationsByUser(userId);
+        } catch (_) {}
+        finally {
           loading.value = false;
         }
       }();
+
       return null;
-    }, [claims]);
+    }, [userId]);
 
     return SizedBox(
       width: double.infinity,
@@ -402,7 +354,7 @@ class YourApplicationsCard extends HookWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => AllApplications(
-                        applications: applications.value,
+                        applications: apps.value,
                         claims: claims,
                       )
                     ),
@@ -412,7 +364,7 @@ class YourApplicationsCard extends HookWidget {
             ],
           ),
           const SizedBox(height: 5.0),
-          applications.value.isEmpty ?
+          apps.value.isEmpty ?
             SizedBox(
               width: double.infinity,
               child: Card(
@@ -463,7 +415,7 @@ class YourApplicationsCard extends HookWidget {
                     DataColumn(label: Text('Status')),
                     DataColumn(label: Text('Actions')),
                   ],
-                  rows: applications.value.take(5).map((application) {
+                  rows: apps.value.take(5).map((application) {
                     return DataRow(
                       cells: [
                         DataCell(Text(application['title'] ?? 'N/A')),
@@ -512,24 +464,25 @@ class SavedJobsCard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = claims['id'];
     final loading = useState(true);
-    final savedJobs = useState<List<Map<String, dynamic>>>([]);
+    final jobs = useState<List<Map<String, dynamic>>>([]);
 
     useEffect(() {
+      if (userId == null) return null;
+
       () async {
         try {
-          final data = await JobService.getSavedJobsByUser(claims['id']);
-          savedJobs.value = data;
-        } catch (_) {
-          if (context.mounted) {
-            showAlertError(context, "Failed to load saved jobs");
-          }
-        } finally {
+          jobs.value =
+              await JobService.getSavedJobsByUser(userId);
+        } catch (_) {}
+        finally {
           loading.value = false;
         }
       }();
+
       return null;
-    }, [claims]);
+    }, [userId]);
 
     if (loading.value) {
       return const Loader();
@@ -552,7 +505,7 @@ class SavedJobsCard extends HookWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SavedJobsPage(
-                        savedJobs: savedJobs.value,
+                        savedJobs: jobs.value,
                         claims: claims,
                       )
                     ),
@@ -562,7 +515,7 @@ class SavedJobsCard extends HookWidget {
             ],
           ),
           const SizedBox(height: 5.0),
-          savedJobs.value.isEmpty ?
+          jobs.value.isEmpty ?
             SizedBox(
               width: double.infinity,
               child: Card(
@@ -613,7 +566,7 @@ class SavedJobsCard extends HookWidget {
                     DataColumn(label: Text('Salary')),
                     DataColumn(label: Text('Actions')),
                   ],
-                  rows: savedJobs.value.take(5).map((item) {
+                  rows: jobs.value.take(5).map((item) {
                     return DataRow(
                       cells: [
                         DataCell(Text(item['title'] ?? 'N/A')),

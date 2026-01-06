@@ -8,6 +8,7 @@ import 'package:app/core/components/loader.dart';
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/snackbar.dart';
+import 'package:app/core/hooks/utils.dart';
 import 'package:app/core/services/_endpoint.dart';
 import 'package:app/core/services/verification_service.dart';
 import 'package:app/core/theme/colors.dart';
@@ -21,10 +22,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ViewEmployerDocuments extends StatefulWidget {
   final Map<String, dynamic> claims;
+  final int employerId;
 
   const ViewEmployerDocuments({
     super.key,
     required this.claims,
+    this.employerId = 0,
   });
 
   @override
@@ -69,7 +72,7 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
 
   Future<void> loadDocuments() async {
     try {
-      final data = await VerificationService.getVerificationByUser(widget.claims["id"]);
+      final data = await VerificationService.getVerificationByUser(widget.employerId == 0 ? widget.claims["id"] : widget.employerId);
       if (!mounted) return;
 
       setState(() {
@@ -197,11 +200,10 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
             final data = await VerificationService.updateVerificationStatus(
               id,
               "approved",
-              verification?["note"],
+              verification?["note"] ?? "",
             );
 
-            if (!mounted) return;
-
+            if (!context.mounted) return;
             if (data.isNotEmpty) {
               AppSnackbar.show(
                 context,
@@ -643,7 +645,7 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
                   // DATE SUBMITTED
                   if (verification?["created_at"] != null)
                     Text(
-                      "Submitted: ${verification!["created_at"]}",
+                      "Submitted: ${formatDateOnly(verification!["created_at"])}",
                       style: AppText.textMuted.merge(AppText.textSm),
                     ),
 
@@ -711,7 +713,7 @@ class _ViewEmployerDocumentsState extends State<ViewEmployerDocuments> {
                   // -------------------------
                   // ADMIN ACTIONS (pending only)
                   // -------------------------
-                  if (role == "admin" && status == "pending" && verification != null) ...[
+                  if (widget.claims["role"] == "admin" && status == "pending" && verification != null) ...[
                     AppButton(
                       label: approving ? "Approving..." : "Approve",
                       backgroundColor: AppColor.success,

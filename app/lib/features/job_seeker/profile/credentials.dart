@@ -21,6 +21,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
+
 class Credentials extends HookWidget {
   final Map<String, dynamic> claims;
   final bool open;
@@ -37,41 +38,51 @@ class Credentials extends HookWidget {
     final loading = useState(true);
     final credentials = useState<Map<String, dynamic>>({});
     final profileStrength = useState<double>(0);
+    final userId = claims['id'];
 
     useEffect(() {
+      if (userId == null) return null;
+
       () async {
         try {
-          loading.value = true;
-          final res = await UserService.getUserProfileStrength(claims['id']);
+          final res = await UserService.getUserProfileStrength(userId);
           profileStrength.value = res;
         } catch (e) {
           if (!context.mounted) return;
           AppSnackbar.show(
-            context, 
-            message: '$e',
-            backgroundColor: AppColor.danger
+            context,
+            message: e.toString(),
+            backgroundColor: AppColor.danger,
+          );
+        }
+      }();
+
+      return null;
+    }, [userId]);
+
+    useEffect(() {
+      if (userId == null) return null;
+
+      () async {
+        loading.value = true;
+        try {
+          final data = await UserService.getUserCredential(userId);
+          credentials.value = data;
+        } catch (e) {
+          if (!context.mounted) return;
+          AppSnackbar.show(
+            context,
+            message: e.toString(),
+            backgroundColor: AppColor.danger,
           );
         } finally {
           loading.value = false;
         }
       }();
-      return null;
-    }, [claims['id']]);
 
-    useEffect(() {
-      if (claims['id'] == null) return null;
-      void fetchData() async {
-        try {
-          loading.value = true;
-          final data = await UserService.getUserCredential(claims['id']);
-          credentials.value = data;
-        } catch (e) {
-          AppModal(title: ('$e'));
-        } finally { loading.value = false; }
-
-      } fetchData();
       return null;
-    }, [claims['id']]);
+    }, [userId]);
+
 
     void handleSubmit() async {
       try {
@@ -109,9 +120,10 @@ class Credentials extends HookWidget {
 
         if (!context.mounted) return;
 
-        await UserService.generateResume(claims["id"]);
+        if (userId == null) return;
 
-        final rawUrl = "$BASE_URL/uploads/job-seeker-resume/${claims["id"]}_resume.pdf";
+        await UserService.generateResume(userId);
+        final rawUrl = "$BASE_URL/uploads/job-seeker-resume/${userId}_resume.pdf";
 
         final viewerUrl = "https://docs.google.com/gview?embedded=true&url=$rawUrl";
         if (!context.mounted) return;
@@ -350,7 +362,7 @@ class Credentials extends HookWidget {
                 Center(
                   child: AppButton(
                     label: "Change Password", 
-                    onPressed: () => navigateTo(context, ChangePassword(userId: claims['id']))
+                    onPressed: () => navigateTo(context, ChangePassword(userId: userId))
                   ),
                 ),
               const SizedBox(height: 20),

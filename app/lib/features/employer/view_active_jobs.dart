@@ -25,6 +25,8 @@ class ViewActiveJobs extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final claims = useClaimsHook(context);
+    final userId = claims['id'];
+
     final loading = useState(true);
     final selectedJob = useState(jobOptions[0]);
     final reload = useState(false);
@@ -33,23 +35,28 @@ class ViewActiveJobs extends HookWidget {
     final filteredJobs = useState<List<Map<String, dynamic>>>([]);
 
     useEffect(() {
-      void fetchData() async {
+      if (userId == null) return null;
+
+      () async {
+        loading.value = true;
         try {
-          final jobsRes = await JobService.getJobsByEmployer(claims["id"]);
+          final jobsRes = await JobService.getJobsByEmployer(userId);
           jobs.value = jobsRes;
-          loading.value = false;
         } catch (e) {
           if (!context.mounted) return;
           AppSnackbar.show(
-            context, 
-            message: '$e',
-            backgroundColor: AppColor.danger
+            context,
+            message: e.toString(),
+            backgroundColor: AppColor.danger,
           );
+        } finally {
+          loading.value = false;
         }
-      }
-      fetchData();
+      }();
+
       return null;
-    }, [claims["id"], reload.value]);
+    }, [userId, reload.value]);
+
 
     void setReload() {
       reload.value = !reload.value;
@@ -77,15 +84,15 @@ class ViewActiveJobs extends HookWidget {
 
     useEffect(() {
       if (selectedJob.value == jobOptions[0]) {
-        filteredJobs.value = jobs.value.where((job) {
-          return job['status'] == 'active';
-        }).toList();
+        filteredJobs.value =
+            jobs.value.where((job) => job['status'] == 'active').toList();
       } else {
-        filteredJobs.value = jobs.value.where((job) {
-          return job['status'] == 'inactive';
-        }).toList();
-      } return null;
+        filteredJobs.value =
+            jobs.value.where((job) => job['status'] == 'inactive').toList();
+      }
+      return null;
     }, [selectedJob.value, jobs.value]);
+
 
     return Scaffold(
       appBar: AppNavigationBar(title: 'Mendez PESO Job Portal', onMenuPressed: (context) { Scaffold.of(context).openDrawer(); }),

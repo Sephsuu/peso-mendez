@@ -136,6 +136,14 @@ export async function getUserWorkExperience(id) {
     return rows ?? [];
 } 
 
+export async function getEmployerInformation(id) {
+    const [rows] = await pool.query(
+        `SELECT * FROM employer_information WHERE employer_id = ?`,
+        [id]
+    );
+    return rows[0] ?? {};
+} 
+
 export async function getUserOtherSkills(id) {
     const [rows] = await pool.query(
         `SELECT * FROM other_skills WHERE user_id = ?`,
@@ -368,8 +376,11 @@ export async function createEmployerInformation(info) {
             sex,
             citmun,
             highest_education,
-            employer_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            employer_type,
+            company_name,
+            company_address,
+            company_contact
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             info.employer_id,
             info.surname,
@@ -379,7 +390,10 @@ export async function createEmployerInformation(info) {
             info.sex,
             info.citmun,
             info.highest_education,
-            info.employer_type
+            info.employer_type,
+            info.company_name,
+            info.company_address,
+            info.company_contact,
         ]
     );
 
@@ -562,6 +576,42 @@ export async function updateWorkExperience(workExp) {
   );
   return result;
 }
+
+export async function updateEmployerInformation(employerInfo) {
+  const [result] = await pool.query(
+    `UPDATE employer_information
+     SET
+       surname = ?,
+       first_name = ?,
+       middle_name = ?,
+       date_of_birth = ?,
+       sex = ?,
+       citmun = ?,
+       highest_education = ?,
+       employer_type = ?,
+       company_name = ?,
+       company_address = ?,
+       company_contact = ?
+     WHERE employer_id = ?`,
+    [
+      employerInfo.surname ?? null,
+      employerInfo.first_name ?? null,
+      employerInfo.middle_name ?? null,
+      employerInfo.date_of_birth ?? null,
+      employerInfo.sex ?? null,
+      employerInfo.citmun ?? null,
+      employerInfo.highest_education ?? null,
+      employerInfo.employer_type ?? null,
+      employerInfo.company_name ?? null,
+      employerInfo.company_address ?? null,
+      employerInfo.company_contact ?? null,
+      employerInfo.employer_id, 
+    ]
+  );
+
+  return result;
+}
+
 
 export async function updateUserPassword(userId, hashedPassword) {
     const sql = `
