@@ -1,5 +1,6 @@
 import 'package:app/core/components/button.dart';
 import 'package:app/core/components/input.dart';
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/offcanvas.dart';
 import 'package:app/core/components/select.dart';
@@ -114,12 +115,21 @@ class _PersonalInformationFormState extends State<PersonalInformationForm> {
         final res = await UserService.createPersonalInformation(personalInfo);
         if (res.isNotEmpty) {
           if (!mounted) return;
-          AppSnackbar.show(
-            context,
-            message: 'Personal Information updated successfully! You may now proceed to job reference form.',
-            backgroundColor: AppColor.success
-          );
-          widget.fromProfile ? Navigator.pop(context) : navigateTo(context, JobReferenceForm(userId: widget.userId));
+          widget.fromProfile 
+            ? showDialog(
+              context: context, 
+              builder: (context) {
+                return AppModal(
+                  title: "Your profile strength increased by 10%",
+                  message: "Personal Information updated successfully! You may now proceed to job reference form.",
+                  onConfirm: () => Navigator.pop(context),
+                  confirmForeground: AppColor.light,
+                  confirmBackground: AppColor.primary,
+                  hideCloseButton: true,
+                );
+              }
+            )
+            : navigateTo(context, JobReferenceForm(userId: widget.userId));
         }
       } catch (e) {
         if (!mounted) return;

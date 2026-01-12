@@ -14,6 +14,24 @@ import 'package:app/features/dashboard/employer.dart';
 import 'package:flutter/material.dart';
 
 const caviteLocations = ["Alfonso","Amadeo","Bacoor City","Carmona","Cavite City","Cavite Province","City of General Trias","Dasmariñas City","General Emilio Aguinaldo","General Mariano Alvarez","Imus City","Indang","Kawit","Magallanes","Maragondon","Mendez","Naic","Noveleta","Rosario","Silang","Tagaytay City","Tanza","Ternate","Trece Martires City"];
+final List<String> educationLevels = [
+  "No grade completed",
+  "Elementary Level",
+  "Elementary Graduate",
+  "Junior High School Level",
+  "Junior High School Graduate",
+  "Senior High School Level",
+  "Senior High School Graduate",
+  "High School Level (Non K-12)",
+  "High School Graduate (Non K-12)",
+  "Alternative Learning System",
+  "Vocational Level",
+  "College Level",
+  "College Graduate",
+  "Some Masteral Units",
+  "Master's Degree Holder",
+  "Some Doctorate Units",
+];
 
 class PostNewJob extends StatelessWidget {
   const PostNewJob({
@@ -49,6 +67,7 @@ class PostNewJobForm extends StatefulWidget {
 
 class _PostNewJobFormState extends State<PostNewJobForm>  {
   final _formKey = GlobalKey<FormState>();
+  bool _isSubmitting = false;
   int? employerId;
 
   final TextEditingController _jobTitle = TextEditingController();
@@ -56,6 +75,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
   final TextEditingController _location = TextEditingController();
   final TextEditingController _citmun = TextEditingController();
   final TextEditingController _description = TextEditingController();
+  String? _requiredEduc;
   final TextEditingController _salary = TextEditingController();
   String? _jobType;
   String? _selectedCitmun;
@@ -95,48 +115,53 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
   }
 
   Future<void> _submitForm() async {
-    loadUser();
-    if (_formKey.currentState!.validate()) {
-      final jobTitleValue = _jobTitle.text.trim();
-      final companyValue = _company.text.trim();
-      final locationValue = _location.text.trim();
-      final descriptionValue = _description.text.trim();
-      final salaryValue = _salary.text.trim();
-      final jobTypeValue = _jobType;
-      final citmunValue = _citmun.text.trim();
+    if (_isSubmitting) return; // ⛔ prevent double tap
 
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    loadUser();
+
+    if (_formKey.currentState!.validate()) {
       try {
         final res = await JobService.createJob({
-          "title": jobTitleValue,
-          "company": companyValue,
-          "location": locationValue,
-          "salary": salaryValue,
-          "type": jobTypeValue,
-          "description": descriptionValue,
+          "title": _jobTitle.text.trim(),
+          "company": _company.text.trim(),
+          "location": _location.text.trim(),
+          "salary": _salary.text.trim(),
+          "type": _jobType,
+          "description": _description.text.trim(),
           "employerId": employerId,
-          "citmun": citmunValue,
+          "citmun": _citmun.text.trim(),
+          "required_education": _requiredEduc,
         });
 
         if (res.isNotEmpty) {
           await JobService.createJobSkill(res['id'], selectedSkills);
-          
+
           if (!mounted) return;
           AppSnackbar.show(
             context,
-            message: 'Job $jobTitleValue created successfully!',
-            backgroundColor: AppColor.success
+            message: 'Job ${_jobTitle.text} created successfully!',
+            backgroundColor: AppColor.success,
           );
+
           navigateTo(context, const EmployerDashboard());
         }
       } catch (e) {
         if (!mounted) return;
-        AppSnackbar.show(
-          context, 
-          message: '$e'
-        );
+        AppSnackbar.show(context, message: '$e');
       }
     }
+
+    if (mounted) {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -241,6 +266,21 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
             maxLine: 4,
           ),
           const SizedBox(height: 10),
+          const Text('Required Education'),
+          const SizedBox(height: 5),
+          AppSelect<String>(
+            items: educationLevels,
+            value: _requiredEduc,
+            getLabel: (item) => item,
+            borderColor: AppColor.muted,
+            visualDensityY: 0,
+            onChanged: (value) {
+              setState(() {
+                _requiredEduc = value;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -318,6 +358,7 @@ class _PostNewJobFormState extends State<PostNewJobForm>  {
                 onPressed: () => _submitForm(),
                 backgroundColor: AppColor.success,
                 visualDensityY: -2,
+                isDisabled: _isSubmitting,
               ),
               const SizedBox(width: 15),
               AppButton(

@@ -87,14 +87,14 @@ export async function getSavedJobByUserJob(userId, jobId) {
 export async function createJob(job) {
     const insertQuery = `
         INSERT INTO jobs
-        (title, company, location, salary, type, description, employer_id, citmun)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        (title, company, location, salary, type, description, employer_id, citmun, required_education)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await pool.query(insertQuery, [
         job.title, job.company, job.location,
         job.salary, job.type, job.description,
-        job.employerId, job.citmun
+        job.employerId, job.citmun, job.required_education
     ]);
 
     return { id: result.insertId, ...job };

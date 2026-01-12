@@ -11,6 +11,7 @@ class AppModal extends StatelessWidget {
   final Color?  confirmBackground;
   final TextStyle? titleStyle;
   final EdgeInsets? insetPadding;
+  final bool hideCloseButton;
 
   const AppModal({
     super.key,
@@ -20,6 +21,7 @@ class AppModal extends StatelessWidget {
     this.confirmLabel,
     this.confirmForeground = AppColor.dark,
     this.confirmBackground = AppColor.light,
+    this.hideCloseButton = false,
     this.titleStyle,
     this.insetPadding,
   });
@@ -43,10 +45,11 @@ class AppModal extends StatelessWidget {
                     : Text(message.toString())),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context), // closes modal
-          child: const Text("Cancel"),
-        ),
+        if (!hideCloseButton)
+          TextButton(
+            onPressed: () => Navigator.pop(context), // closes modal
+            child: const Text("Cancel"),
+          ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: confirmBackground,
@@ -62,6 +65,7 @@ class AppModal extends StatelessWidget {
       ],
     );
   }
+
 }
 
 Future<String?> updateApplicationStatusModal(BuildContext context, String? newValue) async {

@@ -21,6 +21,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
 
+final List<String> educationLevels = [
+  "No grade completed",
+  "Elementary Level",
+  "Elementary Graduate",
+  "Junior High School Level",
+  "Junior High School Graduate",
+  "Senior High School Level",
+  "Senior High School Graduate",
+  "High School Level (Non K-12)",
+  "High School Graduate (Non K-12)",
+  "Alternative Learning System",
+  "Vocational Level",
+  "College Level",
+  "College Graduate",
+  "Some Masteral Units",
+  "Master's Degree Holder",
+  "Some Doctorate Units",
+];
+
 class ViewJob extends HookWidget {
   final int jobId;
   const ViewJob({super.key, required this.jobId});
@@ -32,6 +51,7 @@ class ViewJob extends HookWidget {
     final job = useState<Map<String, dynamic>>({});
     final jobSkills = useState<List<String>>([]);
     final profileStrength = useState<double>(0);
+    final educBg = useState<Map<String, dynamic>>({});
 
     final loading = useState(true);
     final isSaved = useState(false);
@@ -89,6 +109,21 @@ class ViewJob extends HookWidget {
       };
     }, [jobId, claims['id']]);
 
+    useEffect(() {
+      if (claims['id'] == null) return null;
+      void fetchData() async {
+        try {
+          loading.value =  true;
+          final data = await UserService.getUserEducationalBackground(claims['id']);
+          educBg.value = data;
+        } catch (e) {
+          AppModal(title: ('$e'));
+        } finally { loading.value = false; }
+
+      } fetchData();
+      return null;
+    }, [claims['id']]);
+
     /// =========================
     /// SAVE / UNSAVE JOB
     /// =========================
@@ -145,52 +180,66 @@ class ViewJob extends HookWidget {
     /// =========================
     void applyJob() async {
       if (applying.value) return;
+
+      final seekerEdu = educBg.value["highest_education"];
+      final requiredEdu = job.value["required_education"];
+
+      final seekerIndex = educationLevels.indexOf(seekerEdu);
+      final requiredIndex = educationLevels.indexOf(requiredEdu);
+
+      // ❌ Invalid education values
+      if (seekerIndex == -1 || requiredIndex == -1) {
+        AppSnackbar.show(
+          context,
+          message: "Unable to verify educational background.",
+          backgroundColor: AppColor.danger,
+        );
+        return;
+      }
+
+      // ❌ Education NOT met
+      if (seekerIndex < requiredIndex) {
+        showDialog(
+          context: context,
+          builder: (_) => const AppModal(
+            title: 'Education requirement not met.',
+            message:
+                'Your highest educational attainment does not meet the minimum requirement for this job.',
+            confirmLabel: "I understand",
+            confirmBackground: AppColor.primary,
+            confirmForeground: AppColor.light,
+          ),
+        );
+        return;
+      }
+
+      // ✅ PASSED education check — now proceed
       applying.value = true;
 
       try {
-        if (profileStrength.value < 0.75) {
-          return showDialog(
-            context: context, 
-            builder: (context) {
-              return AppModal(
-                title: 'Your profile strength must be 80% above in order to save jobs.',
-                titleStyle: AppText.fontSemibold.merge(AppText.textLg),
-                confirmLabel: "I understand.",
-                confirmBackground: AppColor.primary,
-                confirmForeground: AppColor.light,
-              );
-            }
-          );
-        }
-
-        final result =
-            await ApplicationService.createApplication(
+        await ApplicationService.createApplication(
           job.value["id"],
           claims['id'],
         );
 
-        if (result.isNotEmpty && context.mounted) {
-          isApplied.value = true;
+        isApplied.value = true;
 
-          AppSnackbar.show(
-            context,
-            message:
-                'Successfully applied for ${job.value["title"]}',
-            backgroundColor: AppColor.success,
-          );
-        }
+        AppSnackbar.show(
+          context,
+          message: 'Successfully applied for ${job.value["title"]}',
+          backgroundColor: AppColor.success,
+        );
       } catch (_) {
-        if (context.mounted) {
-          AppSnackbar.show(
-            context,
-            message: 'Failed to apply for job',
-            backgroundColor: AppColor.danger,
-          );
-        }
+        AppSnackbar.show(
+          context,
+          message: 'Failed to apply for job',
+          backgroundColor: AppColor.danger,
+        );
       } finally {
         applying.value = false;
       }
     }
+
 
     /// =========================
     /// UNAPPLY JOB (SAFE)
@@ -510,7 +559,6 @@ class JobDescriptionCard extends StatelessWidget {
               Text(description),
               const SizedBox(height: 10),
               Text("Required Skills", style: AppText.textMd.merge(AppText.fontSemibold)),
-              const SizedBox(height: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -601,6 +649,19 @@ class JobDetailsCard extends StatelessWidget {
                   Expanded(
                     flex: 1,
                     child: Text(job["location"]),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text("Required Education:", style: AppText.textPrimary.merge(AppText.fontSemibold)),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(job["required_education"] ?? "N/A"),
                   )
                 ],
               ),

@@ -54,7 +54,7 @@ class _LoginFormState extends State<LoginForm> with RouteAware {
   final _emailOrUsername = TextEditingController();
   final _password = TextEditingController();
   final _secureStorage = const FlutterSecureStorage();
-
+ 
   bool _claimsLoaded = false;
 
   @override
@@ -95,7 +95,6 @@ class _LoginFormState extends State<LoginForm> with RouteAware {
     _password.dispose();
     super.dispose();
   }
-
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -256,12 +255,13 @@ class _LoginFormState extends State<LoginForm> with RouteAware {
                   obscureText: true,
                 ),
                 const SizedBox(height: 20.0),
+
                 SizedBox(
                   width: double.infinity,
                   child: AppButton(
                     label: 'Sign In', 
                     foregroundColor: AppColor.light,
-                    onPressed: () => _submitForm(),
+                    onPressed: _submitForm,
                     visualDensityY: -2,
                   ),
                 ),

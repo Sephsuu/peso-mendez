@@ -1,4 +1,5 @@
 import 'package:app/core/components/input.dart';
+import 'package:app/core/components/modal.dart';
 import 'package:app/core/components/navigation.dart';
 import 'package:app/core/components/select.dart';
 import 'package:app/core/components/snackbar.dart';
@@ -21,6 +22,7 @@ class RegisterForm extends StatefulWidget {
 
 class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
+  bool _agreedToTerms = false;
 
   final TextEditingController _fullName = TextEditingController();
   final TextEditingController _email = TextEditingController();
@@ -41,6 +43,47 @@ class _RegisterFormState extends State<RegisterForm> {
     _username.dispose();
     _password.dispose();
     super.dispose();
+  }
+
+  Widget termsAndServicesContent() {
+    return SizedBox(
+      height: 350,
+      child: Scrollbar(
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Terms and Conditions", style: AppText.fontSemibold),
+              const SizedBox(height: 10),
+              const Text(
+                "Welcome to the Mendez PESO Job Portal.\n\n"
+                "By accessing or using this system, you agree to comply with the "
+                "following terms and conditions.\n\n"
+
+                "1. User Responsibilities\n"
+                "Users must provide accurate, truthful, and updated information.\n\n"
+
+                "2. Account Security\n"
+                "You are responsible for safeguarding your login credentials.\n\n"
+
+                "3. Data Privacy\n"
+                "All personal data is handled in compliance with data protection laws.\n\n"
+
+                "4. System Usage\n"
+                "Unauthorized access, misuse, or abuse of the system is prohibited.\n\n"
+
+                "5. Modifications\n"
+                "The PESO Office reserves the right to modify these terms at any time.\n\n"
+
+                "By clicking 'I Agree', you confirm that you have read and accepted "
+                "these terms and conditions."
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _submitForm() async {
@@ -240,7 +283,74 @@ class _RegisterFormState extends State<RegisterForm> {
                   required: true,
                 ),
                 const SizedBox(height: 20.0),
-                RegisterNextButton(registerUser: _submitForm),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _agreedToTerms,
+                      onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
+                      activeColor: AppColor.primary,
+                    ),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          style: AppText.textSm.merge(AppText.textDark),
+                          children: [
+                            const TextSpan(text: 'I agree to the '),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () => showDialog(
+                                  context: context,
+                                  builder: (_) => AppModal(
+                                    title: "Terms & Services",
+                                    message: termsAndServicesContent(),
+                                    confirmLabel: "I Agree",
+                                    confirmBackground: AppColor.primary,
+                                    confirmForeground: AppColor.light,
+                                    onConfirm: () => setState(() => _agreedToTerms = true),
+                                  ),
+                                ),
+                                child: Text(
+                                  'User Agreement',
+                                  style: AppText.textPrimary.merge(AppText.fontSemibold),
+                                ),
+                              ),
+                            ),
+                            const TextSpan(text: ' and '),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () => showDialog(
+                                  context: context,
+                                  builder: (_) => AppModal(
+                                    title: "Terms & Services",
+                                    message: termsAndServicesContent(),
+                                    confirmLabel: "I Agree",
+                                    confirmBackground: AppColor.primary,
+                                    confirmForeground: AppColor.light,
+                                    onConfirm: () => setState(() => _agreedToTerms = true),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Terms of the System',
+                                  style: AppText.textPrimary.merge(AppText.fontSemibold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: AppButton(
+                    label: 'Next', 
+                    foregroundColor: AppColor.light,
+                    onPressed: _agreedToTerms ? _submitForm : null,
+                  ),
+                ),
                 const SizedBox(height: 8.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

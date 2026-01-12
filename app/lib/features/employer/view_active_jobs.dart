@@ -231,7 +231,10 @@ class ViewActiveJobsTable extends StatelessWidget {
         }
       } catch (e) {
         if (!context.mounted) return;
-        AppSnackbar.show(context, message: 'Error $e');
+        AppSnackbar.show(
+          context, message: 'Cannot delete job.This job has an existing application.',
+          backgroundColor: AppColor.danger
+        );
       }
     }
 

@@ -274,13 +274,14 @@ class OtherSkills extends HookWidget {
                     .merge(AppText.textLight),
               ),
               const SizedBox(height: 10),
-              AppButton(
-                label: 'Edit',
-                onPressed: () => setOpen(),
-                backgroundColor: AppColor.light,
-                foregroundColor: AppColor.dark,
-                visualDensityY: -4,
-              ),
+              if (claims["role"] != "employer")
+                AppButton(
+                  label: 'Edit',
+                  onPressed: () => setOpen(),
+                  backgroundColor: AppColor.light,
+                  foregroundColor: AppColor.dark,
+                  visualDensityY: -4,
+                ),
             ],
           ),
         ),

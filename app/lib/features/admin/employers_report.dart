@@ -309,7 +309,7 @@ class EmployersTable extends StatelessWidget {
                     AppButton(
                       label: 'View Documents',
                       backgroundColor: AppColor.primary,
-                      onPressed: () => navigateTo(context, ViewEmployerDocuments(claims: claims)),
+                      onPressed: () => navigateTo(context, ViewEmployerDocuments(claims: claims, employerId: item["id"])),
                       visualDensityY: -3,
                     ),
                   ),
